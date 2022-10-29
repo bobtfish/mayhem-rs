@@ -27,6 +27,11 @@ const BORDER_RIGHT: usize = 209;
 
 const ANIMATION_TICK: f32 = 0.5;
 
+#[derive(Default)]
+struct Game {
+    tah: Handle<TextureAtlas>
+}
+
 #[derive(Component)]
 struct Cursor {
     visible: bool,
@@ -210,7 +215,10 @@ fn spawn_anim(
         .insert(RepeatAnimation {max: init+num-1, init: init}).id();
 }
 
-fn setup(
+#[derive(Default)]
+struct AtlasHandle(Handle<TextureAtlas>);
+
+fn setup_initial(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
@@ -218,9 +226,20 @@ fn setup(
     let texture_handle = asset_server.load("sprite_sheet.png");
     let texture_atlas = TextureAtlas::from_grid(texture_handle, Vec2::new(SPRITE_SIZE as f32, SPRITE_SIZE as f32), 10, 41);
     let texture_atlas_handle = texture_atlases.add(texture_atlas);
+
     commands.spawn_bundle(Camera2dBundle::default());
+    commands.insert_resource(Game{tah: texture_atlas_handle});
+}
+/* 
+fn setup(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+    mut atlas: ResMut<AtlasHandle>,
+) {
+
     
-    get_border(&mut commands, texture_atlas_handle.clone());
+    get_border(&mut commands, atlas.clone());
     spawn_anim(&mut commands, texture_atlas_handle.clone(), Vec2::splat(2.0), 120, 8);
     spawn_anim(&mut commands, texture_atlas_handle.clone(), Vec2::splat(1.0), 180, 4);
     let creature = spawn_anim(&mut commands, texture_atlas_handle.clone(), Vec2::splat(3.0), 210, 4);
@@ -230,11 +249,18 @@ fn setup(
     creature_map.get("Pegasus").unwrap().to_entity(Vec2::splat(4.0), &mut commands, texture_atlas_handle.clone());
 
     Cursor::new(texture_atlas_handle.clone(), &mut commands);
-}
+}*/
 
 fn load_creatures() -> HashMap<String, Creature> {
     let f = File::open("assets/creatures.ron").unwrap();
     return ron::de::from_reader(f).unwrap();
+}
+
+// Enum that will be used as a global state for the game
+#[derive(Clone, Eq, PartialEq, Debug, Hash)]
+enum GameState {
+    Menu,
+    Game,
 }
 
 fn main() {
@@ -252,10 +278,75 @@ fn main() {
         .insert_resource(ImageSettings::default_nearest()) // prevents blurry sprites
         .insert_resource(ClearColor(Color::rgb(0.0, 0.0, 0.0)))
         .add_plugins(DefaultPlugins)
-        .add_startup_system(setup)
+        .add_state(GameState::Menu)
+        .add_startup_system(setup_initial)
+        /* .add_startup_system(setup)
         .add_system(animate_sprite)
         .add_system(animate_cursor)
-        .add_system(keyboard_input)
+        .add_system(keyboard_input)*/
+        .add_plugin(menu::MenuPlugin)
+        .add_plugin(game::GamePlugin)
         .add_system(bevy::window::close_on_esc)
         .run();
+}
+
+// Generic system that takes a component as a parameter, and will despawn all entities with that component
+fn despawn_screen<T: Component>(to_despawn: Query<Entity, With<T>>, mut commands: Commands) {
+    for entity in &to_despawn {
+        commands.entity(entity).despawn_recursive();
+    }
+}
+
+mod menu {
+    use bevy::prelude::*;
+
+    use super::{GameState, despawn_screen, Game, get_border};
+
+    pub struct MenuPlugin;
+
+    impl Plugin for MenuPlugin {
+        fn build(&self, app: &mut App) {
+            app
+                .add_system_set(SystemSet::on_enter(GameState::Menu).with_system(menu_setup))
+                .add_system_set(
+                    SystemSet::on_exit(GameState::Menu)
+                        .with_system(despawn_screen::<OnMenuScreen>),
+                );
+        }
+    }
+
+     // Tag component used to tag entities added on the menu screen
+     #[derive(Component)]
+     struct OnMenuScreen;
+
+    fn menu_setup(mut commands: Commands, g: Res<Game>) {
+        get_border(&mut commands, g.tah.clone());
+    }
+}
+
+mod game {
+    use bevy::prelude::*;
+
+    pub struct GamePlugin;
+
+    use super::{GameState, despawn_screen};
+
+    impl Plugin for GamePlugin {
+        fn build(&self, app: &mut App) {
+            app
+                .add_system_set(SystemSet::on_enter(GameState::Game).with_system(game_setup))
+                .add_system_set(
+                    SystemSet::on_exit(GameState::Game)
+                        .with_system(despawn_screen::<OnGameScreen>),
+                );
+        }
+    }
+
+     // Tag component used to tag entities added on the menu screen
+     #[derive(Component)]
+     struct OnGameScreen;
+
+    fn game_setup(mut commands: Commands) {
+        
+    }
 }
