@@ -1,4 +1,27 @@
-use bevy::{prelude::*, render::texture::ImageSettings};
+use bevy::{prelude::*, render::texture::ImageSettings, window::PresentMode};
+
+const SCALE: f32 = 4.0;
+
+const SPRITE_SIZE: usize = 16;
+
+const HEIGHT: usize = 12;
+const WIDTH: usize = 16;
+
+const SCREEN_WIDTH: f32 = SCALE*((SPRITE_SIZE*WIDTH) as f32);
+const SCREEN_HEIGHT: f32 = SCALE*((SPRITE_SIZE*HEIGHT) as f32);
+
+const HALF_SPRITE: f32 =  (SPRITE_SIZE/2) as f32 * SCALE;
+
+const BORDER_TOPLEFT: usize = 202;
+const BORDER_TOP: usize = 203;
+const BORDER_TOPRIGHT: usize = 204;
+const BORDER_LEFT: usize = 205;
+const BORDER_BOTTOMLEFT: usize = 206;
+const BORDER_BOTTOM: usize = 207;
+const BORDER_BOTTOMRIGHT: usize = 208;
+const BORDER_RIGHT: usize = 209;
+
+const ANIMATION_TICK: f32 = 0.5;
 
 #[derive(Component)]
 struct Position { x: u8, y: u8 }
@@ -26,35 +49,6 @@ struct RepeatAnimation {
     init: usize,
 }
 
-fn add_people(mut commands: Commands) {
-    commands.spawn().insert(Person).insert(Name("Elaina Proctor".to_string()));
-    commands.spawn().insert(Person).insert(Name("Renzo Hume".to_string()));
-    commands.spawn().insert(Person).insert(Name("Zayna Nieves".to_string()));
-}
-
-struct GreetTimer(Timer);
-
-fn greet_people(
-    time: Res<Time>, mut timer: ResMut<GreetTimer>, query: Query<&Name, With<Person>>) {
-    // update our timer with the time elapsed since the last update
-    // if that caused the timer to finish, we say hello to everyone
-    if timer.0.tick(time.delta()).just_finished() {
-        for name in query.iter() {
-            println!("hello {}!", name.0);
-        }
-    }
-}
-
-pub struct HelloPlugin;
-
-impl Plugin for HelloPlugin {
-    fn build(&self, app: &mut App) {
-        // add things to your app here
-        app.insert_resource(GreetTimer(Timer::from_seconds(2.0, true)))
-            .add_startup_system(add_people)
-            .add_system(greet_people);
-    }
-}
 
 #[derive(Component, Deref, DerefMut)]
 struct AnimationTimer(Timer);
@@ -79,22 +73,51 @@ fn animate_sprite(
     }
 }
 
+fn get_anim(
+    texture_atlas_handle: Handle<TextureAtlas>,
+    v: Vec2,
+    init: usize,
+) -> SpriteSheetBundle {
+    let t = Transform::from_scale(Vec3::splat(SCALE));
+    // = Vec2::new((v.x * SPRITE_SIZE*SCALE)-6.0 * SPRITE_SIZE*SCALE, (v.y * SPRITE_SIZE*SCALE)-4.0 * SPRITE_SIZE * SCALE);
+    let actual_v = v.mul_add(Vec2::splat(SPRITE_SIZE as f32 * SCALE), Vec2::new(-(SCREEN_WIDTH/2.0-HALF_SPRITE), -(SCREEN_HEIGHT/2.0-HALF_SPRITE)));
+    return SpriteSheetBundle {
+        texture_atlas: texture_atlas_handle,
+        transform: Transform::from_xyz(actual_v.x, actual_v.y, 0.0).with_scale(Vec3::splat(SCALE)),
+        sprite: TextureAtlasSprite::new(init),
+        ..default()
+    };
+}
+
+fn get_border(
+    commands: &mut Commands,
+    texture_atlas_handle: Handle<TextureAtlas>
+) {
+    commands.spawn_bundle(get_anim(texture_atlas_handle.clone(), Vec2::new(0.0, 0.0), BORDER_BOTTOMLEFT));
+    commands.spawn_bundle(get_anim(texture_atlas_handle.clone(), Vec2::new(0.0, (HEIGHT-1) as f32), BORDER_TOPLEFT));
+    commands.spawn_bundle(get_anim(texture_atlas_handle.clone(), Vec2::new((WIDTH-1) as f32, 0.0), BORDER_BOTTOMRIGHT));
+    commands.spawn_bundle(get_anim(texture_atlas_handle.clone(), Vec2::new((WIDTH-1) as f32, (HEIGHT-1) as f32), BORDER_TOPRIGHT));
+    for n in 1..HEIGHT-1 {
+        commands.spawn_bundle(get_anim(texture_atlas_handle.clone(), Vec2::new(0.0, n as f32), BORDER_LEFT));
+        commands.spawn_bundle(get_anim(texture_atlas_handle.clone(), Vec2::new((WIDTH-1) as f32, n as f32), BORDER_RIGHT));
+    }
+    for n in 1..WIDTH-1 {
+        commands.spawn_bundle(get_anim(texture_atlas_handle.clone(), Vec2::new(n as f32, 0.0), BORDER_BOTTOM));
+        commands.spawn_bundle(get_anim(texture_atlas_handle.clone(), Vec2::new(n as f32, (HEIGHT-1) as f32), BORDER_TOP));
+    }
+}
+
 fn spawn_anim(
-    mut commands: Commands,
+    commands: &mut Commands,
     texture_atlas_handle: Handle<TextureAtlas>,
     v: Vec2,
     init: usize,
     num: usize
 ) {
     commands
-        .spawn_bundle(SpriteSheetBundle {
-            texture_atlas: texture_atlas_handle,
-            transform: Transform::from_xyz(v.x, v.y, 0.0).with_scale(Vec3::splat(6.0)),
-            sprite: TextureAtlasSprite::new(init),
-            ..default()
-        })
-        .insert(AnimationTimer(Timer::from_seconds(0.1, true)))
-        .insert(RepeatAnimation {max: init+num, init: init});
+        .spawn_bundle(get_anim(texture_atlas_handle, v, init))
+        .insert(AnimationTimer(Timer::from_seconds(ANIMATION_TICK, true)))
+        .insert(RepeatAnimation {max: init+num-1, init: init});
 }
 
 
@@ -104,20 +127,29 @@ fn setup(
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
     let texture_handle = asset_server.load("sprite_sheet.png");
-    let texture_atlas = TextureAtlas::from_grid(texture_handle, Vec2::new(16.0, 16.0), 10, 41);
+    let texture_atlas = TextureAtlas::from_grid(texture_handle, Vec2::new(SPRITE_SIZE as f32, SPRITE_SIZE as f32), 10, 41);
     let texture_atlas_handle = texture_atlases.add(texture_atlas);
-
     commands.spawn_bundle(Camera2dBundle::default());
     
-    spawn_anim(commands, texture_atlas_handle, Vec2::splat(0.0), 120, 8);
+    get_border(&mut commands, texture_atlas_handle.clone());
+    spawn_anim(&mut commands, texture_atlas_handle.clone(), Vec2::splat(2.0), 120, 8);
+    spawn_anim(&mut commands, texture_atlas_handle.clone(), Vec2::splat(1.0), 180, 4);
 }
 
 
 fn main() {
+    println!("WINDOW SIZE IS {} x {}", SCALE*((SPRITE_SIZE*WIDTH) as f32), SCALE*((SPRITE_SIZE*HEIGHT) as f32));
     App::new()
+        .insert_resource(WindowDescriptor {
+            title: "I am a window!".to_string(),
+            width: SCREEN_WIDTH,
+            height: SCREEN_HEIGHT,
+            present_mode: PresentMode::AutoVsync,
+            ..default()
+        })
         .insert_resource(ImageSettings::default_nearest()) // prevents blurry sprites
+        .insert_resource(ClearColor(Color::rgb(0.0, 0.0, 0.0)))
         .add_plugins(DefaultPlugins)
-        .add_plugin(HelloPlugin)
         .add_startup_system(setup)
         .add_system(animate_sprite)
         .run();
