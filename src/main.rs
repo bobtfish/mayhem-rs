@@ -26,6 +26,47 @@ const BORDER_RIGHT: usize = 209;
 const ANIMATION_TICK: f32 = 0.5;
 
 #[derive(Component)]
+struct Cursor {
+    visible: bool
+}
+
+impl Cursor {
+    fn new(
+        texture_atlas_handle: Handle<TextureAtlas>,
+        commands: &mut Commands,
+    ) {
+       let c = Cursor{
+            visible: true,
+        };
+        commands.spawn_bundle(get_anim(texture_atlas_handle, Vec2::splat(5.0), 165))
+        .insert(AnimationTimer(Timer::from_seconds(ANIMATION_TICK/2.0, true)))
+        .insert(c);
+    }
+}
+
+fn animate_cursor(
+    time: Res<Time>,
+    mut query: Query<(
+        &mut AnimationTimer,
+        &mut TextureAtlasSprite,
+        &mut Cursor,
+    )>,
+) {
+    for (mut timer, mut sprite, mut cursor) in &mut query {
+        timer.tick(time.delta());
+        if timer.just_finished() {
+            if cursor.visible {
+                cursor.visible = false;
+                sprite.color.set_a(0.0);
+            } else {
+                cursor.visible = true;
+                sprite.color.set_a(1.0);
+            }
+        }
+    }
+}
+
+#[derive(Component)]
 struct Position { x: u8, y: u8 }
 #[derive(Component)]
 struct Player;
@@ -158,8 +199,7 @@ fn setup(
     let creature_map = load_creatures();
     creature_map.get("Pegasus").unwrap().to_entity(Vec2::splat(4.0), &mut commands, texture_atlas_handle.clone());
 
-
-    let _cursor = commands.spawn_bundle(get_anim(texture_atlas_handle.clone(), Vec2::splat(5.0), 165));
+    Cursor::new(texture_atlas_handle.clone(), &mut commands);
 }
 
 fn load_creatures() -> HashMap<String, Creature> {
@@ -184,5 +224,6 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_startup_system(setup)
         .add_system(animate_sprite)
+        .add_system(animate_cursor)
         .run();
 }
