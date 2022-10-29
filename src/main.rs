@@ -138,36 +138,6 @@ impl Creature {
     }
 }
 
-fn animate_sprite(
-    time: Res<Time>,
-    mut query: Query<(
-        &mut AnimationTimer,
-        &mut TextureAtlasSprite,
-        &mut RepeatAnimation,
-        Option<&Mortal>,
-    )>,
-) {
-    for (mut timer, mut sprite, repeater, mortal) in &mut query {
-        timer.tick(time.delta());
-        if timer.just_finished() {
-            let alive = match mortal {
-                // The division was valid
-                Some(x) => x.is_alive,
-                None    => true,
-            };
-            if alive {
-                let mut index = sprite.index + 1;
-                if index > repeater.max {
-                    index = repeater.init;
-                }
-                sprite.index = index;
-            } else {
-                sprite.index = repeater.max + 1;
-            }
-        }
-    }
-}
-
 fn get_anim(
     texture_atlas_handle: Handle<TextureAtlas>,
     v: Vec2,
@@ -308,6 +278,8 @@ mod menu {
         fn build(&self, app: &mut App) {
             app
                 .add_system_set(SystemSet::on_enter(GameState::Menu).with_system(menu_setup))
+                .add_system_set(SystemSet::on_update(GameState::Menu).with_system(keyboard_input_system))
+
                 .add_system_set(
                     SystemSet::on_exit(GameState::Menu)
                         .with_system(despawn_screen::<OnMenuScreen>),
@@ -322,6 +294,14 @@ mod menu {
     fn menu_setup(mut commands: Commands, g: Res<Game>) {
         get_border(&mut commands, g.tah.clone());
     }
+
+    fn keyboard_input_system(keyboard_input: Res<Input<KeyCode>>, mut state: ResMut<State<GameState>>) {
+    
+        if keyboard_input.just_pressed(KeyCode::A) {
+            info!("'A' just pressed");
+            state.set(GameState::Game).unwrap();
+        }
+    }
 }
 
 mod game {
@@ -329,12 +309,13 @@ mod game {
 
     pub struct GamePlugin;
 
-    use super::{GameState, despawn_screen};
+    use super::{GameState, despawn_screen, spawn_anim, Game, AnimationTimer, RepeatAnimation, Mortal};
 
     impl Plugin for GamePlugin {
         fn build(&self, app: &mut App) {
             app
                 .add_system_set(SystemSet::on_enter(GameState::Game).with_system(game_setup))
+                .add_system_set(SystemSet::on_update(GameState::Game).with_system(animate_sprite))
                 .add_system_set(
                     SystemSet::on_exit(GameState::Game)
                         .with_system(despawn_screen::<OnGameScreen>),
@@ -346,7 +327,38 @@ mod game {
      #[derive(Component)]
      struct OnGameScreen;
 
-    fn game_setup(mut commands: Commands) {
-        
+    fn game_setup(mut commands: Commands, g: Res<Game>) {
+        spawn_anim(&mut commands, g.tah.clone(), Vec2::splat(2.0), 120, 8);
+        spawn_anim(&mut commands, g.tah.clone(), Vec2::splat(1.0), 180, 4);
+    }
+
+    fn animate_sprite(
+        time: Res<Time>,
+        mut query: Query<(
+            &mut AnimationTimer,
+            &mut TextureAtlasSprite,
+            &mut RepeatAnimation,
+            Option<&Mortal>,
+        )>,
+    ) {
+        for (mut timer, mut sprite, repeater, mortal) in &mut query {
+            timer.tick(time.delta());
+            if timer.just_finished() {
+                let alive = match mortal {
+                    // The division was valid
+                    Some(x) => x.is_alive,
+                    None    => true,
+                };
+                if alive {
+                    let mut index = sprite.index + 1;
+                    if index > repeater.max {
+                        index = repeater.init;
+                    }
+                    sprite.index = index;
+                } else {
+                    sprite.index = repeater.max + 1;
+                }
+            }
+        }
     }
 }
