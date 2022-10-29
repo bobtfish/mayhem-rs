@@ -98,10 +98,12 @@ fn get_anim(
     init: usize,
 ) -> SpriteSheetBundle {
     let actual_v = v.mul_add(Vec2::splat(SPRITE_SIZE as f32 * SCALE), Vec2::new(-(SCREEN_WIDTH/2.0-HALF_SPRITE), -(SCREEN_HEIGHT/2.0-HALF_SPRITE)));
+    let mut sprite = TextureAtlasSprite::new(init);
+    sprite.color = Color::rgba(1.0, 1.0, 1.0, 1.0);
     return SpriteSheetBundle {
         texture_atlas: texture_atlas_handle,
         transform: Transform::from_xyz(actual_v.x, actual_v.y, 0.0).with_scale(Vec3::splat(SCALE)),
-        sprite: TextureAtlasSprite::new(init),
+        sprite: sprite,
         ..default()
     };
 }
@@ -154,7 +156,10 @@ fn setup(
     commands.entity(creature).insert(Mortal{is_alive: false});
 
     let creature_map = load_creatures();
-    creature_map.get("Pegasus").unwrap().to_entity(Vec2::splat(4.0), &mut commands, texture_atlas_handle);
+    creature_map.get("Pegasus").unwrap().to_entity(Vec2::splat(4.0), &mut commands, texture_atlas_handle.clone());
+
+
+    let _cursor = commands.spawn_bundle(get_anim(texture_atlas_handle.clone(), Vec2::splat(5.0), 165));
 }
 
 fn load_creatures() -> HashMap<String, Creature> {
