@@ -1,4 +1,6 @@
-use bevy::{prelude::*, render::texture::ImageSettings, window::PresentMode, ecs::system::EntityCommands};
+use bevy::{prelude::*, render::texture::ImageSettings, window::PresentMode};
+use serde::{Deserialize, Serialize};
+use std::{collections::HashMap, fs::File};
 
 const SCALE: f32 = 4.0;
 
@@ -43,6 +45,23 @@ struct RepeatAnimation {
 #[derive(Component, Deref, DerefMut)]
 struct AnimationTimer(Timer);
 
+#[derive(Debug, Deserialize, Serialize)]
+struct Creature {
+    name: String,
+    sprite_index: usize,
+}
+
+impl Creature {
+    fn to_entity(
+        &self,
+        v: Vec2,
+        commands: &mut Commands,
+        texture_atlas_handle: Handle<TextureAtlas>
+    ) -> Entity {
+        return spawn_anim(commands, texture_atlas_handle.clone(), v, self.sprite_index, 4)
+    }
+}
+
 fn animate_sprite(
     time: Res<Time>,
     mut query: Query<(
@@ -78,8 +97,6 @@ fn get_anim(
     v: Vec2,
     init: usize,
 ) -> SpriteSheetBundle {
-    let t = Transform::from_scale(Vec3::splat(SCALE));
-    // = Vec2::new((v.x * SPRITE_SIZE*SCALE)-6.0 * SPRITE_SIZE*SCALE, (v.y * SPRITE_SIZE*SCALE)-4.0 * SPRITE_SIZE * SCALE);
     let actual_v = v.mul_add(Vec2::splat(SPRITE_SIZE as f32 * SCALE), Vec2::new(-(SCREEN_WIDTH/2.0-HALF_SPRITE), -(SCREEN_HEIGHT/2.0-HALF_SPRITE)));
     return SpriteSheetBundle {
         texture_atlas: texture_atlas_handle,
@@ -120,7 +137,6 @@ fn spawn_anim(
         .insert(RepeatAnimation {max: init+num-1, init: init}).id();
 }
 
-
 fn setup(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
@@ -136,11 +152,20 @@ fn setup(
     spawn_anim(&mut commands, texture_atlas_handle.clone(), Vec2::splat(1.0), 180, 4);
     let creature = spawn_anim(&mut commands, texture_atlas_handle.clone(), Vec2::splat(3.0), 210, 4);
     commands.entity(creature).insert(Mortal{is_alive: false});
+
+    let creature_map = load_creatures();
+    creature_map.get("Pegasus").unwrap().to_entity(Vec2::splat(4.0), &mut commands, texture_atlas_handle);
 }
 
+fn load_creatures() -> HashMap<String, Creature> {
+    let f = File::open("assets/creatures.ron").unwrap();
+    return ron::de::from_reader(f).unwrap();
+}
 
 fn main() {
     println!("WINDOW SIZE IS {} x {}", SCALE*((SPRITE_SIZE*WIDTH) as f32), SCALE*((SPRITE_SIZE*HEIGHT) as f32));
+
+
     App::new()
         .insert_resource(WindowDescriptor {
             title: "I am a window!".to_string(),

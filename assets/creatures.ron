@@ -1,0 +1,42 @@
+{
+    "Bat": Creature(
+        name: "Bat",
+        sprite_index: 210,
+    ),
+    "Lion": Creature(
+        name: "Lion",
+        sprite_index: 215,
+    ),
+    "Bear": Creature(
+        name: "Bear",
+        sprite_index: 220,
+    ),
+    "Gryhon": Creature(
+        name: "Gryphon",
+        sprite_index: 225,
+    ),
+    "Centaur": Creature(
+        name: "Centaur",
+        sprite_index: 230,
+    ),
+    "Orge": Creature(
+        name: "Ogre",
+        sprite_index: 235,
+    ),
+    "Crocodile": Creature(
+        name: "Crocodile",
+        sprite_index: 240,
+    ),
+    "Orc": Creature(
+        name: "Orc",
+        sprite_index: 245,
+    ),
+    "Dire Wolf": Creature(
+        name: "Dire Wolf",
+        sprite_index: 250,
+    ),
+    "Pegasus": Creature(
+        name: "Pegasus",
+        sprite_index: 255,
+    ),
+}

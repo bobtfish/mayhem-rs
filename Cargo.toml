@@ -13,3 +13,5 @@ opt-level = 1
 
 [dependencies]
 bevy = { version = "0.8.1", features = ["dynamic"] }
+ron = "0.8"
+serde = { version = "1", features = ["derive"] }
