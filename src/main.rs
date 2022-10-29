@@ -256,5 +256,6 @@ fn main() {
         .add_system(animate_sprite)
         .add_system(animate_cursor)
         .add_system(keyboard_input)
+        .add_system(bevy::window::close_on_esc)
         .run();
 }
