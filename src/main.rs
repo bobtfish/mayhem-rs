@@ -1,4 +1,4 @@
-use bevy::{prelude::*, render::texture::ImageSettings, window::PresentMode};
+use bevy::{prelude::*, render::texture::ImageSettings, window::PresentMode, math::vec3};
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, fs::File};
 
@@ -27,7 +27,8 @@ const ANIMATION_TICK: f32 = 0.5;
 
 #[derive(Component)]
 struct Cursor {
-    visible: bool
+    visible: bool,
+    flash: bool,
 }
 
 impl Cursor {
@@ -37,6 +38,7 @@ impl Cursor {
     ) {
        let c = Cursor{
             visible: true,
+            flash: true,
         };
         commands.spawn_bundle(get_anim(texture_atlas_handle, Vec2::splat(5.0), 165))
         .insert(AnimationTimer(Timer::from_seconds(ANIMATION_TICK/2.0, true)))
@@ -55,13 +57,36 @@ fn animate_cursor(
     for (mut timer, mut sprite, mut cursor) in &mut query {
         timer.tick(time.delta());
         if timer.just_finished() {
-            if cursor.visible {
-                cursor.visible = false;
+            if cursor.flash || !cursor.visible {
+                cursor.flash = false;
                 sprite.color.set_a(0.0);
             } else {
-                cursor.visible = true;
+                cursor.flash = true;
                 sprite.color.set_a(1.0);
             }
+        }
+    }
+}
+
+fn keyboard_input(
+    keys: Res<Input<KeyCode>>,
+    mut query: Query<(
+        &mut Transform,
+        &mut Cursor,
+    )>,
+) {
+    for (mut transform, _cursor) in &mut query {
+        if keys.just_pressed(KeyCode::Left) {
+            transform.translation = transform.translation - vec3(SPRITE_SIZE as f32 * SCALE, 0.0, 0.0);
+        }
+        if keys.just_pressed(KeyCode::Right) {
+            transform.translation = transform.translation + vec3(SPRITE_SIZE as f32 * SCALE, 0.0, 0.0);
+        }
+        if keys.just_pressed(KeyCode::Up) {
+            transform.translation = transform.translation + vec3(0.0, SPRITE_SIZE as f32 * SCALE, 0.0);
+        }
+        if keys.just_pressed(KeyCode::Down) {
+            transform.translation = transform.translation - vec3(0.0, SPRITE_SIZE as f32 * SCALE, 0.0);
         }
     }
 }
@@ -225,5 +250,6 @@ fn main() {
         .add_startup_system(setup)
         .add_system(animate_sprite)
         .add_system(animate_cursor)
+        .add_system(keyboard_input)
         .run();
 }
