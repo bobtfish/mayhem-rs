@@ -39,4 +39,104 @@
         name: "Pegasus",
         sprite_index: 255,
     ),
+    "Eagle": Creature(
+        name: "Eagle",
+        sprite_index: 260,
+    ),
+    "Red Dragon": Creature(
+        name: "Red Dragon",
+        sprite_index: 265,
+    ),
+    "Elf": Creature(
+        name: "Elf",
+        sprite_index: 270,
+    ),
+    "Skeleton": Creature(
+        name: "Skeleton",
+        sprite_index: 275,
+    ),
+    "Fawn": Creature(
+        name: "Fawn",
+        sprite_index: 280,
+    ),
+    "Spectre": Creature(
+        name: "Spectre",
+        sprite_index: 285,
+    ),
+    "Ghost": Creature(
+        name: "Ghost",
+        sprite_index: 290,
+    ),
+    "Goblin": Creature(
+        name: "Goblin",
+        sprite_index: 295,
+    ),
+    "Giant": Creature(
+        name: "Giant",
+        sprite_index: 300,
+    ),
+    "Unicorn": Creature(
+        name: "Unicorn",
+        sprite_index: 305,
+    ),
+    "Giant Rat": Creature(
+        name: "Giant Rat",
+        sprite_index: 310,
+    ),
+    "Vampire": Creature(
+        name: "Skeleton",
+        sprite_index: 315,
+    ),
+    "Troll": Creature(
+        name: "Troll",
+        sprite_index: 320,
+    ),
+    "Litch": Creature(
+        name: "Litch",
+        sprite_index: 325,
+    ),
+    "Green Dragon": Creature(
+        name: "Green Dragon",
+        sprite_index: 330,
+    ),
+    "Zombie": Creature(
+        name: "Zombie",
+        sprite_index: 335,
+    ),
+    "Gorilla": Creature(
+        name: "Gorilla",
+        sprite_index: 340,
+    ),
+    "Gooey Blob": Creature(
+        name: "Gooey Blob",
+        sprite_index: 345,
+    ),
+    "Golden Dragon": Creature(
+        name: "Golden Dragon",
+        sprite_index: 350,
+    ),
+    "Magic Fire": Creature(
+        name: "Magic Fire",
+        sprite_index: 355,
+    ),
+    "Gryphon": Creature(
+        name: "Gryphon",
+        sprite_index: 360,
+    ),
+    "Birb": Creature(
+        name: "Birb",
+        sprite_index: 370,
+    ),
+    "Horse": Creature(
+        name: "Horse",
+        sprite_index: 380,
+    ),
+    "Hydra": Creature(
+        name: "Hydra",
+        sprite_index: 390,
+    ),
+    "Snake": Creature(
+        name: "Snake",
+        sprite_index: 400,
+    ),
 }
