@@ -6,13 +6,15 @@ const SCALE: f32 = 4.0;
 
 const SPRITE_SIZE: usize = 16;
 
+const SCALED_SPRITE_SIZE: f32 =  SPRITE_SIZE as f32 * SCALE;
+
 const HEIGHT: usize = 12;
 const WIDTH: usize = 16;
 
 const SCREEN_WIDTH: f32 = SCALE*((SPRITE_SIZE*WIDTH) as f32);
 const SCREEN_HEIGHT: f32 = SCALE*((SPRITE_SIZE*HEIGHT) as f32);
 
-const HALF_SPRITE: f32 =  (SPRITE_SIZE/2) as f32 * SCALE;
+const HALF_SPRITE: f32 =  SCALED_SPRITE_SIZE/2.0;
 
 const BORDER_TOPLEFT: usize = 202;
 const BORDER_TOP: usize = 203;
@@ -76,18 +78,21 @@ fn keyboard_input(
     )>,
 ) {
     for (mut transform, _cursor) in &mut query {
+        let mut new_cursor_position = transform.translation;
         if keys.just_pressed(KeyCode::Left) {
-            transform.translation = transform.translation - vec3(SPRITE_SIZE as f32 * SCALE, 0.0, 0.0);
+            new_cursor_position = transform.translation - vec3(SCALED_SPRITE_SIZE, 0.0, 0.0);
         }
         if keys.just_pressed(KeyCode::Right) {
-            transform.translation = transform.translation + vec3(SPRITE_SIZE as f32 * SCALE, 0.0, 0.0);
+            new_cursor_position = transform.translation + vec3(SCALED_SPRITE_SIZE, 0.0, 0.0);
         }
         if keys.just_pressed(KeyCode::Up) {
-            transform.translation = transform.translation + vec3(0.0, SPRITE_SIZE as f32 * SCALE, 0.0);
+            new_cursor_position = transform.translation + vec3(0.0, SCALED_SPRITE_SIZE, 0.0);
         }
         if keys.just_pressed(KeyCode::Down) {
-            transform.translation = transform.translation - vec3(0.0, SPRITE_SIZE as f32 * SCALE, 0.0);
+            new_cursor_position = transform.translation - vec3(0.0, SCALED_SPRITE_SIZE, 0.0);
         }
+        transform.translation.x = new_cursor_position.x.clamp(-SCREEN_WIDTH/2.0+HALF_SPRITE+SCALED_SPRITE_SIZE, SCREEN_WIDTH/2.0-HALF_SPRITE-SCALED_SPRITE_SIZE);
+        transform.translation.y = new_cursor_position.y.clamp(-SCREEN_HEIGHT/2.0+HALF_SPRITE+SCALED_SPRITE_SIZE, SCREEN_HEIGHT/2.0-HALF_SPRITE-SCALED_SPRITE_SIZE);
     }
 }
 
