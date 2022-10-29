@@ -1,4 +1,4 @@
-use bevy::{prelude::*, render::texture::ImageSettings, window::PresentMode};
+use bevy::{prelude::*, render::texture::ImageSettings, window::PresentMode, ecs::system::EntityCommands};
 
 const SCALE: f32 = 4.0;
 
@@ -29,18 +29,8 @@ struct Position { x: u8, y: u8 }
 struct Player;
 
 #[derive(Component)]
-struct Alive;
-
-#[derive(Component)]
-struct Person;
-
-#[derive(Component)]
-struct Name(String);
-
-#[derive(Bundle)]
-struct IconBundle {
-    #[bundle]
-    sprite_bundle: SpriteBundle,
+struct Mortal {
+    is_alive: bool
 }
 
 #[derive(Component)]
@@ -59,16 +49,26 @@ fn animate_sprite(
         &mut AnimationTimer,
         &mut TextureAtlasSprite,
         &mut RepeatAnimation,
+        Option<&Mortal>,
     )>,
 ) {
-    for (mut timer, mut sprite, repeater) in &mut query {
+    for (mut timer, mut sprite, repeater, mortal) in &mut query {
         timer.tick(time.delta());
         if timer.just_finished() {
-            let mut index = sprite.index + 1;
-            if index > repeater.max {
-                index = repeater.init;
+            let alive = match mortal {
+                // The division was valid
+                Some(x) => x.is_alive,
+                None    => true,
+            };
+            if alive {
+                let mut index = sprite.index + 1;
+                if index > repeater.max {
+                    index = repeater.init;
+                }
+                sprite.index = index;
+            } else {
+                sprite.index = repeater.max + 1;
             }
-            sprite.index = index;
         }
     }
 }
@@ -113,11 +113,11 @@ fn spawn_anim(
     v: Vec2,
     init: usize,
     num: usize
-) {
-    commands
+) -> Entity {
+    return commands
         .spawn_bundle(get_anim(texture_atlas_handle, v, init))
         .insert(AnimationTimer(Timer::from_seconds(ANIMATION_TICK, true)))
-        .insert(RepeatAnimation {max: init+num-1, init: init});
+        .insert(RepeatAnimation {max: init+num-1, init: init}).id();
 }
 
 
@@ -134,6 +134,8 @@ fn setup(
     get_border(&mut commands, texture_atlas_handle.clone());
     spawn_anim(&mut commands, texture_atlas_handle.clone(), Vec2::splat(2.0), 120, 8);
     spawn_anim(&mut commands, texture_atlas_handle.clone(), Vec2::splat(1.0), 180, 4);
+    let creature = spawn_anim(&mut commands, texture_atlas_handle.clone(), Vec2::splat(3.0), 210, 4);
+    commands.entity(creature).insert(Mortal{is_alive: false});
 }
 
 
