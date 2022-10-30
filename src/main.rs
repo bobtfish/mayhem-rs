@@ -1,31 +1,9 @@
 use bevy::{prelude::*, render::texture::ImageSettings, window::PresentMode};
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, fs::File};
-
-const SCALE: f32 = 4.0;
-
-const SPRITE_SIZE: usize = 16;
-
-const SCALED_SPRITE_SIZE: f32 =  SPRITE_SIZE as f32 * SCALE;
-
-const HEIGHT: usize = 12;
-const WIDTH: usize = 16;
-
-const SCREEN_WIDTH: f32 = SCALE*((SPRITE_SIZE*WIDTH) as f32);
-const SCREEN_HEIGHT: f32 = SCALE*((SPRITE_SIZE*HEIGHT) as f32);
-
-const HALF_SPRITE: f32 =  SCALED_SPRITE_SIZE/2.0;
-
-const BORDER_TOPLEFT: usize = 202;
-const BORDER_TOP: usize = 203;
-const BORDER_TOPRIGHT: usize = 204;
-const BORDER_LEFT: usize = 205;
-const BORDER_BOTTOMLEFT: usize = 206;
-const BORDER_BOTTOM: usize = 207;
-const BORDER_BOTTOMRIGHT: usize = 208;
-const BORDER_RIGHT: usize = 209;
-
-const ANIMATION_TICK: f32 = 0.5;
+pub mod constants;
+pub mod cursor;
+pub use self::constants::*;
 
 #[derive(Default)]
 struct Game {
@@ -33,30 +11,7 @@ struct Game {
 }
 
 #[derive(Component)]
-struct Cursor {
-    visible: bool,
-    flash: bool,
-}
-
-impl Cursor {
-    fn new(
-        texture_atlas_handle: Handle<TextureAtlas>,
-        commands: &mut Commands,
-    ) {
-       let c = Cursor{
-            visible: true,
-            flash: true,
-        };
-        commands.spawn_bundle(get_anim(texture_atlas_handle, Vec2::splat(5.0), 165))
-        .insert(AnimationTimer(Timer::from_seconds(ANIMATION_TICK/2.0, true)))
-        .insert(c);
-    }
-}
-
-
-
-#[derive(Component)]
-struct Position { x: u8, y: u8 }
+struct Position {x: u8, y: u8  }
 #[derive(Component)]
 struct Player;
 
@@ -73,7 +28,7 @@ struct RepeatAnimation {
 
 
 #[derive(Component, Deref, DerefMut)]
-struct AnimationTimer(Timer);
+pub struct AnimationTimer(Timer);
 
 #[derive(Debug, Deserialize, Serialize)]
 struct Creature {
@@ -92,7 +47,7 @@ impl Creature {
     }
 }
 
-fn get_anim(
+pub fn get_anim(
     texture_atlas_handle: Handle<TextureAtlas>,
     v: Vec2,
     init: usize,
