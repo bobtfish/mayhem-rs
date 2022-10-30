@@ -8,7 +8,8 @@ use rand::Rng;
 
 #[derive(Default)]
 struct Game {
-    tah: Handle<TextureAtlas>
+    tah: Handle<TextureAtlas>,
+    cursor: cursor::Cursor,
 }
 
 #[derive(Component)]
@@ -58,7 +59,7 @@ pub fn get_anim(
     sprite.color = Color::rgba(rng.gen::<f32>(), rng.gen::<f32>(), rng.gen::<f32>(), 1.0);
     return SpriteSheetBundle {
         texture_atlas: texture_atlas_handle,
-        transform: Transform::from_xyz(v.x, v.y, 0.0).with_scale(vec3(1.0/SPRITE_SIZE as f32, 1.0/SPRITE_SIZE as f32, 1.0)),
+        transform: Transform::from_translation(v.extend(0.0)).with_scale(vec3(1.0/SPRITE_SIZE as f32, 1.0/SPRITE_SIZE as f32, 1.0)),
         sprite: sprite,
         ..default()
     };
@@ -102,6 +103,7 @@ fn setup_initial(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+    mut game: ResMut<Game>,
 ) {
     let texture_handle = asset_server.load("sprite_sheet.png");
     let texture_atlas = TextureAtlas::from_grid(texture_handle, Vec2::new(SPRITE_SIZE as f32, SPRITE_SIZE as f32), 10, 41);
@@ -112,7 +114,7 @@ fn setup_initial(
             .with_translation(vec3((WIDTH/2) as f32-0.5, (HEIGHT/2) as f32-0.5, 0.0)),
         ..default()
     });
-    commands.insert_resource(Game{tah: texture_atlas_handle});
+    game.tah = texture_atlas_handle;
 }
 /* 
 fn setup(
@@ -152,6 +154,7 @@ fn main() {
 
 
     App::new()
+        .init_resource::<Game>()
         .insert_resource(WindowDescriptor {
             title: "I am a window!".to_string(),
             width: SCREEN_WIDTH,
@@ -166,6 +169,7 @@ fn main() {
         .add_startup_system(setup_initial)
         .add_plugin(menu::MenuPlugin)
         .add_plugin(game::GamePlugin)
+        .add_plugin(cursor::CursorPlugin)
         .add_system(bevy::window::close_on_esc)
         .run();
 }

@@ -1,5 +1,5 @@
 use bevy::{prelude::*, math::vec3};
-use super::cursor::{Cursor, animate_cursor};
+use super::cursor::{Cursor};
 
 pub struct GamePlugin;
 
@@ -12,8 +12,6 @@ impl Plugin for GamePlugin {
             .add_system_set(
                 SystemSet::on_update(GameState::Game)
                     .with_system(animate_sprite)
-                    .with_system(animate_cursor)
-                    .with_system(keyboard_input)
                 )
             .add_system_set(
                 SystemSet::on_exit(GameState::Game)
@@ -29,7 +27,6 @@ impl Plugin for GamePlugin {
 fn game_setup(mut commands: Commands, g: Res<Game>) {
     spawn_anim(&mut commands, g.tah.clone(), Vec2::splat(2.0), 120, 8);
     spawn_anim(&mut commands, g.tah.clone(), Vec2::splat(1.0), 180, 4);
-    Cursor::new(g.tah.clone(), &mut commands);
 }
 
 fn animate_sprite(
@@ -62,28 +59,3 @@ fn animate_sprite(
     }
 }
 
-fn keyboard_input(
-    keys: Res<Input<KeyCode>>,
-    mut query: Query<(
-        &mut Transform,
-        &mut Cursor,
-    )>,
-) {
-    for (mut transform, _cursor) in &mut query {
-        let mut new_cursor_position = transform.translation;
-        if keys.just_pressed(KeyCode::Left) {
-            new_cursor_position = transform.translation - vec3(SPRITE_SIZE as f32, 0.0, 0.0);
-        }
-        if keys.just_pressed(KeyCode::Right) {
-            new_cursor_position = transform.translation + vec3(SPRITE_SIZE as f32, 0.0, 0.0);
-        }
-        if keys.just_pressed(KeyCode::Up) {
-            new_cursor_position = transform.translation + vec3(0.0, SPRITE_SIZE as f32, 0.0);
-        }
-        if keys.just_pressed(KeyCode::Down) {
-            new_cursor_position = transform.translation - vec3(0.0, SPRITE_SIZE as f32, 0.0);
-        }
-        transform.translation.x = new_cursor_position.x.clamp(-SCREEN_WIDTH/2.0+HALF_SPRITE+SPRITE_SIZE as f32, SCREEN_WIDTH/2.0-HALF_SPRITE-SPRITE_SIZE as f32);
-        transform.translation.y = new_cursor_position.y.clamp(-SCREEN_HEIGHT/2.0+HALF_SPRITE+SPRITE_SIZE as f32, SCREEN_HEIGHT/2.0-HALF_SPRITE-SPRITE_SIZE as f32);
-    }
-}
