@@ -3,7 +3,7 @@ use super::cursor::{Cursor, animate_cursor};
 
 pub struct GamePlugin;
 
-use super::{GameState, despawn_screen, spawn_anim, Game, AnimationTimer, RepeatAnimation, Mortal, SCALED_SPRITE_SIZE, SCREEN_HEIGHT, SCREEN_WIDTH, HALF_SPRITE};
+use super::{GameState, despawn_screen, spawn_anim, Game, AnimationTimer, RepeatAnimation, Mortal, SCREEN_HEIGHT, SCREEN_WIDTH, HALF_SPRITE, SPRITE_SIZE};
 
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
@@ -72,18 +72,18 @@ fn keyboard_input(
     for (mut transform, _cursor) in &mut query {
         let mut new_cursor_position = transform.translation;
         if keys.just_pressed(KeyCode::Left) {
-            new_cursor_position = transform.translation - vec3(SCALED_SPRITE_SIZE, 0.0, 0.0);
+            new_cursor_position = transform.translation - vec3(SPRITE_SIZE as f32, 0.0, 0.0);
         }
         if keys.just_pressed(KeyCode::Right) {
-            new_cursor_position = transform.translation + vec3(SCALED_SPRITE_SIZE, 0.0, 0.0);
+            new_cursor_position = transform.translation + vec3(SPRITE_SIZE as f32, 0.0, 0.0);
         }
         if keys.just_pressed(KeyCode::Up) {
-            new_cursor_position = transform.translation + vec3(0.0, SCALED_SPRITE_SIZE, 0.0);
+            new_cursor_position = transform.translation + vec3(0.0, SPRITE_SIZE as f32, 0.0);
         }
         if keys.just_pressed(KeyCode::Down) {
-            new_cursor_position = transform.translation - vec3(0.0, SCALED_SPRITE_SIZE, 0.0);
+            new_cursor_position = transform.translation - vec3(0.0, SPRITE_SIZE as f32, 0.0);
         }
-        transform.translation.x = new_cursor_position.x.clamp(-SCREEN_WIDTH/2.0+HALF_SPRITE+SCALED_SPRITE_SIZE, SCREEN_WIDTH/2.0-HALF_SPRITE-SCALED_SPRITE_SIZE);
-        transform.translation.y = new_cursor_position.y.clamp(-SCREEN_HEIGHT/2.0+HALF_SPRITE+SCALED_SPRITE_SIZE, SCREEN_HEIGHT/2.0-HALF_SPRITE-SCALED_SPRITE_SIZE);
+        transform.translation.x = new_cursor_position.x.clamp(-SCREEN_WIDTH/2.0+HALF_SPRITE+SPRITE_SIZE as f32, SCREEN_WIDTH/2.0-HALF_SPRITE-SPRITE_SIZE as f32);
+        transform.translation.y = new_cursor_position.y.clamp(-SCREEN_HEIGHT/2.0+HALF_SPRITE+SPRITE_SIZE as f32, SCREEN_HEIGHT/2.0-HALF_SPRITE-SPRITE_SIZE as f32);
     }
 }

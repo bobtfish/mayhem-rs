@@ -52,7 +52,7 @@ pub fn get_anim(
     v: Vec2,
     init: usize,
 ) -> SpriteSheetBundle {
-    let actual_v = v.mul_add(Vec2::splat(SPRITE_SIZE as f32 * SCALE), Vec2::new(-(SCREEN_WIDTH/8.0-HALF_SPRITE), -(SCREEN_HEIGHT/8.0-HALF_SPRITE)));
+    let actual_v = v.mul_add(Vec2::splat(SPRITE_SIZE as f32 * SCALE), Vec2::new(0.0, 0.0));
     let mut sprite = TextureAtlasSprite::new(init);
     sprite.color = Color::rgba(1.0, 1.0, 1.0, 1.0);
     return SpriteSheetBundle {
@@ -107,7 +107,8 @@ fn setup_initial(
     let texture_atlas_handle = texture_atlases.add(texture_atlas);
 
     commands.spawn_bundle(Camera2dBundle {
-        transform: Transform::from_scale(vec3(0.25, 0.25, 1.0)),
+        transform: Transform::from_scale(vec3(0.25, 0.25, 1.0))
+            .with_translation(vec3(SCREEN_WIDTH/8.0-HALF_SPRITE, SCREEN_HEIGHT/8.0-HALF_SPRITE, 0.0)),
         ..default()
     });
     commands.insert_resource(Game{tah: texture_atlas_handle});
