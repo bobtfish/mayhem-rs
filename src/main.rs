@@ -1,4 +1,4 @@
-use bevy::{prelude::*, render::texture::ImageSettings, window::PresentMode};
+use bevy::{prelude::*, render::texture::ImageSettings, window::PresentMode, math::vec3};
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, fs::File};
 pub mod constants;
@@ -52,7 +52,7 @@ pub fn get_anim(
     v: Vec2,
     init: usize,
 ) -> SpriteSheetBundle {
-    let actual_v = v.mul_add(Vec2::splat(SPRITE_SIZE as f32 * SCALE), Vec2::new(-(SCREEN_WIDTH/2.0-HALF_SPRITE), -(SCREEN_HEIGHT/2.0-HALF_SPRITE)));
+    let actual_v = v.mul_add(Vec2::splat(SPRITE_SIZE as f32 * SCALE), Vec2::new(-(SCREEN_WIDTH/8.0-HALF_SPRITE), -(SCREEN_HEIGHT/8.0-HALF_SPRITE)));
     let mut sprite = TextureAtlasSprite::new(init);
     sprite.color = Color::rgba(1.0, 1.0, 1.0, 1.0);
     return SpriteSheetBundle {
@@ -106,7 +106,10 @@ fn setup_initial(
     let texture_atlas = TextureAtlas::from_grid(texture_handle, Vec2::new(SPRITE_SIZE as f32, SPRITE_SIZE as f32), 10, 41);
     let texture_atlas_handle = texture_atlases.add(texture_atlas);
 
-    commands.spawn_bundle(Camera2dBundle::default());
+    commands.spawn_bundle(Camera2dBundle {
+        transform: Transform::from_scale(vec3(0.25, 0.25, 1.0)),
+        ..default()
+    });
     commands.insert_resource(Game{tah: texture_atlas_handle});
 }
 /* 

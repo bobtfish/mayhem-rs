@@ -8,6 +8,7 @@ pub struct Cursor {
     flash: bool,
     x: u8,
     y: u8,
+    //entity: Option<Entity>,
 }
 
 impl Cursor {
