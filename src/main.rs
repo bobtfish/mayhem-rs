@@ -4,6 +4,7 @@ use std::{collections::HashMap, fs::File};
 pub mod constants;
 pub mod cursor;
 pub use self::constants::*;
+use rand::Rng;
 
 #[derive(Default)]
 struct Game {
@@ -52,12 +53,12 @@ pub fn get_anim(
     v: Vec2,
     init: usize,
 ) -> SpriteSheetBundle {
-    let actual_v = v.mul_add(Vec2::splat(SPRITE_SIZE as f32), Vec2::new(0.0, 0.0));
+    let mut rng = rand::thread_rng();
     let mut sprite = TextureAtlasSprite::new(init);
-    sprite.color = Color::rgba(1.0, 1.0, 1.0, 1.0);
+    sprite.color = Color::rgba(rng.gen::<f32>(), rng.gen::<f32>(), rng.gen::<f32>(), 1.0);
     return SpriteSheetBundle {
         texture_atlas: texture_atlas_handle,
-        transform: Transform::from_xyz(actual_v.x, actual_v.y, 0.0),
+        transform: Transform::from_xyz(v.x, v.y, 0.0).with_scale(vec3(1.0/SPRITE_SIZE as f32, 1.0/SPRITE_SIZE as f32, 1.0)),
         sprite: sprite,
         ..default()
     };
@@ -107,8 +108,8 @@ fn setup_initial(
     let texture_atlas_handle = texture_atlases.add(texture_atlas);
 
     commands.spawn_bundle(Camera2dBundle {
-        transform: Transform::from_scale(vec3(1.0/SCALE, 1.0/SCALE, 1.0))
-            .with_translation(vec3(((SPRITE_SIZE*WIDTH/2) as f32)-HALF_SPRITE, ((SPRITE_SIZE*HEIGHT/2) as f32)-HALF_SPRITE, 0.0)),
+        transform: Transform::from_scale(vec3(1.0/(SCALE*SPRITE_SIZE as f32), 1.0/(SCALE*SPRITE_SIZE as f32), 1.0))
+            .with_translation(vec3((WIDTH/2) as f32-0.5, (HEIGHT/2) as f32-0.5, 0.0)),
         ..default()
     });
     commands.insert_resource(Game{tah: texture_atlas_handle});
