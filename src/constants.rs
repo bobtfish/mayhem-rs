@@ -1,4 +1,4 @@
-pub const SCALE: f32 = 1.0;
+pub const SCALE: f32 = 4.0;
 
 pub const SPRITE_SIZE: usize = 16;
 
@@ -6,8 +6,8 @@ pub const SPRITE_SIZE: usize = 16;
 pub const HEIGHT: usize = 12;
 pub const WIDTH: usize = 16;
 
-pub const SCREEN_WIDTH: f32 = 4.0*SCALE*((SPRITE_SIZE*WIDTH) as f32);
-pub const SCREEN_HEIGHT: f32 = 4.0*SCALE*((SPRITE_SIZE*HEIGHT) as f32);
+pub const SCREEN_WIDTH: f32 = SCALE*((SPRITE_SIZE*WIDTH) as f32);
+pub const SCREEN_HEIGHT: f32 = SCALE*((SPRITE_SIZE*HEIGHT) as f32);
 
 pub const HALF_SPRITE: f32 =  SPRITE_SIZE as f32 / 2.0;
 

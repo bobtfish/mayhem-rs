@@ -52,12 +52,12 @@ pub fn get_anim(
     v: Vec2,
     init: usize,
 ) -> SpriteSheetBundle {
-    let actual_v = v.mul_add(Vec2::splat(SPRITE_SIZE as f32 * SCALE), Vec2::new(0.0, 0.0));
+    let actual_v = v.mul_add(Vec2::splat(SPRITE_SIZE as f32), Vec2::new(0.0, 0.0));
     let mut sprite = TextureAtlasSprite::new(init);
     sprite.color = Color::rgba(1.0, 1.0, 1.0, 1.0);
     return SpriteSheetBundle {
         texture_atlas: texture_atlas_handle,
-        transform: Transform::from_xyz(actual_v.x, actual_v.y, 0.0).with_scale(Vec3::splat(SCALE)),
+        transform: Transform::from_xyz(actual_v.x, actual_v.y, 0.0),
         sprite: sprite,
         ..default()
     };
@@ -107,8 +107,8 @@ fn setup_initial(
     let texture_atlas_handle = texture_atlases.add(texture_atlas);
 
     commands.spawn_bundle(Camera2dBundle {
-        transform: Transform::from_scale(vec3(0.25, 0.25, 1.0))
-            .with_translation(vec3(SCREEN_WIDTH/8.0-HALF_SPRITE, SCREEN_HEIGHT/8.0-HALF_SPRITE, 0.0)),
+        transform: Transform::from_scale(vec3(1.0/SCALE, 1.0/SCALE, 1.0))
+            .with_translation(vec3(((SPRITE_SIZE*WIDTH/2) as f32)-HALF_SPRITE, ((SPRITE_SIZE*HEIGHT/2) as f32)-HALF_SPRITE, 0.0)),
         ..default()
     });
     commands.insert_resource(Game{tah: texture_atlas_handle});
@@ -147,7 +147,7 @@ enum GameState {
 }
 
 fn main() {
-    println!("WINDOW SIZE IS {} x {}", SCALE*((SPRITE_SIZE*WIDTH) as f32), SCALE*((SPRITE_SIZE*HEIGHT) as f32));
+    println!("WINDOW SIZE IS {} x {}", SCREEN_WIDTH, SCREEN_HEIGHT);
 
 
     App::new()
