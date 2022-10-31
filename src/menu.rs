@@ -41,7 +41,8 @@ fn print_text(str: &str, mut commands: Commands, fah: Handle<TextureAtlas>, v: V
         println!("{} {}", i, ch);
         let mut newV = v.clone();
         newV.x = newV.x + (i as f32/2.0);
-        commands.spawn_bundle(get_sprite_sheet_bundle(fah.clone(), newV, char_to_pos(ch)));
+        commands.spawn_bundle(get_sprite_sheet_bundle(fah.clone(), newV, char_to_pos(ch)))
+        .insert(OnMenuScreen);
     }
 }
 
