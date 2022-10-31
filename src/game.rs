@@ -24,7 +24,10 @@ impl Plugin for GamePlugin {
     #[derive(Component)]
     struct OnGameScreen;
 
-fn game_setup(mut commands: Commands, g: Res<Game>) {
+fn game_setup(
+    mut commands: Commands,
+    g: Res<Game>,
+) {
     spawn_anim(&mut commands, g.tah.clone(), Vec2::splat(2.0), 120, 8);
     spawn_anim(&mut commands, g.tah.clone(), Vec2::splat(1.0), 180, 4);
 }
