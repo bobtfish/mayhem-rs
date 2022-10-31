@@ -7,7 +7,9 @@ use rand::Rng;
 #[derive(Default)]
 struct Game {
     tah: Handle<TextureAtlas>,
+    fah: Handle<TextureAtlas>,
     cursor: cursor::Cursor,
+    players: i8,
 }
 
 pub fn get_sprite_sheet_bundle(
@@ -60,37 +62,17 @@ fn setup_initial(
     mut game: ResMut<Game>,
 ) {
     let texture_handle = asset_server.load("sprite_sheet.png");
-    let texture_atlas = TextureAtlas::from_grid(texture_handle, Vec2::new(SPRITE_SIZE as f32, SPRITE_SIZE as f32), 10, 41);
-    let texture_atlas_handle = texture_atlases.add(texture_atlas);
+    let texture_atlas = TextureAtlas::from_grid(texture_handle.clone(), Vec2::new(SPRITE_SIZE as f32, SPRITE_SIZE as f32), 10, 41);
+    game.tah = texture_atlases.add(texture_atlas);
+    let font_atlas = TextureAtlas::from_grid(texture_handle, Vec2::new((SPRITE_SIZE/2) as f32, SPRITE_SIZE as f32), 20, 41);
+    game.fah = texture_atlases.add(font_atlas);
 
     commands.spawn_bundle(Camera2dBundle {
         transform: Transform::from_scale(vec3(1.0/(SCALE*SPRITE_SIZE as f32), 1.0/(SCALE*SPRITE_SIZE as f32), 1.0))
             .with_translation(vec3((WIDTH/2) as f32-0.5, (HEIGHT/2) as f32-0.5, CAMERA_Z)),
         ..default()
     });
-    game.tah = texture_atlas_handle;
 }
-/* 
-fn setup(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
-    mut atlas: ResMut<AtlasHandle>,
-) {
-
-    
-    get_border(&mut commands, atlas.clone());
-    spawn_anim(&mut commands, texture_atlas_handle.clone(), Vec2::splat(2.0), 120, 8);
-    spawn_anim(&mut commands, texture_atlas_handle.clone(), Vec2::splat(1.0), 180, 4);
-    let creature = spawn_anim(&mut commands, texture_atlas_handle.clone(), Vec2::splat(3.0), 210, 4);
-    commands.entity(creature).insert(Mortal{is_alive: false});
-
-    let creature_map = load_creatures();
-    creature_map.get("Pegasus").unwrap().to_entity(Vec2::splat(4.0), &mut commands, texture_atlas_handle.clone());
-
-    Cursor::new(texture_atlas_handle.clone(), &mut commands);
-}*/
-
 
 // Enum that will be used as a global state for the game
 #[derive(Clone, Eq, PartialEq, Debug, Hash)]
@@ -100,13 +82,10 @@ enum GameState {
 }
 
 fn main() {
-    println!("WINDOW SIZE IS {} x {}", SCREEN_WIDTH, SCREEN_HEIGHT);
-
-
     App::new()
         .init_resource::<Game>()
         .insert_resource(WindowDescriptor {
-            title: "I am a window!".to_string(),
+            title: "Mayhem!".to_string(),
             width: SCREEN_WIDTH,
             height: SCREEN_HEIGHT,
             present_mode: PresentMode::AutoVsync,

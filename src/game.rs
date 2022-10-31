@@ -46,6 +46,9 @@ fn game_setup(
     // Spell/splodey thing
     spawn_anim(&mut commands, g.tah.clone(), Vec2::splat(1.0), 180, 4);
 
+    let creature = spawn_anim(&mut commands, g.tah.clone(), Vec2::splat(3.0), 210, 4);
+    commands.entity(creature).insert(Mortal{is_alive: false});
+
     let creature_map = load_creatures();
     creature_map.get("Pegasus").unwrap().to_entity(Vec2::splat(4.0), &mut commands, g.tah.clone());
 }
