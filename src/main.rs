@@ -1,6 +1,4 @@
 use bevy::{prelude::*, render::texture::ImageSettings, window::PresentMode, math::vec3};
-use serde::{Deserialize, Serialize};
-use std::{collections::HashMap, fs::File};
 pub mod constants;
 pub mod cursor;
 pub use self::constants::*;
@@ -12,42 +10,7 @@ struct Game {
     cursor: cursor::Cursor,
 }
 
-#[derive(Component)]
-struct Position {x: u8, y: u8  }
-#[derive(Component)]
-struct Player;
 
-#[derive(Component)]
-struct Mortal {
-    is_alive: bool
-}
-
-#[derive(Component)]
-struct RepeatAnimation {
-    max: usize,
-    init: usize,
-}
-
-
-#[derive(Component, Deref, DerefMut)]
-pub struct AnimationTimer(Timer);
-
-#[derive(Debug, Deserialize, Serialize)]
-struct Creature {
-    name: String,
-    sprite_index: usize,
-}
-
-impl Creature {
-    fn to_entity(
-        &self,
-        v: Vec2,
-        commands: &mut Commands,
-        texture_atlas_handle: Handle<TextureAtlas>
-    ) -> Entity {
-        return spawn_anim(commands, texture_atlas_handle.clone(), v, self.sprite_index, 4)
-    }
-}
 
 pub fn get_sprite_sheet_bundle(
     texture_atlas_handle: Handle<TextureAtlas>,
@@ -81,19 +44,6 @@ fn get_border(
         commands.spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(n as f32, 0.0), BORDER_BOTTOM));
         commands.spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(n as f32, (HEIGHT-1) as f32), BORDER_TOP));
     }
-}
-
-fn spawn_anim(
-    commands: &mut Commands,
-    texture_atlas_handle: Handle<TextureAtlas>,
-    v: Vec2,
-    init: usize,
-    num: usize
-) -> Entity {
-    return commands
-        .spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle, v, init))
-        .insert(AnimationTimer(Timer::from_seconds(ANIMATION_TICK, true)))
-        .insert(RepeatAnimation {max: init+num-1, init: init}).id();
 }
 
 fn setup_initial(
@@ -134,10 +84,6 @@ fn setup(
     Cursor::new(texture_atlas_handle.clone(), &mut commands);
 }*/
 
-fn load_creatures() -> HashMap<String, Creature> {
-    let f = File::open("assets/creatures.ron").unwrap();
-    return ron::de::from_reader(f).unwrap();
-}
 
 // Enum that will be used as a global state for the game
 #[derive(Clone, Eq, PartialEq, Debug, Hash)]

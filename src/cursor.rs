@@ -36,7 +36,7 @@ fn cursor_setup(
 ) {
     let x = 0;
     let y = 0;
-    let mut c = Cursor{
+    game.cursor = Cursor{
         visible: true,
         flash: true,
         x: x,
@@ -44,7 +44,6 @@ fn cursor_setup(
         flash_timer: Timer::from_seconds(ANIMATION_TICK/2.0, true),
         entity: Some(commands.spawn_bundle(get_sprite_sheet_bundle(game.tah.clone(), Vec2::new(x as f32, y as f32), CURSOR_SPRITE_ID)).id()),
     };
-    game.cursor = c;
 }
 
 fn keyboard_input(
