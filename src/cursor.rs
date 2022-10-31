@@ -1,7 +1,7 @@
 use bevy::math::vec2;
 use bevy::{prelude::*};
-use super::constants::{ANIMATION_TICK, WIDTH, HEIGHT};
-use super::{get_sprite_sheet_bundle, GameState, Game};
+use super::constants::{ANIMATION_TICK, WIDTH, HEIGHT, CURSOR_Z};
+use super::{get_sprite_sheet_bundle_z, GameState, Game};
 
 const CURSOR_SPRITE_ID: usize = 165;
 pub struct CursorPlugin;
@@ -42,7 +42,7 @@ fn cursor_setup(
         x: x,
         y: y,
         flash_timer: Timer::from_seconds(ANIMATION_TICK/2.0, true),
-        entity: Some(commands.spawn_bundle(get_sprite_sheet_bundle(game.tah.clone(), Vec2::new(x as f32, y as f32), CURSOR_SPRITE_ID)).id()),
+        entity: Some(commands.spawn_bundle(get_sprite_sheet_bundle_z(game.tah.clone(), Vec2::new(x as f32, y as f32), CURSOR_SPRITE_ID, CURSOR_Z)).id()),
     };
 }
 
@@ -78,7 +78,7 @@ fn keyboard_input(
     }
     if moved {
         let cursor = game.cursor.entity.unwrap();
-        *transforms.get_mut(cursor).unwrap() = transforms.get(cursor).unwrap().with_translation(vec2(game.cursor.x as f32, game.cursor.y as f32).extend(0.0));
+        *transforms.get_mut(cursor).unwrap() = transforms.get(cursor).unwrap().with_translation(vec2(game.cursor.x as f32, game.cursor.y as f32).extend(CURSOR_Z));
     }
 }
 

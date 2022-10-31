@@ -10,19 +10,26 @@ struct Game {
     cursor: cursor::Cursor,
 }
 
-
-
 pub fn get_sprite_sheet_bundle(
     texture_atlas_handle: Handle<TextureAtlas>,
     v: Vec2,
     init: usize,
+) -> SpriteSheetBundle {
+    get_sprite_sheet_bundle_z(texture_atlas_handle, v, init, 0.0)
+}
+
+pub fn get_sprite_sheet_bundle_z(
+    texture_atlas_handle: Handle<TextureAtlas>,
+    v: Vec2,
+    init: usize,
+    z: f32,
 ) -> SpriteSheetBundle {
     let mut rng = rand::thread_rng();
     let mut sprite = TextureAtlasSprite::new(init);
     sprite.color = Color::rgba(rng.gen::<f32>(), rng.gen::<f32>(), rng.gen::<f32>(), 1.0);
     return SpriteSheetBundle {
         texture_atlas: texture_atlas_handle,
-        transform: Transform::from_translation(v.extend(0.0)).with_scale(vec3(1.0/SPRITE_SIZE as f32, 1.0/SPRITE_SIZE as f32, 1.0)),
+        transform: Transform::from_translation(v.extend(z)).with_scale(vec3(1.0/SPRITE_SIZE as f32, 1.0/SPRITE_SIZE as f32, 1.0)),
         sprite: sprite,
         ..default()
     };
@@ -58,7 +65,7 @@ fn setup_initial(
 
     commands.spawn_bundle(Camera2dBundle {
         transform: Transform::from_scale(vec3(1.0/(SCALE*SPRITE_SIZE as f32), 1.0/(SCALE*SPRITE_SIZE as f32), 1.0))
-            .with_translation(vec3((WIDTH/2) as f32-0.5, (HEIGHT/2) as f32-0.5, 0.0)),
+            .with_translation(vec3((WIDTH/2) as f32-0.5, (HEIGHT/2) as f32-0.5, CAMERA_Z)),
         ..default()
     });
     game.tah = texture_atlas_handle;

@@ -22,3 +22,5 @@ pub const BORDER_RIGHT: usize = 209;
 
 pub const ANIMATION_TICK: f32 = 0.5;
 
+pub const CAMERA_Z: f32 = 10.0;
+pub const CURSOR_Z: f32 = 9.0;
