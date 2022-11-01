@@ -9,7 +9,8 @@ struct Game {
     tah: Handle<TextureAtlas>,
     fah: Handle<TextureAtlas>,
     cursor: cursor::Cursor,
-    players: i8,
+    players: u8,
+    ai_level: u8,
 }
 
 pub fn get_sprite_sheet_bundle(
@@ -77,7 +78,7 @@ fn setup_initial(
 // Enum that will be used as a global state for the game
 #[derive(Clone, Eq, PartialEq, Debug, Hash)]
 enum GameState {
-    Menu,
+    InitialMenu,
     Game,
 }
 
@@ -94,7 +95,7 @@ fn main() {
         .insert_resource(ImageSettings::default_nearest()) // prevents blurry sprites
         .insert_resource(ClearColor(Color::rgb(0.0, 0.0, 0.0)))
         .add_plugins(DefaultPlugins)
-        .add_state(GameState::Menu)
+        .add_state(GameState::InitialMenu)
         .add_startup_system(setup_initial)
         .add_plugin(menu::MenuPlugin)
         .add_plugin(game::GamePlugin)
