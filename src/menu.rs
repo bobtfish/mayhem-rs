@@ -9,10 +9,10 @@ impl Plugin for MenuPlugin {
         app
             .add_system_set(SystemSet::on_enter(GameState::InitialMenu).with_system(initial_menu_setup))
             .add_system_set(SystemSet::on_update(GameState::InitialMenu).with_system(initial_menu_keyboard_input))
-            .add_system_set(
-                SystemSet::on_exit(GameState::InitialMenu)
-                    .with_system(despawn_screen::<InitialMenuScreen>),
-            );
+            .add_system_set(SystemSet::on_exit(GameState::InitialMenu).with_system(despawn_screen::<InitialMenuScreen>))
+            .add_system_set(SystemSet::on_enter(GameState::PlayerNameMenu).with_system(player_name_menu_setup))
+            .add_system_set(SystemSet::on_update(GameState::PlayerNameMenu).with_system(player_name_menu_keyboard_input))
+            .add_system_set(SystemSet::on_exit(GameState::PlayerNameMenu).with_system(despawn_screen::<PlayerNameMenuScreen>));
     }
 }
 
@@ -52,11 +52,25 @@ fn initial_menu_keyboard_input(
                 game.ai_level = (c-48) as u8;
                 print_text(&*game.ai_level.to_string(), &mut commands, game.fah.clone(), Vec2::new(8.5, 5.0), InitialMenuScreen);
                 // TODO - Do we want a pause here?
-                state.set(GameState::Game).unwrap();
+                state.set(GameState::PlayerNameMenu).unwrap();
             }
         }
     }
 }
+
+// Tag component used to tag entities added on the menu screen
+#[derive(Component, Clone, Copy)]
+struct PlayerNameMenuScreen;
+
+fn player_name_menu_setup(mut commands: Commands, g: Res<Game>) {
+}
+
+fn player_name_menu_keyboard_input(
+    mut char_evr: EventReader<ReceivedCharacter>,
+    mut state: ResMut<State<GameState>>,
+    mut game: ResMut<Game>,
+    mut commands: Commands,
+) {}
 
 fn print_text(str: &str, commands: &mut Commands, fah: Handle<TextureAtlas>, v: Vec2, c: impl Component + std::marker::Copy) {
     for (i,ch) in str.chars().enumerate() {

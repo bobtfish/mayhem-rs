@@ -79,6 +79,7 @@ fn setup_initial(
 #[derive(Clone, Eq, PartialEq, Debug, Hash)]
 enum GameState {
     InitialMenu,
+    PlayerNameMenu,
     Game,
 }
 
