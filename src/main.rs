@@ -11,6 +11,14 @@ struct Game {
     cursor: cursor::Cursor,
     players: u8,
     ai_level: u8,
+    player_info: Vec<Player>,
+}
+
+struct Player {
+    name: String,
+    computer_controlled: bool,
+    character_icon: u8,
+    color: u8,
 }
 
 pub fn get_sprite_sheet_bundle(
@@ -42,16 +50,16 @@ fn get_border(
     commands: &mut Commands,
     texture_atlas_handle: Handle<TextureAtlas>
 ) {
-    commands.spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(0.0, 0.0), BORDER_BOTTOMLEFT));
+    commands.spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(0.0, 1.0), BORDER_BOTTOMLEFT));
     commands.spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(0.0, (HEIGHT-1) as f32), BORDER_TOPLEFT));
-    commands.spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new((WIDTH-1) as f32, 0.0), BORDER_BOTTOMRIGHT));
+    commands.spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new((WIDTH-1) as f32, 1.0), BORDER_BOTTOMRIGHT));
     commands.spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new((WIDTH-1) as f32, (HEIGHT-1) as f32), BORDER_TOPRIGHT));
-    for n in 1..HEIGHT-1 {
+    for n in 2..HEIGHT-1 {
         commands.spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(0.0, n as f32), BORDER_LEFT));
         commands.spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new((WIDTH-1) as f32, n as f32), BORDER_RIGHT));
     }
     for n in 1..WIDTH-1 {
-        commands.spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(n as f32, 0.0), BORDER_BOTTOM));
+        commands.spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(n as f32, 1.0), BORDER_BOTTOM));
         commands.spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(n as f32, (HEIGHT-1) as f32), BORDER_TOP));
     }
 }
