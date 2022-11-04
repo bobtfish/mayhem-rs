@@ -2,7 +2,7 @@ use bevy::{prelude::*, render::texture::ImageSettings, window::PresentMode, math
 pub mod constants;
 pub mod cursor;
 pub use self::constants::*;
-use rand::Rng;
+use crate::display::*;
 
 #[derive(Default)]
 struct Game {
@@ -19,31 +19,6 @@ struct Player {
     computer_controlled: bool,
     character_icon: u8,
     color: u8,
-}
-
-pub fn get_sprite_sheet_bundle(
-    texture_atlas_handle: Handle<TextureAtlas>,
-    v: Vec2,
-    init: usize,
-) -> SpriteSheetBundle {
-    get_sprite_sheet_bundle_z(texture_atlas_handle, v, init, 0.0)
-}
-
-pub fn get_sprite_sheet_bundle_z(
-    texture_atlas_handle: Handle<TextureAtlas>,
-    v: Vec2,
-    init: usize,
-    z: f32,
-) -> SpriteSheetBundle {
-    let mut rng = rand::thread_rng();
-    let mut sprite = TextureAtlasSprite::new(init);
-    sprite.color = Color::rgba(rng.gen::<f32>(), rng.gen::<f32>(), rng.gen::<f32>(), 1.0);
-    return SpriteSheetBundle {
-        texture_atlas: texture_atlas_handle,
-        transform: Transform::from_translation(v.extend(z)).with_scale(vec3(1.0/SPRITE_SIZE as f32, 1.0/SPRITE_SIZE as f32, 1.0)),
-        sprite: sprite,
-        ..default()
-    };
 }
 
 fn get_border(
@@ -122,3 +97,4 @@ fn despawn_screen<T: Component>(to_despawn: Query<Entity, With<T>>, mut commands
 
 mod menu;
 mod game;
+mod display;

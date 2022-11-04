@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, fs::File};
+use super::{GameState, despawn_screen, ANIMATION_TICK, Game};
+use crate::display::*;
 
 #[derive(Component)]
 struct Mortal {
@@ -15,8 +17,6 @@ struct RepeatAnimation {
 }
 
 pub struct GamePlugin;
-
-use super::{GameState, despawn_screen, get_sprite_sheet_bundle, ANIMATION_TICK, Game};
 
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {

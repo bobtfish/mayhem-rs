@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
-use super::{GameState, Player, despawn_screen, Game, get_border, get_sprite_sheet_bundle};
+use super::{GameState, Player, despawn_screen, Game, get_border};
+use crate::display::*;
 
 pub struct MenuPlugin;
 
@@ -174,23 +175,4 @@ fn player_name_menu_keyboard_input(
     }
 }
 
-fn print_text(str: &str, commands: &mut Commands, fah: Handle<TextureAtlas>, v: Vec2, c: impl Component + std::marker::Copy) {
-    for (i,ch) in str.chars().enumerate() {
-        println!("{} {}", i, ch);
-        let mut new_v = v.clone();
-        new_v.x = new_v.x + (i as f32/2.0);
-        commands.spawn_bundle(get_sprite_sheet_bundle(fah.clone(), new_v, char_to_pos(ch)))
-        .insert(c);
-    }
-}
 
-fn char_to_pos(c: char) -> usize {
-    let d = c as u32;
-    if d >=33 && d <= 126{
-        return (d - 31) as usize;
-    }
-    if c == ' ' {
-        return 1;
-    }
-    return 0;
-}
