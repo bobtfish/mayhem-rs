@@ -12,6 +12,7 @@ struct Game {
     players: u8,
     ai_level: u8,
     player_info: Vec<Player>,
+    player_turn: u8,
 }
 
 struct Player {
@@ -63,6 +64,9 @@ fn setup_initial(
 enum GameState {
     InitialMenu,
     PlayerNameMenu,
+    PlayerNameMenuTransition,
+    PlayerMenu,
+    PlayerMenuTransition,
     Game,
 }
 
@@ -82,6 +86,7 @@ fn main() {
         .add_state(GameState::InitialMenu)
         .add_startup_system(setup_initial)
         .add_plugin(menu::MenuPlugin)
+        .add_plugin(choosespell::ChooseSpellPlugin)
         .add_plugin(game::GamePlugin)
         .add_plugin(cursor::CursorPlugin)
         .add_system(bevy::window::close_on_esc)
@@ -97,4 +102,5 @@ fn despawn_screen<T: Component>(to_despawn: Query<Entity, With<T>>, mut commands
 
 mod menu;
 mod game;
+mod choosespell;
 mod display;

@@ -13,7 +13,8 @@ impl Plugin for MenuPlugin {
             .add_system_set(SystemSet::on_exit(GameState::InitialMenu).with_system(despawn_screen::<InitialMenuScreen>))
             .add_system_set(SystemSet::on_enter(GameState::PlayerNameMenu).with_system(player_name_menu_setup))
             .add_system_set(SystemSet::on_update(GameState::PlayerNameMenu).with_system(player_name_menu_keyboard_input))
-            .add_system_set(SystemSet::on_exit(GameState::PlayerNameMenu).with_system(despawn_screen::<PlayerNameMenuScreen>));
+            .add_system_set(SystemSet::on_exit(GameState::PlayerNameMenu).with_system(despawn_screen::<PlayerNameMenuScreen>))
+            .add_system_set(SystemSet::on_update(GameState::PlayerNameMenuTransition).with_system(player_name_menu_transition));
     }
 }
 
@@ -65,15 +66,17 @@ struct PlayerNameMenuScreen;
 
 fn player_name_menu_setup(
     mut commands: Commands,
-    mut g: ResMut<Game>,
+    g: Res<Game>,
 ) {
-
-
+    print_text("PLAYER", &mut commands, g.fah.clone(), Vec2::new(1.0, 10.0), PlayerNameMenuScreen);
+    let n_player = g.player_info.len()+1;
+    print_text(&*n_player.to_string(), &mut commands, g.fah.clone(), Vec2::new(4.5, 10.0), PlayerNameMenuScreen);
+    print_text("Enter name (12 letters max.)", &mut commands, g.fah.clone(), Vec2::new(1.0, 9.0), PlayerNameMenuScreen);
 }
 
 #[derive(Default)]
 struct CapturePlayer {
-    init: Option<bool>,
+    init: bool,
     name: Option<String>,
     computer_controlled: Option<bool>,
     character_icon: Option<u8>,
@@ -88,14 +91,9 @@ fn player_name_menu_keyboard_input(
     mut string: Local<String>,
     mut player: Local<CapturePlayer>,
     keys: Res<Input<KeyCode>>,
-    entities: Query<Entity, &PlayerNameMenuScreen>,
 ) {
-    if player.init.is_none() {
-        print_text("PLAYER", &mut commands, g.fah.clone(), Vec2::new(1.0, 10.0), PlayerNameMenuScreen);
-        let n_player = g.player_info.len()+1;
-        print_text(&*n_player.to_string(), &mut commands, g.fah.clone(), Vec2::new(4.5, 10.0), PlayerNameMenuScreen);
-        print_text("Enter name (12 letters max.)", &mut commands, g.fah.clone(), Vec2::new(1.0, 9.0), PlayerNameMenuScreen);
-        player.init = Some(true);
+    if !player.init { // This is to force a frame advance and stop us re-capturing the keyboard input
+        player.init = true;
         return;
     }
     if player.name.is_none() {
@@ -152,13 +150,6 @@ fn player_name_menu_keyboard_input(
         }
     }
     if player.color.is_some() {
-        for ev in char_evr.iter() {
-            let c = ev.char as u32;
-            if c >= 49 && c <= 56 {
-                let choice = c-48;
-                player.color = Some(choice as u8);
-            }
-        }
         g.player_info.push(Player {
             name: player.name.clone().unwrap(),
             computer_controlled: player.computer_controlled.unwrap(),
@@ -166,13 +157,17 @@ fn player_name_menu_keyboard_input(
             color: player.color.unwrap()
         });
         *player = CapturePlayer{..Default::default()};
-        for entity in entities.iter() {
-            commands.entity(entity).despawn_recursive();
-        }
-        if g.players == g.player_info.len() as u8 {
-            state.set(GameState::Game).unwrap();
-        }
+        state.set(GameState::PlayerNameMenuTransition).unwrap();
     }
 }
 
-
+fn player_name_menu_transition(
+    mut state: ResMut<State<GameState>>,
+    g: Res<Game>,
+) {
+    if g.players == g.player_info.len() as u8 {
+        state.set(GameState::PlayerMenu).unwrap();
+    } else {
+        state.set(GameState::PlayerNameMenu).unwrap();
+    }
+}
