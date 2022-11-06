@@ -1,4 +1,4 @@
-use bevy::{prelude::*, input::keyboard::KeyboardInput};
+use bevy::prelude::*;
 
 use super::{GameState, despawn_screen, Game};
 use crate::display::*;
@@ -78,7 +78,7 @@ fn player_menu_transition(
     mut state: ResMut<State<GameState>>,
     mut g: ResMut<Game>,
 ) {
-    g.player_turn = g.player_turn+1;
+    g.player_turn += 1;
     if g.player_turn >= g.players {
         g.player_turn = 0;
         state.set(GameState::Game).unwrap();
@@ -94,19 +94,14 @@ fn player_menu_choose_spell_setup(
 ) {
     let mut n_player = (g.player_info.len()+1).to_string();
     n_player.push_str("'s spells");
-    print_text(&*n_player, &mut commands, g.fah.clone(), Vec2::new(0.5, 10.0), screen);
+    print_text(&n_player, &mut commands, g.fah.clone(), Vec2::new(0.5, 10.0), screen);
     let player = g.get_player();
-    let mut i: u8 = 0;
-    for spell in player.spells() {
-        let mut x = 0.5;
-        if i % 2 == 1 {
-            x = 7.0;
-        }
+    for (i, spell) in (0_u8..).zip(player.spells().into_iter()) {
+        let x = if 1 == i % 2 { 7.0 } else { 0.5 };
         let mut name_str = ((i+65) as char).to_string();
         name_str.push_str(spell.get_sep());
-        name_str.push_str(&*spell.name);
-        print_text(&*name_str, &mut commands, g.fah.clone(), Vec2::new(x, 9.0-((i/2) as f32)), screen);
-        i = i + 1;
+        name_str.push_str(&spell.name);
+        print_text(&name_str, &mut commands, g.fah.clone(), Vec2::new(x, 9.0-f32::from(i/2)), screen);
     }
     print_text("Press 0 to exit", &mut commands, g.fah.clone(), Vec2::new(4.0, 0.0), screen);
 }
@@ -168,7 +163,7 @@ fn player_menu_examine_one_spell_setup(
     mut ev_choose_spell: EventReader<ChooseSpellEvent>,
 ) {
     for ev in ev_choose_spell.iter() {
-        print_text(&g.get_player().spells()[(*ev).0].name, &mut commands, g.fah.clone(), Vec2::new(1.0, 10.0), ExamineOneSpellScreen);
+        print_text(&g.get_player().spells()[ev.0].name, &mut commands, g.fah.clone(), Vec2::new(1.0, 10.0), ExamineOneSpellScreen);
     }
     // FIXME - add more spell details
     print_text("Any key to exit", &mut commands, g.fah.clone(), Vec2::new(4.0, 0.0), ExamineOneSpellScreen);
@@ -177,7 +172,6 @@ fn player_menu_examine_one_spell_setup(
 fn player_menu_examine_one_spell_keyboard(
     mut state: ResMut<State<GameState>>,
     mut char_evr: ResMut<Events<ReceivedCharacter>>,
-    g: Res<Game>,
 ) {
     for _ in char_evr.drain() {
         state.set(GameState::PlayerMenuExamineSpell).unwrap();
@@ -200,7 +194,7 @@ fn player_menu_select_spell_keyboard(
     mut g: ResMut<Game>,
 ) {
     for ev in ev_choose_spell.iter() {
-        g.get_player_mut().chosen_spell = Some((*ev).0);
+        g.get_player_mut().chosen_spell = Some(ev.0);
         state.set(GameState::PlayerMenu).unwrap();
     }
 }

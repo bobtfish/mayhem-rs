@@ -21,19 +21,19 @@ pub fn get_sprite_sheet_bundle_z(
     let mut rng = rand::thread_rng();
     let mut sprite = TextureAtlasSprite::new(init);
     sprite.color = Color::rgba(rng.gen::<f32>(), rng.gen::<f32>(), rng.gen::<f32>(), 1.0);
-    return SpriteSheetBundle {
+    SpriteSheetBundle {
         texture_atlas: texture_atlas_handle,
         transform: Transform::from_translation(v.extend(z)).with_scale(vec3(1.0/SPRITE_SIZE as f32, 1.0/SPRITE_SIZE as f32, 1.0)),
-        sprite: sprite,
+        sprite,
         ..default()
-    };
+    }
 }
 
 
 pub fn print_text(str: &str, commands: &mut Commands, fah: Handle<TextureAtlas>, v: Vec2, c: impl Component + std::marker::Copy) {
     for (i,ch) in str.chars().enumerate() {
-        let mut new_v = v.clone();
-        new_v.x = new_v.x + (i as f32/2.0);
+        let mut new_v = v;
+        new_v.x += i as f32/2.0;
         commands.spawn_bundle(get_sprite_sheet_bundle(fah.clone(), new_v, char_to_pos(ch)))
         .insert(c);
     }
@@ -46,12 +46,12 @@ pub fn print_wizard(commands: &mut Commands, tah: Handle<TextureAtlas>, v: Vec2,
 
 fn char_to_pos(c: char) -> usize {
     let d = c as u32;
-    if d >=33 && d <= 126{
+    if (33..=126).contains(&d) {
         return (d - 31) as usize;
     }
     if c == ' ' {
         return 1;
     }
-    return 0;
+    0
 }
 

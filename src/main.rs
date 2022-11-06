@@ -1,3 +1,7 @@
+#![feature(custom_inner_attributes)]
+#![warn(clippy::nursery, clippy::pedantic)]
+#![allow(clippy::wildcard_imports, clippy::unused_self, clippy::needless_pass_by_value, clippy::module_name_repetitions, clippy::similar_names, clippy::cast_precision_loss, clippy::cast_possible_truncation)]
+
 use bevy::{prelude::*, render::texture::ImageSettings, window::PresentMode, math::vec3};
 pub mod constants;
 pub mod cursor;
@@ -48,7 +52,7 @@ struct Spell {
 }
 
 impl Spell {
-    fn get_sep(&self) -> &str {
+    const fn get_sep(&self) -> &str {
         return "-";
     }
 }

@@ -39,46 +39,39 @@ fn cursor_setup(
     game.cursor = Cursor{
         visible: true,
         flash: true,
-        x: x,
-        y: y,
+        x,
+        y,
         flash_timer: Timer::from_seconds(ANIMATION_TICK/2.0, true),
-        entity: Some(commands.spawn_bundle(get_sprite_sheet_bundle_z(game.tah.clone(), Vec2::new(x as f32, y as f32), CURSOR_SPRITE_ID, CURSOR_Z)).id()),
+        entity: Some(commands.spawn_bundle(get_sprite_sheet_bundle_z(game.tah.clone(), Vec2::new(f32::from(x), f32::from(y)), CURSOR_SPRITE_ID, CURSOR_Z)).id()),
     };
 }
 
+#[allow(clippy::useless_let_if_seq)]
 fn keyboard_input(
     keys: Res<Input<KeyCode>>,
     mut game: ResMut<Game>,
     mut transforms: Query<&mut Transform>,
 ) {
     let mut moved = false;
-    if keys.just_pressed(KeyCode::Left) {
-        if game.cursor.x > 0 {
-            game.cursor.x = game.cursor.x - 1;
-            moved = true;
-        }
+    if keys.just_pressed(KeyCode::Left) && game.cursor.x > 0 {
+        game.cursor.x -= 1;
+        moved = true;
     }
-    if keys.just_pressed(KeyCode::Right) {
-        if game.cursor.x < WIDTH as u8 {
-            game.cursor.x = game.cursor.x + 1;
-            moved = true;
-        }
+    if keys.just_pressed(KeyCode::Right) && game.cursor.x < WIDTH as u8 {
+        game.cursor.x += 1;
+        moved = true;
     }
-    if keys.just_pressed(KeyCode::Up) {
-        if game.cursor.y < HEIGHT as u8 {
-            game.cursor.y = game.cursor.y + 1;
-            moved = true;
-        }
+    if keys.just_pressed(KeyCode::Up) && game.cursor.y < HEIGHT as u8 {
+        game.cursor.y += 1;
+        moved = true;
     }
-    if keys.just_pressed(KeyCode::Down) {
-        if game.cursor.y > 0 {
-            game.cursor.y = game.cursor.y - 1;
-            moved = true;
-        }
+    if keys.just_pressed(KeyCode::Down) && game.cursor.y > 0 {
+        game.cursor.y -= 1;
+        moved = true;
     }
     if moved {
         let cursor = game.cursor.entity.unwrap();
-        *transforms.get_mut(cursor).unwrap() = transforms.get(cursor).unwrap().with_translation(vec2(game.cursor.x as f32, game.cursor.y as f32).extend(CURSOR_Z));
+        *transforms.get_mut(cursor).unwrap() = transforms.get(cursor).unwrap().with_translation(vec2(f32::from(game.cursor.x), f32::from(game.cursor.y)).extend(CURSOR_Z));
     }
 }
 
@@ -92,10 +85,10 @@ fn animate_cursor(
     if game.cursor.flash_timer.just_finished() {
         if game.cursor.flash || !game.cursor.visible {
             game.cursor.flash = false;
-            (*textures.get_mut(game.cursor.entity.unwrap()).unwrap()).color.set_a(0.0);
+            textures.get_mut(game.cursor.entity.unwrap()).unwrap().color.set_a(0.0);
         } else {
             game.cursor.flash = true;
-            (*textures.get_mut(game.cursor.entity.unwrap()).unwrap()).color.set_a(1.0);
+            textures.get_mut(game.cursor.entity.unwrap()).unwrap().color.set_a(1.0);
         }
     }
     

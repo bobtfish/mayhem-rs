@@ -64,7 +64,7 @@ fn spawn_anim(
         .spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle, v, init))
         .insert(RepeatAnimation {
             max: init+num-1,
-            init: init,
+            init,
             timer: Timer::from_seconds(ANIMATION_TICK, true),
         }).id();
 }
@@ -80,11 +80,7 @@ fn animate_sprite(
     for (mut sprite, mut repeater, mortal) in &mut query {
         repeater.timer.tick(time.delta());
         if repeater.timer.just_finished() {
-            let alive = match mortal {
-                // The division was valid
-                Some(x) => x.is_alive,
-                None    => true,
-            };
+            let alive = mortal.map_or(true, |x| x.is_alive);
             if alive {
                 let mut index = sprite.index + 1;
                 if index > repeater.max {
@@ -114,11 +110,11 @@ impl Creature {
         commands: &mut Commands,
         texture_atlas_handle: Handle<TextureAtlas>
     ) -> Entity {
-        return spawn_anim(commands, texture_atlas_handle.clone(), v, self.sprite_index, 4)
+        spawn_anim(commands, texture_atlas_handle, v, self.sprite_index, 4)
     }
 }
 
 fn load_creatures() -> HashMap<String, Creature> {
     let f = File::open("assets/creatures.ron").unwrap();
-    return ron::de::from_reader(f).unwrap();
+    ron::de::from_reader(f).unwrap()
 }
