@@ -2,6 +2,7 @@ use bevy::{prelude::*, math::vec3};
 use rand::Rng;
 
 use crate::constants::SPRITE_SIZE;
+const WIZARD_IDX: usize = 170;
 
 pub fn get_sprite_sheet_bundle(
     texture_atlas_handle: Handle<TextureAtlas>,
@@ -36,6 +37,11 @@ pub fn print_text(str: &str, commands: &mut Commands, fah: Handle<TextureAtlas>,
         commands.spawn_bundle(get_sprite_sheet_bundle(fah.clone(), new_v, char_to_pos(ch)))
         .insert(c);
     }
+}
+
+pub fn print_wizard(commands: &mut Commands, tah: Handle<TextureAtlas>, v: Vec2, idx: usize, c: impl Component + std::marker::Copy) {
+    commands.spawn_bundle(get_sprite_sheet_bundle(tah, v, WIZARD_IDX + idx))
+    .insert(c);
 }
 
 fn char_to_pos(c: char) -> usize {
