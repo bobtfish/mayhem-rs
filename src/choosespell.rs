@@ -13,11 +13,15 @@ impl Plugin for ChooseSpellPlugin {
             .add_system_set(SystemSet::on_exit(GameState::PlayerMenu).with_system(despawn_screen::<PlayerMenu>))
             .add_system_set(SystemSet::on_update(GameState::PlayerMenuTransition).with_system(player_menu_transition))
             .add_system_set(SystemSet::on_enter(GameState::PlayerMenuExamineSpell).with_system(player_menu_examine_spell_setup))
+            .add_system_set(SystemSet::on_exit(GameState::PlayerMenuExamineSpell).with_system(despawn_screen::<ExamineSpellScreen>))
             .add_system_set(SystemSet::on_update(GameState::PlayerMenuExamineSpell).with_system(player_menu_examine_spell_keyboard))
             .add_system_set(SystemSet::on_enter(GameState::PlayerMenuSelectSpell).with_system(player_menu_select_spell_setup))
             .add_system_set(SystemSet::on_update(GameState::PlayerMenuSelectSpell).with_system(player_menu_select_spell_keyboard))
+            .add_system_set(SystemSet::on_exit(GameState::PlayerMenuSelectSpell).with_system(despawn_screen::<SelectSpellScreen>))
             .add_system_set(SystemSet::on_enter(GameState::PlayerMenuExamineBoard).with_system(player_menu_examine_board_setup))
-            .add_system_set(SystemSet::on_update(GameState::PlayerMenuExamineBoard).with_system(player_menu_examine_board_keyboard));
+            .add_system_set(SystemSet::on_update(GameState::PlayerMenuExamineBoard).with_system(player_menu_examine_board_keyboard))
+            .add_system_set(SystemSet::on_exit(GameState::PlayerMenuExamineBoard).with_system(despawn_screen::<ExamineBoardScreen>))
+            ;
     }
 }
 
@@ -27,7 +31,9 @@ struct PlayerMenu;
 fn player_menu_setup(
     mut commands: Commands,
     g: Res<Game>,
+    mut keys: ResMut<Input<KeyCode>>,
 ) {
+    keys.clear();
     print_text(&*g.player_info[g.player_turn as usize].name, &mut commands, g.fah.clone(), Vec2::new(2.0, 8.0), PlayerMenu);
     print_text("1. Examine Spells", &mut commands, g.fah.clone(), Vec2::new(2.0, 6.0), PlayerMenu);
     print_text("2. Select Spell", &mut commands, g.fah.clone(), Vec2::new(2.0, 5.0), PlayerMenu);
