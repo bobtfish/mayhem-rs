@@ -83,7 +83,10 @@ fn player_menu_examine_spell_setup(
     mut commands: Commands,
     g: Res<Game>,
 ) {
-    print_text("Press 0 to exit", &mut commands, g.fah.clone(), Vec2::new(2.0, 6.0), ExamineSpellScreen);
+    let mut n_player = (g.player_info.len()+1).to_string();
+    n_player.push_str("'s spells");
+    print_text(&*n_player, &mut commands, g.fah.clone(), Vec2::new(2.0, 10.0), ExamineSpellScreen);
+    print_text("Press 0 to exit", &mut commands, g.fah.clone(), Vec2::new(2.0, 0.0), ExamineSpellScreen);
 }
 
 fn player_menu_examine_spell_keyboard(
