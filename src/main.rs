@@ -15,6 +15,12 @@ struct Game {
     player_turn: u8,
 }
 
+impl Game {
+    fn get_player(&self) -> &Player {
+        &self.player_info[self.player_turn as usize]
+    }
+}
+
 struct Player {
     name: String,
     computer_controlled: bool,
@@ -27,6 +33,8 @@ impl Player {
         return vec![
             Spell {name: "Spell one".to_string()},
             Spell {name: "Spell two".to_string()},
+            Spell {name: "Spell 3".to_string()},
+            Spell {name: "Spell 4".to_string()},
         ];
     }
 }
@@ -86,6 +94,7 @@ enum GameState {
     PlayerNameMenuTransition,
     PlayerMenu,
     PlayerMenuExamineSpell,
+    PlayerMenuExamineOneSpell,
     PlayerMenuSelectSpell,
     PlayerMenuExamineBoard,
     PlayerMenuTransition,
