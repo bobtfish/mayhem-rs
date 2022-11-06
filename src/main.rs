@@ -66,6 +66,9 @@ enum GameState {
     PlayerNameMenu,
     PlayerNameMenuTransition,
     PlayerMenu,
+    PlayerMenuExamineSpell,
+    PlayerMenuSelectSpell,
+    PlayerMenuExamineBoard,
     PlayerMenuTransition,
     Game,
 }
