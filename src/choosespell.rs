@@ -116,7 +116,7 @@ fn player_menu_examine_spell_setup(
 fn player_menu_choose_spell_keyboard(
     state: &mut ResMut<State<GameState>>,
     mut keys: ResMut<Input<KeyCode>>,
-    mut char_evr: EventReader<ReceivedCharacter>,
+    char_evr: &mut ResMut<Events<ReceivedCharacter>>,
     g: Res<Game>,
 ) -> Option<usize> {
     let player = g.get_player();
@@ -125,8 +125,7 @@ fn player_menu_choose_spell_keyboard(
         (*state).set(GameState::PlayerMenu).unwrap();
     }
     let mut ret: Option<usize> = None;
-    for ev in char_evr.iter() {
-        println!("player_menu_choose_spell_keyboard - iter");
+    for ev in char_evr.drain() {
         let c = ev.char as usize;
         if c >= 65 && c <= 65 + player.spells().len() {
             let choice = c-65;
@@ -145,13 +144,12 @@ fn player_menu_choose_spell_keyboard(
 fn player_menu_examine_spell_keyboard(
     mut state: ResMut<State<GameState>>,
     keys: ResMut<Input<KeyCode>>,
-    char_evr: EventReader<ReceivedCharacter>,
+    mut char_evr: ResMut<Events<ReceivedCharacter>>,
     g: Res<Game>,
 ) {
-    //println!("player_menu_examine_spell_keyboard");
-    let choice = player_menu_choose_spell_keyboard(&mut state, keys, char_evr, g);
+    let choice = player_menu_choose_spell_keyboard(&mut state, keys, &mut char_evr, g);
     if choice.is_some() {
-        println!("player_menu_examine_spell_keyboard - state change to PlayerMenuExamineOneSpell");
+        char_evr.clear();
         state.set(GameState::PlayerMenuExamineOneSpell).unwrap();
     }
 }
@@ -163,27 +161,18 @@ fn player_menu_examine_one_spell_setup(
     mut commands: Commands,
     g: Res<Game>,
 ) {
-    println!("player_menu_examine_one_spell_setup");
-    print_text(&g.get_player().spells()[0].name, &mut commands, g.fah.clone(), Vec2::new(4.0, 10.0), ExamineOneSpellScreen);
+    print_text(&g.get_player().spells()[0].name, &mut commands, g.fah.clone(), Vec2::new(1.0, 10.0), ExamineOneSpellScreen);
+    // FIXME - add more spell details
+    print_text("Any key to exit", &mut commands, g.fah.clone(), Vec2::new(4.0, 0.0), ExamineOneSpellScreen);
 }
 
 fn player_menu_examine_one_spell_keyboard(
     mut state: ResMut<State<GameState>>,
-    mut key_evr: EventReader<KeyboardInput>,
+    mut char_evr: ResMut<Events<ReceivedCharacter>>,
     g: Res<Game>,
 ) {
-    println!("player_menu_examine_one_spell_keyboard");
-
-    use bevy::input::ButtonState;
-
-    for ev in key_evr.iter() {
-        match ev.state {
-            ButtonState::Pressed => {
-                println!("player_menu_examine_one_spell_keyboard - state to PlayerMenuExamineSpell");
-                state.set(GameState::PlayerMenuExamineSpell).unwrap();
-            }
-            ButtonState::Released => {}
-        }
+    for _ in char_evr.drain() {
+        state.set(GameState::PlayerMenuExamineSpell).unwrap();
     }
 }
 
@@ -200,10 +189,10 @@ fn player_menu_select_spell_setup(
 fn player_menu_select_spell_keyboard(
     mut state: ResMut<State<GameState>>,
     keys: ResMut<Input<KeyCode>>,
-    char_evr: EventReader<ReceivedCharacter>,
+    mut char_evr: ResMut<Events<ReceivedCharacter>>,
     g: Res<Game>,
 ) {
-    let choice = player_menu_choose_spell_keyboard(&mut state, keys, char_evr, g);
+    let choice = player_menu_choose_spell_keyboard(&mut state, keys, &mut char_evr, g);
     if choice.is_some() {
         state.set(GameState::PlayerMenu).unwrap();
     }
