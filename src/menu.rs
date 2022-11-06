@@ -122,10 +122,7 @@ fn player_name_menu_keyboard_input(
         }
         if player.computer_controlled.is_some() {
             print_text("Which character?", &mut commands, g.fah.clone(), Vec2::new(1.0, 5.0), PlayerNameMenuScreen);
-            for i in 0..8 {
-                print_text(&*(i+1).to_string(), &mut commands, g.fah.clone(), Vec2::new(1.0+(i as f32 * 1.5), 4.0), PlayerNameMenuScreen);
-                print_wizard(&mut commands, g.tah.clone(), Vec2::new(1.75+(i as f32 * 1.5), 4.0), i, PlayerNameMenuScreen);
-            }
+            show_wizards(g.fah.clone(), g.tah.clone(), &mut commands, 4.0);
         }
         return;
     }
@@ -137,10 +134,7 @@ fn player_name_menu_keyboard_input(
                 player.character_icon = Some(choice as u8);
                 print_text(&*choice.to_string(), &mut commands, g.fah.clone(), Vec2::new(9.5, 5.0), PlayerNameMenuScreen);
                 print_text("Which color?", &mut commands, g.fah.clone(), Vec2::new(1.0, 3.0), PlayerNameMenuScreen);
-                for i in 0..8 {
-                    print_text(&*(i+1).to_string(), &mut commands, g.fah.clone(), Vec2::new(1.0+(i as f32 * 1.5), 2.0), PlayerNameMenuScreen);
-                    print_wizard(&mut commands, g.tah.clone(), Vec2::new(1.75+(i as f32 * 1.5), 2.0), i, PlayerNameMenuScreen);
-                }
+                show_wizards(g.fah.clone(), g.tah.clone(), &mut commands, 2.0);
             }
         }
         return;
@@ -165,6 +159,13 @@ fn player_name_menu_keyboard_input(
         });
         *player = CapturePlayer{..Default::default()};
         state.set(GameState::PlayerNameMenuTransition).unwrap();
+    }
+}
+
+fn show_wizards(fah: Handle<TextureAtlas>, tah: Handle<TextureAtlas>, commands: &mut Commands, y: f32) {
+    for i in 0..8 {
+        print_text(&*(i+1).to_string(), commands, fah.clone(), Vec2::new(1.0+(i as f32 * 1.5), y), PlayerNameMenuScreen);
+        print_wizard(commands, tah.clone(), Vec2::new(1.75+(i as f32 * 1.5), y), i, PlayerNameMenuScreen);
     }
 }
 
