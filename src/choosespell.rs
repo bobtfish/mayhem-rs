@@ -85,8 +85,17 @@ fn player_menu_examine_spell_setup(
 ) {
     let mut n_player = (g.player_info.len()+1).to_string();
     n_player.push_str("'s spells");
-    print_text(&*n_player, &mut commands, g.fah.clone(), Vec2::new(2.0, 10.0), ExamineSpellScreen);
-    print_text("Press 0 to exit", &mut commands, g.fah.clone(), Vec2::new(2.0, 0.0), ExamineSpellScreen);
+    print_text(&*n_player, &mut commands, g.fah.clone(), Vec2::new(0.5, 10.0), ExamineSpellScreen);
+    let player = &g.player_info[g.player_turn as usize];
+    let mut i: u8 = 0;
+    for spell in player.spells() {
+        let mut name_str = ((i+65) as char).to_string();
+        name_str.push_str(spell.get_sep());
+        name_str.push_str(&*spell.name);
+        print_text(&*name_str, &mut commands, g.fah.clone(), Vec2::new(0.5, 9.0-(i as f32)), ExamineSpellScreen);
+        i = i + 1;
+    }
+    print_text("Press 0 to exit", &mut commands, g.fah.clone(), Vec2::new(5.0, 0.0), ExamineSpellScreen);
 }
 
 fn player_menu_examine_spell_keyboard(

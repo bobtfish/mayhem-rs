@@ -22,6 +22,25 @@ struct Player {
     color: u8,
 }
 
+impl Player {
+    fn spells(&self) -> Vec<Spell> {
+        return vec![
+            Spell {name: "Spell one".to_string()},
+            Spell {name: "Spell two".to_string()},
+        ];
+    }
+}
+
+struct Spell {
+    name: String
+}
+
+impl Spell {
+    fn get_sep(&self) -> &str {
+        return "-";
+    }
+}
+
 fn get_border(
     commands: &mut Commands,
     texture_atlas_handle: Handle<TextureAtlas>
