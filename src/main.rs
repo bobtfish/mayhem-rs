@@ -19,6 +19,9 @@ impl Game {
     fn get_player(&self) -> &Player {
         &self.player_info[self.player_turn as usize]
     }
+    fn get_player_mut(&mut self) -> &mut Player {
+        &mut self.player_info[self.player_turn as usize]
+    }
 }
 
 struct Player {
@@ -26,6 +29,7 @@ struct Player {
     computer_controlled: bool,
     character_icon: u8,
     color: u8,
+    chosen_spell: Option<usize>,
 }
 
 impl Player {

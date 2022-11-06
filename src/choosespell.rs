@@ -8,19 +8,27 @@ pub struct ChooseSpellPlugin;
 impl Plugin for ChooseSpellPlugin {
     fn build(&self, app: &mut App) {
         app
+            .add_event::<ChooseSpellEvent>()
             .add_system_set(SystemSet::on_enter(GameState::PlayerMenu).with_system(player_menu_setup))
             .add_system_set(SystemSet::on_update(GameState::PlayerMenu).with_system(player_menu_keyboard))
             .add_system_set(SystemSet::on_exit(GameState::PlayerMenu).with_system(despawn_screen::<PlayerMenu>))
+            // Specific transition/setup when going to next player
             .add_system_set(SystemSet::on_update(GameState::PlayerMenuTransition).with_system(player_menu_transition))
+
             .add_system_set(SystemSet::on_enter(GameState::PlayerMenuExamineSpell).with_system(player_menu_examine_spell_setup))
             .add_system_set(SystemSet::on_exit(GameState::PlayerMenuExamineSpell).with_system(despawn_screen::<ExamineSpellScreen>))
             .add_system_set(SystemSet::on_update(GameState::PlayerMenuExamineSpell).with_system(player_menu_examine_spell_keyboard))
+            .add_system_set(SystemSet::on_update(GameState::PlayerMenuExamineSpell).with_system(player_menu_choose_spell_keyboard))
+
             .add_system_set(SystemSet::on_enter(GameState::PlayerMenuExamineOneSpell).with_system(player_menu_examine_one_spell_setup))
             .add_system_set(SystemSet::on_exit(GameState::PlayerMenuExamineOneSpell).with_system(despawn_screen::<ExamineOneSpellScreen>))
             .add_system_set(SystemSet::on_update(GameState::PlayerMenuExamineOneSpell).with_system(player_menu_examine_one_spell_keyboard))
+
             .add_system_set(SystemSet::on_enter(GameState::PlayerMenuSelectSpell).with_system(player_menu_select_spell_setup))
             .add_system_set(SystemSet::on_update(GameState::PlayerMenuSelectSpell).with_system(player_menu_select_spell_keyboard))
+            .add_system_set(SystemSet::on_update(GameState::PlayerMenuSelectSpell).with_system(player_menu_choose_spell_keyboard))
             .add_system_set(SystemSet::on_exit(GameState::PlayerMenuSelectSpell).with_system(despawn_screen::<SelectSpellScreen>))
+
             .add_system_set(SystemSet::on_enter(GameState::PlayerMenuExamineBoard).with_system(player_menu_examine_board_setup))
             .add_system_set(SystemSet::on_update(GameState::PlayerMenuExamineBoard).with_system(player_menu_examine_board_keyboard))
             .add_system_set(SystemSet::on_exit(GameState::PlayerMenuExamineBoard).with_system(despawn_screen::<ExamineBoardScreen>))
@@ -114,42 +122,39 @@ fn player_menu_examine_spell_setup(
 }
 
 fn player_menu_choose_spell_keyboard(
-    state: &mut ResMut<State<GameState>>,
+    mut state: ResMut<State<GameState>>,
     mut keys: ResMut<Input<KeyCode>>,
-    char_evr: &mut ResMut<Events<ReceivedCharacter>>,
+    mut char_evr: ResMut<Events<ReceivedCharacter>>,
     g: Res<Game>,
-) -> Option<usize> {
+    mut ev_choose_spell: EventWriter<ChooseSpellEvent>,
+) {
     let player = g.get_player();
     if keys.just_pressed(KeyCode::Key0) {
         keys.reset(KeyCode::Key0);
         (*state).set(GameState::PlayerMenu).unwrap();
     }
-    let mut ret: Option<usize> = None;
     for ev in char_evr.drain() {
         let c = ev.char as usize;
         if c >= 65 && c <= 65 + player.spells().len() {
             let choice = c-65;
             println!("Chosen spell {}", choice);
-            ret = Some(choice);
+            ev_choose_spell.send(ChooseSpellEvent(choice));
         }
         if c >= 97 && c <= 97 + player.spells().len() {
             let choice = c-97;
             println!("Chosen spell {}", choice);
-            ret = Some(choice);
+            ev_choose_spell.send(ChooseSpellEvent(choice));
         }
     }
-    return ret;
 }
+
+struct ChooseSpellEvent(usize);
 
 fn player_menu_examine_spell_keyboard(
     mut state: ResMut<State<GameState>>,
-    keys: ResMut<Input<KeyCode>>,
-    mut char_evr: ResMut<Events<ReceivedCharacter>>,
-    g: Res<Game>,
+    mut ev_choose_spell: EventReader<ChooseSpellEvent>,
 ) {
-    let choice = player_menu_choose_spell_keyboard(&mut state, keys, &mut char_evr, g);
-    if choice.is_some() {
-        char_evr.clear();
+    for _ in ev_choose_spell.iter() {
         state.set(GameState::PlayerMenuExamineOneSpell).unwrap();
     }
 }
@@ -160,8 +165,11 @@ struct ExamineOneSpellScreen;
 fn player_menu_examine_one_spell_setup(
     mut commands: Commands,
     g: Res<Game>,
+    mut ev_choose_spell: EventReader<ChooseSpellEvent>,
 ) {
-    print_text(&g.get_player().spells()[0].name, &mut commands, g.fah.clone(), Vec2::new(1.0, 10.0), ExamineOneSpellScreen);
+    for ev in ev_choose_spell.iter() {
+        print_text(&g.get_player().spells()[(*ev).0].name, &mut commands, g.fah.clone(), Vec2::new(1.0, 10.0), ExamineOneSpellScreen);
+    }
     // FIXME - add more spell details
     print_text("Any key to exit", &mut commands, g.fah.clone(), Vec2::new(4.0, 0.0), ExamineOneSpellScreen);
 }
@@ -188,12 +196,11 @@ fn player_menu_select_spell_setup(
 
 fn player_menu_select_spell_keyboard(
     mut state: ResMut<State<GameState>>,
-    keys: ResMut<Input<KeyCode>>,
-    mut char_evr: ResMut<Events<ReceivedCharacter>>,
-    g: Res<Game>,
+    mut ev_choose_spell: EventReader<ChooseSpellEvent>,
+    mut g: ResMut<Game>,
 ) {
-    let choice = player_menu_choose_spell_keyboard(&mut state, keys, &mut char_evr, g);
-    if choice.is_some() {
+    for ev in ev_choose_spell.iter() {
+        g.get_player_mut().chosen_spell = Some((*ev).0);
         state.set(GameState::PlayerMenu).unwrap();
     }
 }

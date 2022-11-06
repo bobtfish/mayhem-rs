@@ -154,7 +154,8 @@ fn player_name_menu_keyboard_input(
             name: player.name.clone().unwrap(),
             computer_controlled: player.computer_controlled.unwrap(),
             character_icon: player.character_icon.unwrap(),
-            color: player.color.unwrap()
+            color: player.color.unwrap(),
+            chosen_spell: None,
         });
         *player = CapturePlayer{..Default::default()};
         state.set(GameState::PlayerNameMenuTransition).unwrap();
