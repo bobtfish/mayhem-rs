@@ -2,436 +2,414 @@
     "Bat": Creature(
         name: "Bat",
         sprite_index: 210,
-        base_casting_chance: 80
-        combat: 1
-        ranged_combat: 0
-        range: 0
-        defence: 1
-        movement: 5
-        flying: true
-        magical_resistance: 9
-        manoeuvre: 4
-        unknown: 7
-        law_chaos: -1
-        strength: 8
-        can_be_illusion: true
-        color_r: 255
-        color_g: 255
-        color_b: 255
+        casting_chance: 80,
+        combat: 1,
+        ranged_combat: 0,
+        range: 0,
+        defence: 1,
+        movement: 5,
+        flying: true,
+        magical_resistance: 9,
+        manoeuvre: 4,
+        law_chaos: -1,
+        strength: 8,
+        can_be_illusion: true,
+        color_r: 255,
+        color_g: 255,
+        color_b: 255,
     ),
     "Lion": Creature(
         name: "Lion",
         sprite_index: 215,
-        base_casting_chance: 60
-        combat: 6
-        ranged_combat: 0
-        range: 0
-        defence: 4
-        movement: 4
-        magical_resistance: 8
-        manoeuvre: 3
-        unknown: 5
-        law_chaos: 1
-        strength: 38
-        can_be_illusion: true
-        color_r: 246
-        color_g: 248
-        color_b: 83
+        casting_chance: 60,
+        combat: 6,
+        ranged_combat: 0,
+        range: 0,
+        defence: 4,
+        movement: 4,
+        magical_resistance: 8,
+        manoeuvre: 3,
+        law_chaos: 1,
+        strength: 38,
+        can_be_illusion: true,
+        color_r: 246,
+        color_g: 248,
+        color_b: 83,
     ),
     "Bear": Creature(
         name: "Bear",
         sprite_index: 220,
-        base_casting_chance: 70
-        combat: 6
-        ranged_combat: 0
-        range: 0
-        defence: 7
-        movement: 2
-        magical_resistance: 6
-        manoeuvre: 2
-        unknown: 5
-        law_chaos: 1
-        strength: 23
-        can_be_illusion: true
-        color_r: 232
-        color_g: 49
-        color_b: 35
+        casting_chance: 70,
+        combat: 6,
+        ranged_combat: 0,
+        range: 0,
+        defence: 7,
+        movement: 2,
+        magical_resistance: 6,
+        manoeuvre: 2,
+        law_chaos: 1,
+        strength: 23,
+        can_be_illusion: true,
+        color_r: 232,
+        color_g: 49,
+        color_b: 35,
     ),
     "Gryhon": Creature(
         name: "Manticore",
         sprite_index: 225,
-        base_casting_chance: 40
-        combat: 3
-        ranged_combat: 1
-        range: 3
-        defence: 6
-        movement: 5
-        flying: true
-        magical_resistance: 6
-        manoeuvre: 8
-        unknown: 3
-        law_chaos: -1
-        strength: 13
-        can_be_illusion: true
-        mountable: true
-        color_r: 255
-        color_g: 255
-        color_b: 0
+        casting_chance: 40,
+        combat: 3,
+        ranged_combat: 1,
+        range: 3,
+        defence: 6,
+        movement: 5,
+        flying: true,
+        magical_resistance: 6,
+        manoeuvre: 8,
+        law_chaos: -1,
+        strength: 13,
+        can_be_illusion: true,
+        mountable: true,
+        color_r: 255,
+        color_g: 255,
+        color_b: 0,
     ),
     "Centaur": Creature(
         name: "Centaur",
         sprite_index: 230,
-        base_casting_chance: 70
-        combat: 1
-        ranged_combat: 2
-        range: 4
-        defence: 3
-        movement: 4
-        magical_resistance: 5
-        manoeuvre: 5
-        unknown: 6
-        law_chaos: 1
-        strength: 23
-        can_be_illusion: true
-        mountable: true
-        color_r: 204
-        color_g: 204
-        color_b: 0
+        casting_chance: 70,
+        combat: 1,
+        ranged_combat: 2,
+        range: 4,
+        defence: 3,
+        movement: 4,
+        magical_resistance: 5,
+        manoeuvre: 5,
+        law_chaos: 1,
+        strength: 23,
+        can_be_illusion: true,
+        mountable: true,
+        color_r: 204,
+        color_g: 204,
+        color_b: 0,
     ),
     "Orge": Creature(
         name: "Ogre",
         sprite_index: 235,
-        base_casting_chance: 80
-        combat: 4
-        ranged_combat: 0
-        range: 0
-        defence: 7
-        movement: 1
-        magical_resistance: 3
-        manoeuvre: 6
-        unknown: 6
-        law_chaos: -1
-        strength: 23
-        can_be_illusion: true
-        color_r: 220
-        color_g: 47
-        color_b: 32
+        casting_chance: 80,
+        combat: 4,
+        ranged_combat: 0,
+        range: 0,
+        defence: 7,
+        movement: 1,
+        magical_resistance: 3,
+        manoeuvre: 6,
+        law_chaos: -1,
+        strength: 23,
+        can_be_illusion: true,
+        color_r: 220,
+        color_g: 47,
+        color_b: 32,
     ),
     "Crocodile": Creature(
         name: "Crocodile",
         sprite_index: 240,
-        base_casting_chance: 80
-        combat: 5
-        ranged_combat: 0
-        range: 0
-        defence: 6
-        movement: 1
-        magical_resistance: 2
-        manoeuvre: 2
-        unknown: 7
-        law_chaos: 0
-        strength: 34
-        can_be_illusion: true
-        color_r: 94
-        color_g: 179
-        color_b: 72
+        casting_chance: 80,
+        combat: 5,
+        ranged_combat: 0,
+        range: 0,
+        defence: 6,
+        movement: 1,
+        magical_resistance: 2,
+        manoeuvre: 2,
+        law_chaos: 0,
+        strength: 34,
+        can_be_illusion: true,
+        color_r: 94,
+        color_g: 179,
+        color_b: 72,
     ),
     "Orc": Creature(
         name: "Orc",
         sprite_index: 245,
-        base_casting_chance: 100
-        combat: 2
-        ranged_combat: 0
-        range: 0
-        defence: 1
-        movement: 1
-        magical_resistance: 4
-        manoeuvre: 4
-        unknown: 9
-        law_chaos: -1
-        strength: 21
-        can_be_illusion: true
-        color_r: 255
-        color_g: 255
-        color_b: 0
+        casting_chance: 100,
+        combat: 2,
+        ranged_combat: 0,
+        range: 0,
+        defence: 1,
+        movement: 1,
+        magical_resistance: 4,
+        manoeuvre: 4,
+        law_chaos: -1,
+        strength: 21,
+        can_be_illusion: true,
+        color_r: 255,
+        color_g: 255,
+        color_b: 0,
     ),
     "Dire Wolf": Creature(
         name: "Dire Wolf",
         sprite_index: 250,
-        base_casting_chance: 90
-        combat: 3
-        ranged_combat: 0
-        range: 0
-        defence: 2
-        movement: 3
-        magical_resistance: 7
-        manoeuvre: 2
-        unknown: 8
-        law_chaos: -1
-        strength: 12
-        can_be_illusion: true
-        color_r: 243
-        color_g: 241
-        color_b: 130
+        casting_chance: 90,
+        combat: 3,
+        ranged_combat: 0,
+        range: 0,
+        defence: 2,
+        movement: 3,
+        magical_resistance: 7,
+        manoeuvre: 2,
+        law_chaos: -1,
+        strength: 12,
+        can_be_illusion: true,
+        color_r: 243,
+        color_g: 241,
+        color_b: 130,
     ),
     "Pegasus": Creature(
         name: "Pegasus",
         sprite_index: 255,
-        base_casting_chance: 60
-        combat: 2
-        ranged_combat: 0
-        range: 0
-        defence: 4
-        movement: 5
-        flying: true
-        magical_resistance: 6
-        manoeuvre: 7
-        unknown: 5
-        law_chaos: 2
-        strength: 16
-        can_be_illusion: true
-        mountable: true
-        color_r: 255
-        color_g: 255
-        color_b: 255
+        casting_chance: 60,
+        combat: 2,
+        ranged_combat: 0,
+        range: 0,
+        defence: 4,
+        movement: 5,
+        flying: true,
+        magical_resistance: 6,
+        manoeuvre: 7,
+        law_chaos: 2,
+        strength: 16,
+        can_be_illusion: true,
+        mountable: true,
+        color_r: 255,
+        color_g: 255,
+        color_b: 255,
     ),
     "Eagle": Creature(
         name: "Eagle",
         sprite_index: 260,
-        base_casting_chance: 70
-        combat: 3
-        ranged_combat: 0
-        range: 0
-        defence: 3
-        movement: 6
-        flying: true
-        magical_resistance: 8
-        manoeuvre: 2
-        unknown: 6
-        law_chaos: 1
-        strength: 14
-        can_be_illusion: true
-        color_r: 230
-        color_g: 240
-        color_b: 89
+        casting_chance: 70,
+        combat: 3,
+        ranged_combat: 0,
+        range: 0,
+        defence: 3,
+        movement: 6,
+        flying: true,
+        magical_resistance: 8,
+        manoeuvre: 2,
+        law_chaos: 1,
+        strength: 14,
+        can_be_illusion: true,
+        color_r: 230,
+        color_g: 240,
+        color_b: 89,
     ),
     "Red Dragon": Creature(
         name: "Red Dragon",
         sprite_index: 265,
-        base_casting_chance: 10
-        combat: 7
-        ranged_combat: 3
-        breathes_fire: true
-        range: 5
-        defence: 9
-        movement: 3
-        flying: true
-        magical_resistance: 4
-        manoeuvre: 5
-        unknown: 0
-        law_chaos: -2
-        strength: 34
-        can_be_illusion: true
-        color_r: 255
-        color_g: 0
-        color_b: 0
+        casting_chance: 10,
+        combat: 7,
+        ranged_combat: 3,
+        breathes_fire: true,
+        range: 5,
+        defence: 9,
+        movement: 3,
+        flying: true,
+        magical_resistance: 4,
+        manoeuvre: 5,
+        law_chaos: -2,
+        strength: 34,
+        can_be_illusion: true,
+        color_r: 255,
+        color_g: 0,
+        color_b: 0,
     ),
     "Elf": Creature(
         name: "Elf",
         sprite_index: 270,
-        base_casting_chance: 70
-        combat: 1
-        ranged_combat: 2
-        range: 6
-        defence: 2
-        movement: 1
-        magical_resistance: 5
-        manoeuvre: 7
-        unknown: 6
-        law_chaos: 2
-        strength: 26
-        can_be_illusion: true
-        color_r: 107
-        color_g: 226
-        color_b: 70
+        casting_chance: 70,
+        combat: 1,
+        ranged_combat: 2,
+        range: 6,
+        defence: 2,
+        movement: 1,
+        magical_resistance: 5,
+        manoeuvre: 7,
+        law_chaos: 2,
+        strength: 26,
+        can_be_illusion: true,
+        color_r: 107,
+        color_g: 226,
+        color_b: 70,
     ),
     "Skeleton": Creature(
         name: "Skeleton",
         sprite_index: 275,
-        base_casting_chance: 70
-        combat: 3
-        ranged_combat: 0
-        range: 0
-        defence: 2
-        movement: 1
-        magical_resistance: 3
-        manoeuvre: 4
-        unknown: 6
-        undead: true
-        law_chaos: -1
-        strength: 17
-        can_be_illusion: true
-        color_r: 255
-        color_g: 255
-        color_b: 255
+        casting_chance: 70,
+        combat: 3,
+        ranged_combat: 0,
+        range: 0,
+        defence: 2,
+        movement: 1,
+        magical_resistance: 3,
+        manoeuvre: 4,
+        undead: true,
+        law_chaos: -1,
+        strength: 17,
+        can_be_illusion: true,
+        color_r: 255,
+        color_g: 255,
+        color_b: 255,
     ),
     "Faun": Creature(
         name: "Faun",
         sprite_index: 280,
-        base_casting_chance: 80
-        combat: 3
-        ranged_combat: 0
-        range: 0
-        defence: 2
-        movement: 1
-        magical_resistance: 7
-        manoeuvre: 8
-        unknown: 7
-        law_chaos: -1
-        strength: 20
-        can_be_illusion: true
-        color_r: 255
-        color_g: 255
-        color_b: 255
+        casting_chance: 80,
+        combat: 3,
+        ranged_combat: 0,
+        range: 0,
+        defence: 2,
+        movement: 1,
+        magical_resistance: 7,
+        manoeuvre: 8,
+        law_chaos: -1,
+        strength: 20,
+        can_be_illusion: true,
+        color_r: 255,
+        color_g: 255,
+        color_b: 255,
     ),
     "Spectre": Creature(
         name: "Spectre",
         sprite_index: 285,
-        base_casting_chance: 60
-        combat: 4
-        ranged_combat: 0
-        range: 0
-        defence: 2
-        movement: 1
-        magical_resistance: 6
-        manoeuvre: 4
-        unknown: 5
-        law_chaos: -1
-        strength: 15
-        can_be_illusion: true
-        undead: true
-        color_r: 255
-        color_g: 255
-        color_b: 255
+        casting_chance: 60,
+        combat: 4,
+        ranged_combat: 0,
+        range: 0,
+        defence: 2,
+        movement: 1,
+        magical_resistance: 6,
+        manoeuvre: 4,
+        law_chaos: -1,
+        strength: 15,
+        can_be_illusion: true,
+        undead: true,
+        color_r: 255,
+        color_g: 255,
+        color_b: 255,
     ),
     "Ghost": Creature(
         name: "Ghost",
         sprite_index: 290,
-        base_casting_chance: 50
-        combat: 1
-        ranged_combat: 0
-        range: 0
-        defence: 3
-        movement: 2
-        flying: true
-        magical_resistance: 9
-        manoeuvre: 6
-        unknown: 4
-        law_chaos: -1
-        strength: 15
-        can_be_illusion: true
-        color_r: 103
-        color_g: 216
-        color_b: 216
-        undead: true
+        casting_chance: 50,
+        combat: 1,
+        ranged_combat: 0,
+        range: 0,
+        defence: 3,
+        movement: 2,
+        flying: true,
+        magical_resistance: 9,
+        manoeuvre: 6,
+        law_chaos: -1,
+        strength: 15,
+        can_be_illusion: true,
+        color_r: 103,
+        color_g: 216,
+        color_b: 216,
+        undead: true,
     ),
     "Goblin": Creature(
         name: "Goblin",
         sprite_index: 295,
-        ase_casting_chance: 90
-        combat: 2
-        ranged_combat: 0
-        range: 0
-        defence: 4
-        movement: 1
-        magical_resistance: 4
-        manoeuvre: 4
-        unknown: 8
-        law_chaos: -1
-        strength: 12
-        can_be_illusion: true
-        color_r: 255
-        color_g: 0
-        color_b: 255
+        ase_casting_chance: 90,
+        combat: 2,
+        ranged_combat: 0,
+        range: 0,
+        defence: 4,
+        movement: 1,
+        magical_resistance: 4,
+        manoeuvre: 4,
+        law_chaos: -1,
+        strength: 12,
+        can_be_illusion: true,
+        color_r: 255,
+        color_g: 0,
+        color_b: 255,
     ),
     "Giant": Creature(
         name: "Giant",
         sprite_index: 300,
-        base_casting_chance: 40
-        combat: 9
-        ranged_combat: 0
-        range: 0
-        defence: 7
-        movement: 2
-        magical_resistance: 6
-        manoeuvre: 5
-        unknown: 3
-        law_chaos: 1
-        strength: 23
-        can_be_illusion: true
-        color_r: 88
-        color_g: 192
-        color_b: 193
+        casting_chance: 40,
+        combat: 9,
+        ranged_combat: 0,
+        range: 0,
+        defence: 7,
+        movement: 2,
+        magical_resistance: 6,
+        manoeuvre: 5,
+        law_chaos: 1,
+        strength: 23,
+        can_be_illusion: true,
+        color_r: 88,
+        color_g: 192,
+        color_b: 193,
     ),
     "Unicorn": Creature(
         name: "Unicorn",
         sprite_index: 305,
-        base_casting_chance: 60
-        combat: 5
-        ranged_combat: 0
-        range: 0
-        defence: 4
-        movement: 4
-        magical_resistance: 9
-        manoeuvre: 7
-        unknown: 5
-        law_chaos: 2
-        strength: 16
-        can_be_illusion: true
-        mountable: true
-        color_r: 87
-        color_g: 186
-        color_b: 185
+        casting_chance: 60,
+        combat: 5,
+        ranged_combat: 0,
+        range: 0,
+        defence: 4,
+        movement: 4,
+        magical_resistance: 9,
+        manoeuvre: 7,
+        law_chaos: 2,
+        strength: 16,
+        can_be_illusion: true,
+        mountable: true,
+        color_r: 87,
+        color_g: 186,
+        color_b: 185,
     ),
     "Giant Rat": Creature(
         name: "Giant Rat",
         sprite_index: 310,
-        base_casting_chance: 100
-        combat: 1
-        ranged_combat: 0
-        range: 0
-        defence: 1
-        movement: 3
-        magical_resistance: 8
-        manoeuvre: 2
-        unknown: 9
-        law_chaos: 0
-        strength: 12
-        can_be_illusion: true
-        color_r: 203
-        color_g: 203
-        color_b: 203
+        casting_chance: 100,
+        combat: 1,
+        ranged_combat: 0,
+        range: 0,
+        defence: 1,
+        movement: 3,
+        magical_resistance: 8,
+        manoeuvre: 2,
+        law_chaos: 0,
+        strength: 12,
+        can_be_illusion: true,
+        color_r: 203,
+        color_g: 203,
+        color_b: 203,
     ),
     "Vampire": Creature(
         name: "Vampire",
         sprite_index: 315,
-        base_casting_chance: 20
-        combat: 6
-        ranged_combat: 0
-        range: 0
-        defence: 8
-        movement: 4
-        flying: true
-        magical_resistance: 6
-        manoeuvre: 5
-        unknown: 1
-        law_chaos: -2
-        strength: 40
-        can_be_illusion: true
-        color_r: 255
-        color_g: 0
-        color_b: 0
-        undead: true
+        casting_chance: 20,
+        combat: 6,
+        ranged_combat: 0,
+        range: 0,
+        defence: 8,
+        movement: 4,
+        flying: true,
+        magical_resistance: 6,
+        manoeuvre: 5,
+        law_chaos: -2,
+        strength: 40,
+        can_be_illusion: true,
+        color_r: 255,
+        color_g: 0,
+        color_b: 0,
+        undead: true,
     ),
     "Troll": Creature(
         name: "Troll",
@@ -440,223 +418,227 @@
     "Wraith": Creature(
         name: "Wraith",
         sprite_index: 325,
-        base_casting_chance: 50
-        combat: 5
-        ranged_combat: 0
-        range: 0
-        defence: 5
-        movement: 2
-        magical_resistance: 4
-        manoeuvre: 5
-        unknown: 4
-        undead: true
-        law_chaos: -1
-        strength: 10
-        can_be_illusion: true
-        color_r: 100
-        color_g: 176
-        color_b: 179
+        casting_chance: 50,
+        combat: 5,
+        ranged_combat: 0,
+        range: 0,
+        defence: 5,
+        movement: 2,
+        magical_resistance: 4,
+        manoeuvre: 5,
+        undead: true,
+        law_chaos: -1,
+        strength: 10,
+        can_be_illusion: true,
+        color_r: 100,
+        color_g: 176,
+        color_b: 179,
     ),
     "Green Dragon": Creature(
         name: "Green Dragon",
         sprite_index: 330,
-        base_casting_chance: 10
-        combat: 5
-        ranged_combat: 4
-        breathes_fire: true
-        range: 6
-        defence: 8
-        movement: 3
-        flying: true
-        magical_resistance: 4
-        manoeuvre: 4
-        unknown: 0
-        law_chaos: -1
-        strength: 32
-        can_be_illusion: true
-        color_r: 101
-        color_g: 214
-        color_b: 64
+        casting_chance: 10,
+        combat: 5,
+        ranged_combat: 4,
+        breathes_fire: true,
+        range: 6,
+        defence: 8,
+        movement: 3,
+        flying: true,
+        magical_resistance: 4,
+        manoeuvre: 4,
+        law_chaos: -1,
+        strength: 32,
+        can_be_illusion: true,
+        color_r: 101,
+        color_g: 214,
+        color_b: 64,
     ),
     "Zombie": Creature(
         name: "Zombie",
         sprite_index: 335,
-        base_casting_chance: 90
-        combat: 1
-        ranged_combat: 0
-        range: 0
-        defence: 1
-        movement: 1
-        magical_resistance: 2
-        manoeuvre: 3
-        unknown: 4
-        undead: true
-        law_chaos: -1
-        strength: 25
-        can_be_illusion: true
-        color_r: 114
-        color_g: 203
-        color_b: 193
+        casting_chance: 90,
+        combat: 1,
+        ranged_combat: 0,
+        range: 0,
+        defence: 1,
+        movement: 1,
+        magical_resistance: 2,
+        manoeuvre: 3,
+        undead: true,
+        law_chaos: -1,
+        strength: 25,
+        can_be_illusion: true,
+        color_r: 114,
+        color_g: 203,
+        color_b: 193,
     ),
     "Gorilla": Creature(
         name: "Gorilla",
         sprite_index: 340,
-        base_casting_chance: 70
-        combat: 6
-        ranged_combat: 0
-        range: 0
-        defence: 5
-        movement: 1
-        magical_resistance: 4
-        manoeuvre: 2
-        unknown: 6
-        law_chaos: 0
-        strength: 18
-        can_be_illusion: true
-        color_r: 154
-        color_g: 156
-        color_b: 53
+        casting_chance: 70,
+        combat: 6,
+        ranged_combat: 0,
+        range: 0,
+        defence: 5,
+        movement: 1,
+        magical_resistance: 4,
+        manoeuvre: 2,
+        law_chaos: 0,
+        strength: 18,
+        can_be_illusion: true,
+        color_r: 154,
+        color_g: 156,
+        color_b: 53,
     ),
     "Gooey Blob": Creature(
         name: "Gooey Blob",
         sprite_index: 345,
-        base_casting_chance: 80
-        combat: 1
-        ranged_combat: 0
-        range: 0
-        defence: 0
-        movement: 0
-        magical_resistance: 0
-        manoeuvre: 0
-        unknown: 0
-        law_chaos: 0
-        strength: 40
-        cast_range: 6
-        color_r: 112
-        color_g: 255
-        color_b: 74
+        casting_chance: 80,
+        combat: 1,
+        ranged_combat: 0,
+        range: 0,
+        defence: 0,
+        movement: 0,
+        magical_resistance: 0,
+        manoeuvre: 0,
+        law_chaos: 0,
+        strength: 40,
+        cast_range: 6,
+        color_r: 112,
+        color_g: 255,
+        color_b: 74,
     ),
     "Golden Dragon": Creature(
         name: "Golden Dragon",
         sprite_index: 350,
-        base_casting_chance: 10
-        combat: 9
-        ranged_combat: 5
-        breathes_fire: true
-        range: 4
-        defence: 9
-        movement: 3
-        flying: true
-        magical_resistance: 5
-        manoeuvre: 5
-        unknown: 0
-        law_chaos: 2
-        strength: 27
-        can_be_illusion: true
-        color_r: 233
-        color_g: 244
-        color_b: 84
+        casting_chance: 10,
+        combat: 9,
+        ranged_combat: 5,
+        breathes_fire: true,
+        range: 4,
+        defence: 9,
+        movement: 3,
+        flying: true,
+        magical_resistance: 5,
+        manoeuvre: 5,
+        law_chaos: 2,
+        strength: 27,
+        can_be_illusion: true,
+        color_r: 233,
+        color_g: 244,
+        color_b: 84,
     ),
     "Magic Fire": Creature(
         name: "Magic Fire",
         sprite_index: 355,
+        casting_chance: 80,
+        combat: 0,
+        ranged_combat: 0,
+        range: 0,
+        defence: 0,
+        movement: 0,
+        magical_resistance: 0,
+        manoeuvre: 0,
+        law_chaos: 0,
+        strength: 12,
+        color_r: 215,
+        color_g: 211,
+        color_b: 86,
+        cast_range: 6,
     ),
     "Gryphon": Creature(
         name: "Gryphon",
         sprite_index: 360,
-        base_casting_chance: 60
-        combat: 3
-        ranged_combat: 0
-        range: 0
-        defence: 5
-        movement: 5
-        flying: true
-        magical_resistance: 5
-        manoeuvre: 6
-        unknown: 5
-        law_chaos: 1
-        strength: 10
-        can_be_illusion: true
-        mountable: true
-        color_r: 165
-        color_g: 165
-        color_b: 165
+        casting_chance: 60,
+        combat: 3,
+        ranged_combat: 0,
+        range: 0,
+        defence: 5,
+        movement: 5,
+        flying: true,
+        magical_resistance: 5,
+        manoeuvre: 6,
+        law_chaos: 1,
+        strength: 10,
+        can_be_illusion: true,
+        mountable: true,
+        color_r: 165,
+        color_g: 165,
+        color_b: 165,
     ),
     "Gryphon": Creature(
         name: "Harpy",
         sprite_index: 370,
-        base_casting_chance: 60
-        combat: 4
-        ranged_combat: 0
-        range: 0
-        defence: 2
-        movement: 5
-        flying: true
-        magical_resistance: 8
-        manoeuvre: 5
-        unknown: 5
-        law_chaos: -1
-        strength: 13
-        can_be_illusion: true
-        color_r: 114
-        color_g: 236
-        color_b: 231
+        casting_chance: 60,
+        combat: 4,
+        ranged_combat: 0,
+        range: 0,
+        defence: 2,
+        movement: 5,
+        flying: true,
+        magical_resistance: 8,
+        manoeuvre: 5,
+        law_chaos: -1,
+        strength: 13,
+        can_be_illusion: true,
+        color_r: 114,
+        color_g: 236,
+        color_b: 231,
     ),
     "Horse": Creature(
         name: "Horse",
         sprite_index: 380,
-        base_casting_chance: 90
-        combat: 1
-        ranged_combat: 0
-        range: 0
-        defence: 3
-        movement: 4
-        magical_resistance: 8
-        manoeuvre: 1
-        unknown: 8
-        law_chaos: 1
-        strength: 21
-        can_be_illusion: true
-        mountable: true
-        color_r: 190
-        color_g: 200
-        color_b: 67
+        casting_chance: 90,
+        combat: 1,
+        ranged_combat: 0,
+        range: 0,
+        defence: 3,
+        movement: 4,
+        magical_resistance: 8,
+        manoeuvre: 1,
+        law_chaos: 1,
+        strength: 21,
+        can_be_illusion: true,
+        mountable: true,
+        color_r: 190,
+        color_g: 200,
+        color_b: 67,
     ),
     "Hydra": Creature(
         name: "Hydra",
         sprite_index: 390,
-        base_casting_chance: 60
-        combat: 7
-        ranged_combat: 0
-        range: 0
-        defence: 8
-        movement: 1
-        magical_resistance: 4
-        manoeuvre: 6
-        unknown: 4
-        law_chaos: -1
-        strength: 36
-        can_be_illusion: true
-        color_r: 0
-        color_g: 255
-        color_b: 0
+        casting_chance: 60,
+        combat: 7,
+        ranged_combat: 0,
+        range: 0,
+        defence: 8,
+        movement: 1,
+        magical_resistance: 4,
+        manoeuvre: 6,
+        law_chaos: -1,
+        strength: 36,
+        can_be_illusion: true,
+        color_r: 0,
+        color_g: 255,
+        color_b: 0,
     ),
-    "Snake": Creature(
+    "King Cobra": Creature(
         name: "King Cobra",
         sprite_index: 400,
         casting_chance: 90,
-        combat: 4
-        ranged_combat: 0
-        range: 0
-        defence: 1
-        movement: 1
-        magical_resistance: 6
-        manoeuvre: 1
-        law_chaos: 1
-        strength: 30
-        can_be_illusion: true
-        color_r: 0
-        color_g: 255
-        color_b: 0
+        combat: 4,
+        ranged_combat: 0,
+        range: 0,
+        defence: 1,
+        movement: 1,
+        magical_resistance: 6,
+        manoeuvre: 1,
+        law_chaos: 1,
+        strength: 30,
+        can_be_illusion: true,
+        color_r: 0,
+        color_g: 255,
+        color_b: 0,
     ),
 }

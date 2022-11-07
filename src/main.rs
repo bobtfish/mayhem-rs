@@ -7,6 +7,7 @@ pub mod constants;
 pub mod cursor;
 pub use self::constants::*;
 use crate::display::*;
+use rand::seq::SliceRandom; 
 
 #[derive(Default)]
 struct Game {
@@ -34,104 +35,22 @@ struct Player {
     character_icon: u8,
     color: u8,
     chosen_spell: Option<usize>,
+    spells: Vec<Spell>,
 }
 
+struct AllSpells(Vec<Spell>);
+
 impl Player {
-    fn spells(&self) -> Vec<Spell> {
-        return vec![
-            Spell {name: "Disbelieve".to_string(), ..default()},
-            Spell {
-                name: "Raise Dead".to_string(),
-                law_rating: -1,
-                casting_chance: 60,
-                cast_range: 4,
-                ..default()
-            },
-            Spell {
-                name: "Subversion".to_string(),
-                cast_range: 7,
-                ..default()
-            },
-            Spell {
-                name: "Vengence".to_string(),
-                casting_chance: 80,
-                cast_range: 20,
-                no_line_of_sight_needed: true,
-                ..default()
-            },
-            Spell {
-                name: "Decree".to_string(),
-                casting_chance: 80,
-                cast_range: 20,
-                law_rating: 1,
-                no_line_of_sight_needed: true,
-                ..default()
-            },
-            Spell {
-                name: "Dark Power".to_string(),
-                casting_chance: 50,
-                cast_range: 20,
-                law_rating: -2,
-                tries: 3,
-                no_line_of_sight_needed: true,
-                ..default()
-            },
-            Spell {
-                name: "Justice".to_string(),
-                casting_chance: 50,
-                cast_range: 20,
-                law_rating: 2,
-                tries: 3,
-                no_line_of_sight_needed: true,
-                ..default()
-            },
-            Spell {
-                name: "Law-1".to_string(),
-                casting_chance: 100,
-                law_rating: 2,
-                ..default()
-            },
-            Spell {
-                name: "Law-2".to_string(),
-                casting_chance: 100,
-                law_rating: 4,
-                ..default()
-            },
-            Spell {
-                name: "Chaos-1".to_string(),
-                casting_chance: 100,
-                law_rating: -2,
-                ..default()
-            },
-            Spell {
-                name: "Chaos-2".to_string(),
-                casting_chance: 100,
-                law_rating: -4,
-                ..default()
-            },
-            Spell {
-                name: "Lightning".to_string(),
-                casting_chance: 100,
-                cast_range: 4,
-                ..default()
-            },
-            Spell {
-                name: "Magic Bolt".to_string(),
-                casting_chance: 100,
-                cast_range: 6,
-                ..default()
-            },
-            Spell {
-                name: "Magic Wood".to_string(),
-                casting_chance: 80,
-                law_rating: 1,
-                ..default()
-            }
-        ];
+    fn pick_spells(&mut self, allspells: &AllSpells) {
+        let mut sample: Vec<_> = allspells.0[1..].choose_multiple(&mut rand::thread_rng(), 13)
+        .cloned().collect();
+        sample.insert(0, allspells.0[0].clone());
+        self.spells = sample;
+
     }
 }
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 struct Spell {
     name: String,
     law_rating: i8,
@@ -200,6 +119,107 @@ enum GameState {
     Game,
 }
 
+fn load_all_spells() -> Vec<Spell> {
+    let mut spells = vec![
+        Spell {name: "Disbelieve".to_string(), ..default()},
+        Spell {
+            name: "Raise Dead".to_string(),
+            law_rating: -1,
+            casting_chance: 60,
+            cast_range: 4,
+            ..default()
+        },
+        Spell {
+            name: "Subversion".to_string(),
+            cast_range: 7,
+            ..default()
+        },
+        Spell {
+            name: "Vengence".to_string(),
+            casting_chance: 80,
+            cast_range: 20,
+            no_line_of_sight_needed: true,
+            ..default()
+        },
+        Spell {
+            name: "Decree".to_string(),
+            casting_chance: 80,
+            cast_range: 20,
+            law_rating: 1,
+            no_line_of_sight_needed: true,
+            ..default()
+        },
+        Spell {
+            name: "Dark Power".to_string(),
+            casting_chance: 50,
+            cast_range: 20,
+            law_rating: -2,
+            tries: 3,
+            no_line_of_sight_needed: true,
+            ..default()
+        },
+        Spell {
+            name: "Justice".to_string(),
+            casting_chance: 50,
+            cast_range: 20,
+            law_rating: 2,
+            tries: 3,
+            no_line_of_sight_needed: true,
+            ..default()
+        },
+        Spell {
+            name: "Law-1".to_string(),
+            casting_chance: 100,
+            law_rating: 2,
+            ..default()
+        },
+        Spell {
+            name: "Law-2".to_string(),
+            casting_chance: 100,
+            law_rating: 4,
+            ..default()
+        },
+        Spell {
+            name: "Chaos-1".to_string(),
+            casting_chance: 100,
+            law_rating: -2,
+            ..default()
+        },
+        Spell {
+            name: "Chaos-2".to_string(),
+            casting_chance: 100,
+            law_rating: -4,
+            ..default()
+        },
+        Spell {
+            name: "Lightning".to_string(),
+            casting_chance: 100,
+            cast_range: 4,
+            ..default()
+        },
+        Spell {
+            name: "Magic Bolt".to_string(),
+            casting_chance: 100,
+            cast_range: 6,
+            ..default()
+        },
+        Spell {
+            name: "Magic Wood".to_string(),
+            casting_chance: 80,
+            law_rating: 1,
+            ..default()
+        }
+    ];
+    let creature_map = game::load_creatures();
+    for (_, c) in creature_map {
+        spells.push(Spell{
+            name: c.name,
+            ..default()
+        });
+    }
+    spells
+}
+
 fn main() {
     App::new()
         .init_resource::<Game>()
@@ -212,6 +232,7 @@ fn main() {
         })
         .insert_resource(ImageSettings::default_nearest()) // prevents blurry sprites
         .insert_resource(ClearColor(Color::rgb(0.0, 0.0, 0.0)))
+        .insert_resource(AllSpells(load_all_spells()))
         .add_plugins(DefaultPlugins)
         .add_state(GameState::InitialMenu)
         .add_startup_system(setup_initial)

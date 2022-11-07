@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use super::{GameState, Player, despawn_screen, Game, get_border};
-use crate::display::*;
+use crate::{display::*, AllSpells};
 
 pub struct MenuPlugin;
 
@@ -89,6 +89,7 @@ fn player_name_menu_keyboard_input(
     mut string: Local<String>,
     mut player: Local<CapturePlayer>,
     keys: Res<Input<KeyCode>>,
+    allspells: Res<AllSpells>,
 ) {
     if !player.init { // This is to force a frame advance and stop us re-capturing the keyboard input
         player.init = true;
@@ -148,13 +149,16 @@ fn player_name_menu_keyboard_input(
         }
     }
     if player.color.is_some() {
-        g.player_info.push(Player {
+        let mut p = Player {
             name: player.name.clone().unwrap(),
             computer_controlled: player.computer_controlled.unwrap(),
             character_icon: player.character_icon.unwrap(),
             color: player.color.unwrap(),
             chosen_spell: None,
-        });
+            spells: Vec::new(),
+        };
+        p.pick_spells(&allspells);
+        g.player_info.push(p);
         *player = CapturePlayer{..Default::default()};
         state.set(GameState::PlayerNameMenuTransition).unwrap();
     }

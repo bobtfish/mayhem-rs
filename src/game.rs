@@ -98,8 +98,8 @@ fn animate_sprite(
 /// 
 ///
 #[derive(Debug, Deserialize, Serialize)]
-struct Creature {
-    name: String,
+pub struct Creature {
+    pub name: String,
     sprite_index: usize,
 }
 
@@ -114,7 +114,7 @@ impl Creature {
     }
 }
 
-fn load_creatures() -> HashMap<String, Creature> {
+pub fn load_creatures() -> HashMap<String, Creature> {
     let f = File::open("assets/creatures.ron").unwrap();
     ron::de::from_reader(f).unwrap()
 }
