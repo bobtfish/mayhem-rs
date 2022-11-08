@@ -156,6 +156,9 @@ fn player_name_menu_keyboard_input(
             color: player.color.unwrap(),
             chosen_spell: None,
             spells: Vec::new(),
+            x: 0.0,
+            y: 0.0,
+            handle: None,
         };
         p.pick_spells(&allspells);
         g.player_info.push(p);
@@ -173,9 +176,14 @@ fn show_wizards(fah: Handle<TextureAtlas>, tah: Handle<TextureAtlas>, commands: 
 
 fn player_name_menu_transition(
     mut state: ResMut<State<GameState>>,
-    g: Res<Game>,
+    mut g: ResMut<Game>,
 ) {
     if g.players == g.player_info.len() as u8 {
+        let positions = crate::player::get_start_positions(g.players as usize).unwrap();
+        for (i, pos) in positions.iter().enumerate() {
+            g.player_info[i].x = pos.x;
+            g.player_info[i].y = pos.y;
+        }
         state.set(GameState::PlayerMenu).unwrap();
     } else {
         state.set(GameState::PlayerNameMenu).unwrap();

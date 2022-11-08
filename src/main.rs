@@ -1,6 +1,6 @@
 #![feature(custom_inner_attributes)]
 #![warn(clippy::nursery, clippy::pedantic)]
-#![allow(clippy::wildcard_imports, clippy::unused_self, clippy::needless_pass_by_value, clippy::module_name_repetitions, clippy::similar_names, clippy::cast_precision_loss, clippy::cast_possible_truncation)]
+#![allow(clippy::wildcard_imports, clippy::too_many_arguments, clippy::unused_self, clippy::needless_pass_by_value, clippy::module_name_repetitions, clippy::similar_names, clippy::cast_precision_loss, clippy::cast_possible_truncation)]
 
 use bevy::{prelude::*, render::texture::ImageSettings, window::PresentMode, math::vec3};
 pub mod constants;
@@ -36,6 +36,19 @@ struct Player {
     color: u8,
     chosen_spell: Option<usize>,
     spells: Vec<Spell>,
+    x: f32,
+    y: f32,
+    handle: Option<Entity>
+}
+
+impl Player {
+    fn spawn(
+        &mut self,
+        commands: &mut Commands,
+        tah: Handle<TextureAtlas>
+    ) {
+        self.handle = Some(commands.spawn_bundle(get_sprite_sheet_bundle(tah, Vec2::new(self.x, self.y), (169 + self.character_icon) as usize)).id());
+    }
 }
 
 struct AllSpells(Vec<Spell>);
@@ -255,3 +268,4 @@ mod menu;
 mod game;
 mod choosespell;
 mod display;
+mod player;
