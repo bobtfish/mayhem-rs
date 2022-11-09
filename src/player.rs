@@ -1,4 +1,35 @@
 use bevy::prelude::*;
+use super::{AllSpells, Spell, get_sprite_sheet_bundle};
+use rand::prelude::SliceRandom;
+
+pub struct Player {
+    pub name: String,
+    pub computer_controlled: bool,
+    pub character_icon: u8,
+    pub color: u8,
+    pub chosen_spell: Option<usize>,
+    pub spells: Vec<Spell>,
+    pub x: f32,
+    pub y: f32,
+    pub handle: Option<Entity>
+}
+
+impl Player {
+    pub fn pick_spells(&mut self, allspells: &AllSpells) {
+        let mut sample: Vec<_> = allspells.0[1..].choose_multiple(&mut rand::thread_rng(), 13)
+        .cloned().collect();
+        sample.insert(0, allspells.0[0].clone());
+        self.spells = sample;
+
+    }
+    pub fn spawn(
+        &mut self,
+        commands: &mut Commands,
+        tah: Handle<TextureAtlas>
+    ) {
+        self.handle = Some(commands.spawn_bundle(get_sprite_sheet_bundle(tah, Vec2::new(self.x, self.y), (169 + self.character_icon) as usize)).id());
+    }
+}
 
 pub fn get_start_positions(num: usize) -> Result<Vec<Vec2>, &'static str> {
     match num {

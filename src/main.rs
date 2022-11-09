@@ -7,7 +7,7 @@ pub mod constants;
 pub mod cursor;
 pub use self::constants::*;
 use crate::display::*;
-use rand::seq::SliceRandom; 
+use crate::player::Player;
 
 #[derive(Default)]
 struct Game {
@@ -29,43 +29,11 @@ impl Game {
     }
 }
 
-struct Player {
-    name: String,
-    computer_controlled: bool,
-    character_icon: u8,
-    color: u8,
-    chosen_spell: Option<usize>,
-    spells: Vec<Spell>,
-    x: f32,
-    y: f32,
-    handle: Option<Entity>
-}
-
-impl Player {
-    fn spawn(
-        &mut self,
-        commands: &mut Commands,
-        tah: Handle<TextureAtlas>
-    ) {
-        self.handle = Some(commands.spawn_bundle(get_sprite_sheet_bundle(tah, Vec2::new(self.x, self.y), (169 + self.character_icon) as usize)).id());
-    }
-}
-
 struct AllSpells(Vec<Spell>);
 
-impl Player {
-    fn pick_spells(&mut self, allspells: &AllSpells) {
-        let mut sample: Vec<_> = allspells.0[1..].choose_multiple(&mut rand::thread_rng(), 13)
-        .cloned().collect();
-        sample.insert(0, allspells.0[0].clone());
-        self.spells = sample;
-
-    }
-}
-
 #[derive(Default, Clone)]
-struct Spell {
-    name: String,
+pub struct Spell {
+    pub name: String,
     law_rating: i8,
     reusable: bool,
     casting_chance: u8,
