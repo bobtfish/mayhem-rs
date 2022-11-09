@@ -26,11 +26,11 @@ impl Plugin for MenuPlugin {
 struct InitialMenuScreen;
 
 fn initial_menu_setup(mut commands: Commands, g: Res<Game>) {
-    get_border(&mut commands, g.tah.clone());
-    print_text("  MAYHEM - Remake of Chaos", &mut commands, g.fah.clone(), Vec2::new(1.0, 10.0), InitialMenuScreen);
-    print_text("         By bobtfish", &mut commands, g.fah.clone(), Vec2::new(1.0, 9.0), InitialMenuScreen);
-    print_text("How many wizards?", &mut commands, g.fah.clone(), Vec2::new(1.0, 7.0), InitialMenuScreen);
-    print_text("(Press 2 to 8)", &mut commands, g.fah.clone(), Vec2::new(1.0, 6.0), InitialMenuScreen);
+    get_border(&mut commands, g.tah());
+    print_text("  MAYHEM - Remake of Chaos", &mut commands, g.fah(), Vec2::new(1.0, 10.0), InitialMenuScreen);
+    print_text("         By bobtfish", &mut commands, g.fah(), Vec2::new(1.0, 9.0), InitialMenuScreen);
+    print_text("How many wizards?", &mut commands, g.fah(), Vec2::new(1.0, 7.0), InitialMenuScreen);
+    print_text("(Press 2 to 8)", &mut commands, g.fah(), Vec2::new(1.0, 6.0), InitialMenuScreen);
 	//textBottom("       Press H for help", ss, win)
 
 }
@@ -69,10 +69,10 @@ fn player_name_menu_setup(
     mut commands: Commands,
     g: Res<Game>,
 ) {
-    print_text("PLAYER", &mut commands, g.fah.clone(), Vec2::new(1.0, 10.0), PlayerNameMenuScreen);
+    print_text("PLAYER", &mut commands, g.fah(), Vec2::new(1.0, 10.0), PlayerNameMenuScreen);
     let n_player = g.player_info.len()+1;
-    print_text(&n_player.to_string(), &mut commands, g.fah.clone(), Vec2::new(4.5, 10.0), PlayerNameMenuScreen);
-    print_text("Enter name (12 letters max.)", &mut commands, g.fah.clone(), Vec2::new(1.0, 9.0), PlayerNameMenuScreen);
+    print_text(&n_player.to_string(), &mut commands, g.fah(), Vec2::new(4.5, 10.0), PlayerNameMenuScreen);
+    print_text("Enter name (12 letters max.)", &mut commands, g.fah(), Vec2::new(1.0, 9.0), PlayerNameMenuScreen);
 }
 
 #[derive(Default)]
@@ -103,28 +103,28 @@ fn player_name_menu_keyboard_input(
             println!("Text input: {}", *string);
             player.name = Some(string.clone());
             *string = String::new();
-            print_text("Computer Controlled?", &mut commands, g.fah.clone(), Vec2::new(1.0, 6.0), PlayerNameMenuScreen);
+            print_text("Computer Controlled?", &mut commands, g.fah(), Vec2::new(1.0, 6.0), PlayerNameMenuScreen);
             return;
         }
         for ev in char_evr.iter() {
             println!("Got char: '{}'", ev.char);
             string.push(ev.char);
-            print_text(&string, &mut commands, g.fah.clone(), Vec2::new(1.0, 8.0), PlayerNameMenuScreen);
+            print_text(&string, &mut commands, g.fah(), Vec2::new(1.0, 8.0), PlayerNameMenuScreen);
         }
         return;
     }
     if player.computer_controlled.is_none() {
         if keys.just_pressed(KeyCode::Y) {
             player.computer_controlled = Some(true);
-            print_text("YES", &mut commands, g.fah.clone(), Vec2::new(11.5, 6.0), PlayerNameMenuScreen);
+            print_text("YES", &mut commands, g.fah(), Vec2::new(11.5, 6.0), PlayerNameMenuScreen);
         }
         if keys.just_pressed(KeyCode::N) {
             player.computer_controlled = Some(false);
-            print_text("NO", &mut commands, g.fah.clone(), Vec2::new(11.5, 6.0), PlayerNameMenuScreen);
+            print_text("NO", &mut commands, g.fah(), Vec2::new(11.5, 6.0), PlayerNameMenuScreen);
         }
         if player.computer_controlled.is_some() {
-            print_text("Which character?", &mut commands, g.fah.clone(), Vec2::new(1.0, 5.0), PlayerNameMenuScreen);
-            show_wizards(g.fah.clone(), g.tah.clone(), &mut commands, 4.0);
+            print_text("Which character?", &mut commands, g.fah(), Vec2::new(1.0, 5.0), PlayerNameMenuScreen);
+            show_wizards(g.fah(), g.tah(), &mut commands, 4.0);
         }
         return;
     }
@@ -134,9 +134,9 @@ fn player_name_menu_keyboard_input(
             if (49..=56).contains(&c) {
                 let choice = c-48;
                 player.character_icon = Some(choice as u8);
-                print_text(&choice.to_string(), &mut commands, g.fah.clone(), Vec2::new(9.5, 5.0), PlayerNameMenuScreen);
-                print_text("Which color?", &mut commands, g.fah.clone(), Vec2::new(1.0, 3.0), PlayerNameMenuScreen);
-                show_wizards(g.fah.clone(), g.tah.clone(), &mut commands, 2.0);
+                print_text(&choice.to_string(), &mut commands, g.fah(), Vec2::new(9.5, 5.0), PlayerNameMenuScreen);
+                print_text("Which color?", &mut commands, g.fah(), Vec2::new(1.0, 3.0), PlayerNameMenuScreen);
+                show_wizards(g.fah(), g.tah(), &mut commands, 2.0);
             }
         }
         return;
@@ -147,7 +147,7 @@ fn player_name_menu_keyboard_input(
             if (49..=56).contains(&c) {
                 let choice = c-48;
                 player.color= Some(choice as u8);
-                //print_text(&*choice.to_string(), &mut commands, g.fah.clone(), Vec2::new(7.5, 3.0), PlayerNameMenuScreen);
+                //print_text(&*choice.to_string(), &mut commands, g.fah(), Vec2::new(7.5, 3.0), PlayerNameMenuScreen);
             }
         }
     }

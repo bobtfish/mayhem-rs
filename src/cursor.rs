@@ -43,7 +43,7 @@ fn cursor_setup(
         x,
         y,
         flash_timer: Timer::from_seconds(ANIMATION_TICK/2.0, true),
-        entity: Some(commands.spawn_bundle(display::get_sprite_sheet_bundle_z(game.tah.clone(), Vec2::new(f32::from(x), f32::from(y)), CURSOR_SPRITE_ID, CURSOR_Z)).id()),
+        entity: Some(commands.spawn_bundle(display::get_sprite_sheet_bundle_z(game.tah(), Vec2::new(f32::from(x), f32::from(y)), CURSOR_SPRITE_ID, CURSOR_Z)).id()),
     };
 }
 
