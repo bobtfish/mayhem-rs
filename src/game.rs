@@ -1,16 +1,12 @@
 use bevy::prelude::*;
-use crate::gamestate::GameState;
-use crate::system;
-use crate::display::*;
-use crate::constants::ANIMATION_TICK;
 use crate::player::Player;
 use crate::cursor::Cursor;
 use crate::constants::*;
 
 #[derive(Default)]
 pub struct Game {
-    pub tah: Handle<TextureAtlas>,
-    pub fah: Handle<TextureAtlas>,
+    tah: Handle<TextureAtlas>,
+    fah: Handle<TextureAtlas>,
     pub cursor: Cursor,
     pub players: u8,
     pub ai_level: u8,

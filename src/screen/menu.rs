@@ -48,13 +48,13 @@ fn initial_menu_keyboard_input(
             if (50..=56).contains(&c) {
                 game.players = (c-48) as u8;
                 println!("Players {}", game.players);
-                print_text(&game.players.to_string(), &mut commands, game.fah.clone(), Vec2::new(8.5, 6.0), InitialMenuScreen);
-                print_text("Level of computer wizards?", &mut commands, game.fah.clone(), Vec2::new(1.0, 4.0), InitialMenuScreen);
-                print_text("(Press 1 to 8)", &mut commands, game.fah.clone(), Vec2::new(1.0, 3.0), InitialMenuScreen);
+                print_text(&game.players.to_string(), &mut commands, game.fah(), Vec2::new(8.5, 6.0), InitialMenuScreen);
+                print_text("Level of computer wizards?", &mut commands, game.fah(), Vec2::new(1.0, 4.0), InitialMenuScreen);
+                print_text("(Press 1 to 8)", &mut commands, game.fah(), Vec2::new(1.0, 3.0), InitialMenuScreen);
             }
         } else if (49..=56).contains(&c) {
             game.ai_level = (c-48) as u8;
-            print_text(&game.ai_level.to_string(), &mut commands, game.fah.clone(), Vec2::new(8.5, 3.0), InitialMenuScreen);
+            print_text(&game.ai_level.to_string(), &mut commands, game.fah(), Vec2::new(8.5, 3.0), InitialMenuScreen);
             // TODO - Do we want a pause here?
             state.set(GameState::PlayerNameMenu).unwrap();
         }

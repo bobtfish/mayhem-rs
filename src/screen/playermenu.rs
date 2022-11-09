@@ -47,11 +47,11 @@ fn player_menu_setup(
     mut keys: ResMut<Input<KeyCode>>,
 ) {
     keys.clear();
-    print_text(&g.get_player().name, &mut commands, g.fah.clone(), Vec2::new(2.0, 8.0), PlayerMenu);
-    print_text("1. Examine Spells", &mut commands, g.fah.clone(), Vec2::new(2.0, 6.0), PlayerMenu);
-    print_text("2. Select Spell", &mut commands, g.fah.clone(), Vec2::new(2.0, 5.0), PlayerMenu);
-    print_text("3. Examine Board", &mut commands, g.fah.clone(), Vec2::new(2.0, 4.0), PlayerMenu);
-    print_text("4. Continue with Game", &mut commands, g.fah.clone(), Vec2::new(2.0, 3.0), PlayerMenu);
+    print_text(&g.get_player().name, &mut commands, g.fah(), Vec2::new(2.0, 8.0), PlayerMenu);
+    print_text("1. Examine Spells", &mut commands, g.fah(), Vec2::new(2.0, 6.0), PlayerMenu);
+    print_text("2. Select Spell", &mut commands, g.fah(), Vec2::new(2.0, 5.0), PlayerMenu);
+    print_text("3. Examine Board", &mut commands, g.fah(), Vec2::new(2.0, 4.0), PlayerMenu);
+    print_text("4. Continue with Game", &mut commands, g.fah(), Vec2::new(2.0, 3.0), PlayerMenu);
 }
 
 fn player_menu_keyboard(
@@ -96,16 +96,16 @@ fn player_menu_choose_spell_setup(
 ) {
     let mut n_player = (g.player_info.len()+1).to_string();
     n_player.push_str("'s spells");
-    print_text(&n_player, &mut commands, g.fah.clone(), Vec2::new(0.5, 10.0), screen);
+    print_text(&n_player, &mut commands, g.fah(), Vec2::new(0.5, 10.0), screen);
     let player = g.get_player();
     for (i, spell) in (0_u8..).zip((&player.spells).into_iter()) {
         let x = if 1 == i % 2 { 7.0 } else { 0.5 };
         let mut name_str = ((i+65) as char).to_string();
         name_str.push_str(spell.get_sep());
         name_str.push_str(&spell.name);
-        print_text(&name_str, &mut commands, g.fah.clone(), Vec2::new(x, 9.0-f32::from(i/2)), screen);
+        print_text(&name_str, &mut commands, g.fah(), Vec2::new(x, 9.0-f32::from(i/2)), screen);
     }
-    print_text("Press 0 to exit", &mut commands, g.fah.clone(), Vec2::new(4.0, 0.0), screen);
+    print_text("Press 0 to exit", &mut commands, g.fah(), Vec2::new(4.0, 0.0), screen);
 }
 
 #[derive(Component, Clone, Copy)]
@@ -165,10 +165,10 @@ fn player_menu_examine_one_spell_setup(
     mut ev_choose_spell: EventReader<PlayerMenuEvent>,
 ) {
     for ev in ev_choose_spell.iter() {
-        print_text(&g.get_player().spells[ev.0].name, &mut commands, g.fah.clone(), Vec2::new(1.0, 10.0), ExamineOneSpellScreen);
+        print_text(&g.get_player().spells[ev.0].name, &mut commands, g.fah(), Vec2::new(1.0, 10.0), ExamineOneSpellScreen);
     }
     // FIXME - add more spell details
-    print_text("Any key to exit", &mut commands, g.fah.clone(), Vec2::new(4.0, 0.0), ExamineOneSpellScreen);
+    print_text("Any key to exit", &mut commands, g.fah(), Vec2::new(4.0, 0.0), ExamineOneSpellScreen);
 }
 
 fn player_menu_examine_one_spell_keyboard(
@@ -208,7 +208,7 @@ fn player_menu_examine_board_setup(
     mut commands: Commands,
     g: Res<Game>,
 ) {
-    print_text("Press 0 to exit", &mut commands, g.fah.clone(), Vec2::new(2.0, 6.0), ExamineBoardScreen);
+    print_text("Press 0 to exit", &mut commands, g.fah(), Vec2::new(2.0, 6.0), ExamineBoardScreen);
 }
 
 fn player_menu_examine_board_keyboard(
