@@ -1,6 +1,7 @@
 use bevy::prelude::*;
-use super::{GameState, despawn_screen, ANIMATION_TICK};
+use super::{GameState, despawn_screen};
 use crate::display::*;
+use crate::constants::ANIMATION_TICK;
 use crate::player::Player;
 use crate::cursor::Cursor;
 

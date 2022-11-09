@@ -3,11 +3,10 @@
 #![allow(clippy::wildcard_imports, clippy::too_many_arguments, clippy::unused_self, clippy::needless_pass_by_value, clippy::module_name_repetitions, clippy::similar_names, clippy::cast_precision_loss, clippy::cast_possible_truncation)]
 
 use bevy::{prelude::*, render::texture::ImageSettings, window::PresentMode, math::vec3};
-pub mod constants;
-pub use self::constants::*;
 use crate::display::*;
 use crate::spell::{load_all_spells, AllSpells};
 use crate::game::Game;
+use crate::constants::*;
 
 
 fn setup_initial(
@@ -83,3 +82,4 @@ mod player;
 mod spell;
 mod cursor;
 mod creature;
+mod constants;
