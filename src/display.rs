@@ -4,6 +4,16 @@ use rand::Rng;
 use crate::constants::*;
 const WIZARD_IDX: usize = 170;
 
+pub fn setup(
+    mut commands: Commands,
+) {
+    commands.spawn_bundle(Camera2dBundle {
+        transform: Transform::from_scale(vec3(1.0/(SCALE*SPRITE_SIZE as f32), 1.0/(SCALE*SPRITE_SIZE as f32), 1.0))
+            .with_translation(vec3((WIDTH/2) as f32-0.5, (HEIGHT/2) as f32-0.5, CAMERA_Z)),
+        ..default()
+    });
+}
+
 pub fn get_border(
     commands: &mut Commands,
     texture_atlas_handle: Handle<TextureAtlas>

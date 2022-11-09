@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use super::{get_sprite_sheet_bundle};
+use crate::display;
 use crate::spell::{AllSpells, Spell};
 use rand::prelude::SliceRandom;
 
@@ -28,7 +28,7 @@ impl Player {
         commands: &mut Commands,
         tah: Handle<TextureAtlas>
     ) {
-        self.handle = Some(commands.spawn_bundle(get_sprite_sheet_bundle(tah, Vec2::new(self.x, self.y), (169 + self.character_icon) as usize)).id());
+        self.handle = Some(commands.spawn_bundle(display::get_sprite_sheet_bundle(tah, Vec2::new(self.x, self.y), (169 + self.character_icon) as usize)).id());
     }
 }
 

@@ -3,7 +3,19 @@
 #![allow(clippy::wildcard_imports, clippy::too_many_arguments, clippy::unused_self, clippy::needless_pass_by_value, clippy::module_name_repetitions, clippy::similar_names, clippy::cast_precision_loss, clippy::cast_possible_truncation)]
 
 use bevy::{prelude::*, render::texture::ImageSettings, window::PresentMode, math::vec3};
-use crate::display::*;
+
+mod menu;
+mod game;
+mod choosespell;
+mod display;
+mod player;
+mod spell;
+mod cursor;
+mod creature;
+mod constants;
+mod system;
+mod gamestate;
+
 use crate::spell::{load_all_spells, AllSpells};
 use crate::game::Game;
 use crate::constants::*;
@@ -21,12 +33,6 @@ fn setup_initial(
     game.tah = texture_atlases.add(texture_atlas);
     let font_atlas = TextureAtlas::from_grid(texture_handle, Vec2::new((SPRITE_SIZE/2) as f32, SPRITE_SIZE as f32), 20, 41);
     game.fah = texture_atlases.add(font_atlas);
-
-    commands.spawn_bundle(Camera2dBundle {
-        transform: Transform::from_scale(vec3(1.0/(SCALE*SPRITE_SIZE as f32), 1.0/(SCALE*SPRITE_SIZE as f32), 1.0))
-            .with_translation(vec3((WIDTH/2) as f32-0.5, (HEIGHT/2) as f32-0.5, CAMERA_Z)),
-        ..default()
-    });
 }
 
 fn main() {
@@ -44,6 +50,7 @@ fn main() {
         .insert_resource(AllSpells(load_all_spells()))
         .add_plugins(DefaultPlugins)
         .add_state(GameState::InitialMenu)
+        .add_startup_system(display::setup)
         .add_startup_system(setup_initial)
         .add_plugin(menu::MenuPlugin)
         .add_plugin(choosespell::ChooseSpellPlugin)
@@ -52,15 +59,3 @@ fn main() {
         .add_system(bevy::window::close_on_esc)
         .run();
 }
-
-mod menu;
-mod game;
-mod choosespell;
-mod display;
-mod player;
-mod spell;
-mod cursor;
-mod creature;
-mod constants;
-mod system;
-mod gamestate;

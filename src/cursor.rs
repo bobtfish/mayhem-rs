@@ -1,7 +1,8 @@
 use bevy::math::vec2;
 use bevy::{prelude::*};
 use super::constants::{ANIMATION_TICK, WIDTH, HEIGHT, CURSOR_Z};
-use super::{get_sprite_sheet_bundle_z, GameState, Game};
+use super::{GameState, Game};
+use crate::display;
 
 const CURSOR_SPRITE_ID: usize = 165;
 pub struct CursorPlugin;
@@ -42,7 +43,7 @@ fn cursor_setup(
         x,
         y,
         flash_timer: Timer::from_seconds(ANIMATION_TICK/2.0, true),
-        entity: Some(commands.spawn_bundle(get_sprite_sheet_bundle_z(game.tah.clone(), Vec2::new(f32::from(x), f32::from(y)), CURSOR_SPRITE_ID, CURSOR_Z)).id()),
+        entity: Some(commands.spawn_bundle(display::get_sprite_sheet_bundle_z(game.tah.clone(), Vec2::new(f32::from(x), f32::from(y)), CURSOR_SPRITE_ID, CURSOR_Z)).id()),
     };
 }
 
