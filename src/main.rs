@@ -8,6 +8,7 @@ pub mod cursor;
 pub use self::constants::*;
 use crate::display::*;
 use crate::player::Player;
+use crate::spell::{AllSpells, Spell};
 
 #[derive(Default)]
 struct Game {
@@ -29,24 +30,7 @@ impl Game {
     }
 }
 
-struct AllSpells(Vec<Spell>);
 
-#[derive(Default, Clone)]
-pub struct Spell {
-    pub name: String,
-    law_rating: i8,
-    reusable: bool,
-    casting_chance: u8,
-    cast_range: u8,
-    tries: u8,
-    no_line_of_sight_needed: bool,
-}
-
-impl Spell {
-    const fn get_sep(&self) -> &str {
-        return "-";
-    }
-}
 
 fn get_border(
     commands: &mut Commands,
@@ -237,3 +221,4 @@ mod game;
 mod choosespell;
 mod display;
 mod player;
+mod spell;

@@ -1,5 +1,6 @@
 use bevy::prelude::*;
-use super::{AllSpells, Spell, get_sprite_sheet_bundle};
+use super::{get_sprite_sheet_bundle};
+use crate::spell::{AllSpells, Spell};
 use rand::prelude::SliceRandom;
 
 pub struct Player {

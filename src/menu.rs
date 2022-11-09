@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use super::{GameState, despawn_screen, Game, get_border};
-use crate::{display::*, AllSpells};
+use crate::{display::*, spell::AllSpells};
 use crate::player::Player;
 
 pub struct MenuPlugin;
