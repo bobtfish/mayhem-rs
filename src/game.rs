@@ -1,8 +1,28 @@
 use bevy::prelude::*;
-use serde::{Deserialize, Serialize};
-use std::{collections::HashMap, fs::File};
-use super::{GameState, despawn_screen, ANIMATION_TICK, Game};
+use super::{GameState, despawn_screen, ANIMATION_TICK};
 use crate::display::*;
+use crate::player::Player;
+use crate::cursor::Cursor;
+
+#[derive(Default)]
+pub struct Game {
+    pub tah: Handle<TextureAtlas>,
+    pub fah: Handle<TextureAtlas>,
+    pub cursor: Cursor,
+    pub players: u8,
+    pub ai_level: u8,
+    pub player_info: Vec<Player>,
+    pub player_turn: u8,
+}
+
+impl Game {
+    pub fn get_player(&self) -> &Player {
+        &self.player_info[self.player_turn as usize]
+    }
+    pub fn get_player_mut(&mut self) -> &mut Player {
+        &mut self.player_info[self.player_turn as usize]
+    }
+}
 
 #[derive(Component)]
 struct Mortal {
@@ -98,27 +118,3 @@ fn animate_sprite(
     }
 }
 
-/// TODO
-/// 
-///
-#[derive(Debug, Deserialize, Serialize)]
-pub struct Creature {
-    pub name: String,
-    sprite_index: usize,
-}
-
-impl Creature {
-    fn to_entity(
-        &self,
-        v: Vec2,
-        commands: &mut Commands,
-        texture_atlas_handle: Handle<TextureAtlas>
-    ) -> Entity {
-        spawn_anim(commands, texture_atlas_handle, v, self.sprite_index, 4)
-    }
-}
-
-pub fn load_creatures() -> HashMap<String, Creature> {
-    let f = File::open("assets/creatures.ron").unwrap();
-    ron::de::from_reader(f).unwrap()
-}

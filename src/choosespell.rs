@@ -1,7 +1,8 @@
 use bevy::prelude::*;
 
-use super::{GameState, despawn_screen, Game};
+use super::{GameState, despawn_screen};
 use crate::display::*;
+use crate::game::Game;
 
 pub struct ChooseSpellPlugin;
 
