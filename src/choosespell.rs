@@ -1,8 +1,9 @@
 use bevy::prelude::*;
 
-use super::{GameState, despawn_screen};
 use crate::display::*;
 use crate::game::Game;
+use crate::gamestate::GameState;
+use crate::system;
 
 pub struct ChooseSpellPlugin;
 
@@ -12,27 +13,27 @@ impl Plugin for ChooseSpellPlugin {
             .add_event::<ChooseSpellEvent>()
             .add_system_set(SystemSet::on_enter(GameState::PlayerMenu).with_system(player_menu_setup))
             .add_system_set(SystemSet::on_update(GameState::PlayerMenu).with_system(player_menu_keyboard))
-            .add_system_set(SystemSet::on_exit(GameState::PlayerMenu).with_system(despawn_screen::<PlayerMenu>))
+            .add_system_set(SystemSet::on_exit(GameState::PlayerMenu).with_system(system::despawn_screen::<PlayerMenu>))
             // Specific transition/setup when going to next player
             .add_system_set(SystemSet::on_update(GameState::PlayerMenuTransition).with_system(player_menu_transition))
 
             .add_system_set(SystemSet::on_enter(GameState::PlayerMenuExamineSpell).with_system(player_menu_examine_spell_setup))
-            .add_system_set(SystemSet::on_exit(GameState::PlayerMenuExamineSpell).with_system(despawn_screen::<ExamineSpellScreen>))
+            .add_system_set(SystemSet::on_exit(GameState::PlayerMenuExamineSpell).with_system(system::despawn_screen::<ExamineSpellScreen>))
             .add_system_set(SystemSet::on_update(GameState::PlayerMenuExamineSpell).with_system(player_menu_examine_spell_keyboard))
             .add_system_set(SystemSet::on_update(GameState::PlayerMenuExamineSpell).with_system(player_menu_choose_spell_keyboard))
 
             .add_system_set(SystemSet::on_enter(GameState::PlayerMenuExamineOneSpell).with_system(player_menu_examine_one_spell_setup))
-            .add_system_set(SystemSet::on_exit(GameState::PlayerMenuExamineOneSpell).with_system(despawn_screen::<ExamineOneSpellScreen>))
+            .add_system_set(SystemSet::on_exit(GameState::PlayerMenuExamineOneSpell).with_system(system::despawn_screen::<ExamineOneSpellScreen>))
             .add_system_set(SystemSet::on_update(GameState::PlayerMenuExamineOneSpell).with_system(player_menu_examine_one_spell_keyboard))
 
             .add_system_set(SystemSet::on_enter(GameState::PlayerMenuSelectSpell).with_system(player_menu_select_spell_setup))
             .add_system_set(SystemSet::on_update(GameState::PlayerMenuSelectSpell).with_system(player_menu_select_spell_keyboard))
             .add_system_set(SystemSet::on_update(GameState::PlayerMenuSelectSpell).with_system(player_menu_choose_spell_keyboard))
-            .add_system_set(SystemSet::on_exit(GameState::PlayerMenuSelectSpell).with_system(despawn_screen::<SelectSpellScreen>))
+            .add_system_set(SystemSet::on_exit(GameState::PlayerMenuSelectSpell).with_system(system::despawn_screen::<SelectSpellScreen>))
 
             .add_system_set(SystemSet::on_enter(GameState::PlayerMenuExamineBoard).with_system(player_menu_examine_board_setup))
             .add_system_set(SystemSet::on_update(GameState::PlayerMenuExamineBoard).with_system(player_menu_examine_board_keyboard))
-            .add_system_set(SystemSet::on_exit(GameState::PlayerMenuExamineBoard).with_system(despawn_screen::<ExamineBoardScreen>))
+            .add_system_set(SystemSet::on_exit(GameState::PlayerMenuExamineBoard).with_system(system::despawn_screen::<ExamineBoardScreen>))
             ;
     }
 }

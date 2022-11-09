@@ -7,6 +7,7 @@ use crate::display::*;
 use crate::spell::{load_all_spells, AllSpells};
 use crate::game::Game;
 use crate::constants::*;
+use crate::gamestate::GameState;
 
 
 fn setup_initial(
@@ -26,21 +27,6 @@ fn setup_initial(
             .with_translation(vec3((WIDTH/2) as f32-0.5, (HEIGHT/2) as f32-0.5, CAMERA_Z)),
         ..default()
     });
-}
-
-// Enum that will be used as a global state for the game
-#[derive(Clone, Eq, PartialEq, Debug, Hash)]
-enum GameState {
-    InitialMenu,
-    PlayerNameMenu,
-    PlayerNameMenuTransition,
-    PlayerMenu,
-    PlayerMenuExamineSpell,
-    PlayerMenuExamineOneSpell,
-    PlayerMenuSelectSpell,
-    PlayerMenuExamineBoard,
-    PlayerMenuTransition,
-    Game,
 }
 
 fn main() {
@@ -67,13 +53,6 @@ fn main() {
         .run();
 }
 
-// Generic system that takes a component as a parameter, and will despawn all entities with that component
-fn despawn_screen<T: Component>(to_despawn: Query<Entity, With<T>>, mut commands: Commands) {
-    for entity in &to_despawn {
-        commands.entity(entity).despawn_recursive();
-    }
-}
-
 mod menu;
 mod game;
 mod choosespell;
@@ -83,3 +62,5 @@ mod spell;
 mod cursor;
 mod creature;
 mod constants;
+mod system;
+mod gamestate;

@@ -1,5 +1,6 @@
 use bevy::prelude::*;
-use super::{GameState, despawn_screen};
+use crate::gamestate::GameState;
+use crate::system;
 use crate::display::*;
 use crate::constants::ANIMATION_TICK;
 use crate::player::Player;
@@ -49,7 +50,7 @@ impl Plugin for GamePlugin {
                 )
             .add_system_set(
                 SystemSet::on_exit(GameState::Game)
-                    .with_system(despawn_screen::<OnGameScreen>),
+                    .with_system(system::despawn_screen::<OnGameScreen>),
             );
     }
 }

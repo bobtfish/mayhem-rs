@@ -1,9 +1,10 @@
 use bevy::prelude::*;
 
-use super::{GameState, despawn_screen, get_border};
 use crate::{display::*, spell::AllSpells};
 use crate::player::Player;
 use crate::game::Game;
+use crate::system;
+use crate::gamestate::GameState;
 
 pub struct MenuPlugin;
 
@@ -12,10 +13,10 @@ impl Plugin for MenuPlugin {
         app
             .add_system_set(SystemSet::on_enter(GameState::InitialMenu).with_system(initial_menu_setup))
             .add_system_set(SystemSet::on_update(GameState::InitialMenu).with_system(initial_menu_keyboard_input))
-            .add_system_set(SystemSet::on_exit(GameState::InitialMenu).with_system(despawn_screen::<InitialMenuScreen>))
+            .add_system_set(SystemSet::on_exit(GameState::InitialMenu).with_system(system::despawn_screen::<InitialMenuScreen>))
             .add_system_set(SystemSet::on_enter(GameState::PlayerNameMenu).with_system(player_name_menu_setup))
             .add_system_set(SystemSet::on_update(GameState::PlayerNameMenu).with_system(player_name_menu_keyboard_input))
-            .add_system_set(SystemSet::on_exit(GameState::PlayerNameMenu).with_system(despawn_screen::<PlayerNameMenuScreen>))
+            .add_system_set(SystemSet::on_exit(GameState::PlayerNameMenu).with_system(system::despawn_screen::<PlayerNameMenuScreen>))
             .add_system_set(SystemSet::on_update(GameState::PlayerNameMenuTransition).with_system(player_name_menu_transition));
     }
 }
