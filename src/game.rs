@@ -5,6 +5,7 @@ use crate::display::*;
 use crate::constants::ANIMATION_TICK;
 use crate::player::Player;
 use crate::cursor::Cursor;
+use crate::constants::*;
 
 #[derive(Default)]
 pub struct Game {
@@ -18,6 +19,12 @@ pub struct Game {
 }
 
 impl Game {
+    pub fn tah(&self) -> Handle<TextureAtlas> {
+        self.tah.clone()
+    }
+    pub fn fah(&self) -> Handle<TextureAtlas> {
+        self.fah.clone()
+    }
     pub fn get_player(&self) -> &Player {
         &self.player_info[self.player_turn as usize]
     }
@@ -26,16 +33,16 @@ impl Game {
     }
 }
 
-#[derive(Component)]
-struct Mortal {
-    is_alive: bool
-}
-
-#[derive(Component)]
-struct RepeatAnimation {
-    max: usize,
-    init: usize,
-    timer: Timer,
+fn setup_game(
+    asset_server: Res<AssetServer>,
+    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+    mut game: ResMut<Game>,
+) {
+    let texture_handle = asset_server.load("sprite_sheet.png");
+    let texture_atlas = TextureAtlas::from_grid(texture_handle.clone(), Vec2::new(SPRITE_SIZE as f32, SPRITE_SIZE as f32), 10, 41);
+    game.tah = texture_atlases.add(texture_atlas);
+    let font_atlas = TextureAtlas::from_grid(texture_handle, Vec2::new((SPRITE_SIZE/2) as f32, SPRITE_SIZE as f32), 20, 41);
+    game.fah = texture_atlases.add(font_atlas);
 }
 
 pub struct GamePlugin;
@@ -43,80 +50,7 @@ pub struct GamePlugin;
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_system_set(SystemSet::on_enter(GameState::Game).with_system(game_setup))
-            .add_system_set(
-                SystemSet::on_update(GameState::Game)
-                    .with_system(animate_sprite)
-                )
-            .add_system_set(
-                SystemSet::on_exit(GameState::Game)
-                    .with_system(system::despawn_screen::<OnGameScreen>),
-            );
+            .init_resource::<Game>()
+            .add_startup_system(setup_game);
     }
 }
-
-// Tag component used to tag entities added on the menu screen
-#[derive(Component)]
-struct OnGameScreen;
-
-fn game_setup(
-    mut commands: Commands,
-    mut g: ResMut<Game>,
-) {
-    let tah = g.tah.clone();
-    // Wizard with bow
-    //spawn_anim(&mut commands, g.tah.clone(), Vec2::splat(2.0), 120, 8);
-    // Spell/splodey thing
-    //spawn_anim(&mut commands, g.tah.clone(), Vec2::splat(1.0), 180, 4);
-
-    //let creature = spawn_anim(&mut commands, g.tah.clone(), Vec2::splat(3.0), 210, 4);
-    //commands.entity(creature).insert(Mortal{is_alive: false});
-
-    //let creature_map = load_creatures();
-    //creature_map.get("Pegasus").unwrap().to_entity(Vec2::splat(4.0), &mut commands, g.tah.clone());
-    for p in g.player_info.iter_mut() {
-        p.spawn(&mut commands, tah.clone());
-    }
-}
-
-pub fn spawn_anim(
-    commands: &mut Commands,
-    texture_atlas_handle: Handle<TextureAtlas>,
-    v: Vec2,
-    init: usize,
-    num: usize
-) -> Entity {
-    return commands
-        .spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle, v, init))
-        .insert(RepeatAnimation {
-            max: init+num-1,
-            init,
-            timer: Timer::from_seconds(ANIMATION_TICK, true),
-        }).id();
-}
-
-fn animate_sprite(
-    time: Res<Time>,
-    mut query: Query<(
-        &mut TextureAtlasSprite,
-        &mut RepeatAnimation,
-        Option<&Mortal>,
-    )>,
-) {
-    for (mut sprite, mut repeater, mortal) in &mut query {
-        repeater.timer.tick(time.delta());
-        if repeater.timer.just_finished() {
-            let alive = mortal.map_or(true, |x| x.is_alive);
-            if alive {
-                let mut index = sprite.index + 1;
-                if index > repeater.max {
-                    index = repeater.init;
-                }
-                sprite.index = index;
-            } else {
-                sprite.index = repeater.max + 1;
-            }
-        }
-    }
-}
-

@@ -83,3 +83,55 @@ fn char_to_pos(c: char) -> usize {
     0
 }
 
+#[derive(Component)]
+pub struct Mortal {
+    is_alive: bool
+}
+
+#[derive(Component)]
+pub struct RepeatAnimation {
+    max: usize,
+    init: usize,
+    timer: Timer,
+}
+
+pub fn spawn_anim(
+    commands: &mut Commands,
+    texture_atlas_handle: Handle<TextureAtlas>,
+    v: Vec2,
+    init: usize,
+    num: usize
+) -> Entity {
+    return commands
+        .spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle, v, init))
+        .insert(RepeatAnimation {
+            max: init+num-1,
+            init,
+            timer: Timer::from_seconds(ANIMATION_TICK, true),
+        }).id();
+}
+
+pub fn animate_sprite(
+    time: Res<Time>,
+    mut query: Query<(
+        &mut TextureAtlasSprite,
+        &mut RepeatAnimation,
+        Option<&Mortal>,
+    )>,
+) {
+    for (mut sprite, mut repeater, mortal) in &mut query {
+        repeater.timer.tick(time.delta());
+        if repeater.timer.just_finished() {
+            let alive = mortal.map_or(true, |x| x.is_alive);
+            if alive {
+                let mut index = sprite.index + 1;
+                if index > repeater.max {
+                    index = repeater.init;
+                }
+                sprite.index = index;
+            } else {
+                sprite.index = repeater.max + 1;
+            }
+        }
+    }
+}

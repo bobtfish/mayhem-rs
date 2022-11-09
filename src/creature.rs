@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, fs::File};
-use crate::game::spawn_anim;
+use crate::display::spawn_anim;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Creature {

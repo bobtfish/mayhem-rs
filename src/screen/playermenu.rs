@@ -5,12 +5,12 @@ use crate::game::Game;
 use crate::gamestate::GameState;
 use crate::system;
 
-pub struct ChooseSpellPlugin;
+pub struct PlayerMenuPlugin;
 
-impl Plugin for ChooseSpellPlugin {
+impl Plugin for PlayerMenuPlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_event::<ChooseSpellEvent>()
+            .add_event::<PlayerMenuEvent>()
             .add_system_set(SystemSet::on_enter(GameState::PlayerMenu).with_system(player_menu_setup))
             .add_system_set(SystemSet::on_update(GameState::PlayerMenu).with_system(player_menu_keyboard))
             .add_system_set(SystemSet::on_exit(GameState::PlayerMenu).with_system(system::despawn_screen::<PlayerMenu>))
@@ -123,7 +123,7 @@ fn player_menu_choose_spell_keyboard(
     mut keys: ResMut<Input<KeyCode>>,
     mut char_evr: ResMut<Events<ReceivedCharacter>>,
     g: Res<Game>,
-    mut ev_choose_spell: EventWriter<ChooseSpellEvent>,
+    mut ev_choose_spell: EventWriter<PlayerMenuEvent>,
 ) {
     let player = g.get_player();
     if keys.just_pressed(KeyCode::Key0) {
@@ -135,21 +135,21 @@ fn player_menu_choose_spell_keyboard(
         if c >= 65 && c <= 65 + player.spells.len() {
             let choice = c-65;
             println!("Chosen spell {}", choice);
-            ev_choose_spell.send(ChooseSpellEvent(choice));
+            ev_choose_spell.send(PlayerMenuEvent(choice));
         }
         if c >= 97 && c <= 97 + player.spells.len() {
             let choice = c-97;
             println!("Chosen spell {}", choice);
-            ev_choose_spell.send(ChooseSpellEvent(choice));
+            ev_choose_spell.send(PlayerMenuEvent(choice));
         }
     }
 }
 
-struct ChooseSpellEvent(usize);
+struct PlayerMenuEvent(usize);
 
 fn player_menu_examine_spell_keyboard(
     mut state: ResMut<State<GameState>>,
-    mut ev_choose_spell: EventReader<ChooseSpellEvent>,
+    mut ev_choose_spell: EventReader<PlayerMenuEvent>,
 ) {
     for _ in ev_choose_spell.iter() {
         state.set(GameState::PlayerMenuExamineOneSpell).unwrap();
@@ -162,7 +162,7 @@ struct ExamineOneSpellScreen;
 fn player_menu_examine_one_spell_setup(
     mut commands: Commands,
     g: Res<Game>,
-    mut ev_choose_spell: EventReader<ChooseSpellEvent>,
+    mut ev_choose_spell: EventReader<PlayerMenuEvent>,
 ) {
     for ev in ev_choose_spell.iter() {
         print_text(&g.get_player().spells[ev.0].name, &mut commands, g.fah.clone(), Vec2::new(1.0, 10.0), ExamineOneSpellScreen);
@@ -192,7 +192,7 @@ fn player_menu_select_spell_setup(
 
 fn player_menu_select_spell_keyboard(
     mut state: ResMut<State<GameState>>,
-    mut ev_choose_spell: EventReader<ChooseSpellEvent>,
+    mut ev_choose_spell: EventReader<PlayerMenuEvent>,
     mut g: ResMut<Game>,
 ) {
     for ev in ev_choose_spell.iter() {
