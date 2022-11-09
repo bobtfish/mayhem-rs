@@ -10,26 +10,6 @@ use crate::spell::{load_all_spells, AllSpells};
 use crate::game::Game;
 
 
-
-
-fn get_border(
-    commands: &mut Commands,
-    texture_atlas_handle: Handle<TextureAtlas>
-) {
-    commands.spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(0.0, 1.0), BORDER_BOTTOMLEFT));
-    commands.spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(0.0, (HEIGHT-1) as f32), BORDER_TOPLEFT));
-    commands.spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new((WIDTH-1) as f32, 1.0), BORDER_BOTTOMRIGHT));
-    commands.spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new((WIDTH-1) as f32, (HEIGHT-1) as f32), BORDER_TOPRIGHT));
-    for n in 2..HEIGHT-1 {
-        commands.spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(0.0, n as f32), BORDER_LEFT));
-        commands.spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new((WIDTH-1) as f32, n as f32), BORDER_RIGHT));
-    }
-    for n in 1..WIDTH-1 {
-        commands.spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(n as f32, 1.0), BORDER_BOTTOM));
-        commands.spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(n as f32, (HEIGHT-1) as f32), BORDER_TOP));
-    }
-}
-
 fn setup_initial(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
