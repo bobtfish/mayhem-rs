@@ -1,6 +1,13 @@
 use crate::creature::load_creatures;
+use std::ops::Deref;
 
-pub struct AllSpells(pub Vec<Spell>);
+pub struct AllSpells(Vec<Spell>);
+impl Deref for AllSpells {
+    type Target = Vec<Spell>;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
 
 #[derive(Default, Clone)]
 pub struct Spell {
@@ -19,7 +26,7 @@ impl Spell {
     }
 }
 
-pub fn load_all_spells() -> Vec<Spell> {
+pub fn load_all_spells() -> AllSpells {
     let mut spells = vec![
         Spell {name: "Disbelieve".to_string(), ..Default::default()},
         Spell {
@@ -117,5 +124,5 @@ pub fn load_all_spells() -> Vec<Spell> {
             ..Default::default()
         });
     }
-    spells
+    AllSpells(spells)
 }

@@ -15,7 +15,7 @@ mod constants;
 mod system;
 mod gamestate;
 
-use crate::spell::{load_all_spells, AllSpells};
+use crate::spell::load_all_spells;
 use crate::game::Game;
 use crate::constants::*;
 use crate::gamestate::GameState;
@@ -32,7 +32,7 @@ fn main() {
         .add_plugin(game::GamePlugin)
         .insert_resource(ImageSettings::default_nearest()) // prevents blurry sprites
         .insert_resource(ClearColor(Color::rgb(0.0, 0.0, 0.0)))
-        .insert_resource(AllSpells(load_all_spells()))
+        .insert_resource(load_all_spells())
         .add_plugins(DefaultPlugins)
         .add_state(GameState::InitialMenu)
         .add_startup_system(display::setup)

@@ -17,9 +17,9 @@ pub struct Player {
 
 impl Player {
     pub fn pick_spells(&mut self, allspells: &AllSpells) {
-        let mut sample: Vec<_> = allspells.0[1..].choose_multiple(&mut rand::thread_rng(), 13)
+        let mut sample: Vec<_> = allspells[1..].choose_multiple(&mut rand::thread_rng(), 13)
         .cloned().collect();
-        sample.insert(0, allspells.0[0].clone());
+        sample.insert(0, allspells[0].clone());
         self.spells = sample;
 
     }
