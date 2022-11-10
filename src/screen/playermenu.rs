@@ -105,7 +105,7 @@ fn player_menu_choose_spell_setup(
         name_str.push_str(&spell.name);
         print_text(&name_str, &mut commands, g.fah(), Vec2::new(x, 8.0-f32::from(i/2)), screen);
     }
-    print_text("Press 0 to exit", &mut commands, g.fah(), Vec2::new(3.5, -1.0), screen);
+    print_text("Press 0 to exit", &mut commands, g.fah(), Vec2::new(3.5, -2.0), screen);
 }
 
 #[derive(Component, Clone, Copy)]
