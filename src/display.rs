@@ -9,7 +9,7 @@ pub fn setup(
 ) {
     commands.spawn_bundle(Camera2dBundle {
         transform: Transform::from_scale(vec3(1.0/(SCALE*SPRITE_SIZE as f32), 1.0/(SCALE*SPRITE_SIZE as f32), 1.0))
-            .with_translation(vec3((WIDTH/2) as f32-0.5, (HEIGHT/2) as f32-0.5, CAMERA_Z)),
+            .with_translation(vec3((WIDTH/2) as f32-1.0, (HEIGHT/2) as f32-2.0, CAMERA_Z)),
         ..default()
     });
 }
@@ -18,17 +18,17 @@ pub fn get_border(
     commands: &mut Commands,
     texture_atlas_handle: Handle<TextureAtlas>
 ) {
-    commands.spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(0.0, 1.0), BORDER_BOTTOMLEFT));
-    commands.spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(0.0, (HEIGHT-1) as f32), BORDER_TOPLEFT));
-    commands.spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new((WIDTH-1) as f32, 1.0), BORDER_BOTTOMRIGHT));
-    commands.spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new((WIDTH-1) as f32, (HEIGHT-1) as f32), BORDER_TOPRIGHT));
+    commands.spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(-0.5, -0.5), BORDER_BOTTOMLEFT, WHITE));
+    commands.spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(-0.5, (HEIGHT-1) as f32-1.5), BORDER_TOPLEFT, WHITE));
+    commands.spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new((WIDTH) as f32-1.5, -0.5), BORDER_BOTTOMRIGHT, WHITE));
+    commands.spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new((WIDTH) as f32-1.5, HEIGHT as f32-2.5), BORDER_TOPRIGHT, WHITE));
     for n in 2..HEIGHT-1 {
-        commands.spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(0.0, n as f32), BORDER_LEFT));
-        commands.spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new((WIDTH-1) as f32, n as f32), BORDER_RIGHT));
+        commands.spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(-0.5, n as f32-1.5), BORDER_LEFT, WHITE));
+        commands.spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new((WIDTH) as f32-1.5, n as f32-1.5), BORDER_RIGHT, WHITE));
     }
     for n in 1..WIDTH-1 {
-        commands.spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(n as f32, 1.0), BORDER_BOTTOM));
-        commands.spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(n as f32, (HEIGHT-1) as f32), BORDER_TOP));
+        commands.spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(n as f32-0.5, -0.5), BORDER_BOTTOM, WHITE));
+        commands.spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(n as f32-0.5, HEIGHT as f32-2.5), BORDER_TOP, WHITE));
     }
 }
 
@@ -36,19 +36,27 @@ pub fn get_sprite_sheet_bundle(
     texture_atlas_handle: Handle<TextureAtlas>,
     v: Vec2,
     init: usize,
+    color: Color,
 ) -> SpriteSheetBundle {
-    get_sprite_sheet_bundle_z(texture_atlas_handle, v, init, 0.0)
+    get_sprite_sheet_bundle_z(texture_atlas_handle, v, init, color, 0.0)
 }
+
+pub fn random_color() -> Color {
+    let mut rng = rand::thread_rng();
+    Color::rgba(rng.gen::<f32>(), rng.gen::<f32>(), rng.gen::<f32>(), 1.0)
+}
+
+pub const WHITE: Color = Color::rgba(1.0, 1.0, 1.0, 1.0);
 
 pub fn get_sprite_sheet_bundle_z(
     texture_atlas_handle: Handle<TextureAtlas>,
     v: Vec2,
     init: usize,
+    color: Color,
     z: f32,
 ) -> SpriteSheetBundle {
-    let mut rng = rand::thread_rng();
     let mut sprite = TextureAtlasSprite::new(init);
-    sprite.color = Color::rgba(rng.gen::<f32>(), rng.gen::<f32>(), rng.gen::<f32>(), 1.0);
+    sprite.color = color;
     SpriteSheetBundle {
         texture_atlas: texture_atlas_handle,
         transform: Transform::from_translation(v.extend(z)).with_scale(vec3(1.0/SPRITE_SIZE as f32, 1.0/SPRITE_SIZE as f32, 1.0)),
@@ -62,13 +70,13 @@ pub fn print_text(str: &str, commands: &mut Commands, fah: Handle<TextureAtlas>,
     for (i,ch) in str.chars().enumerate() {
         let mut new_v = v;
         new_v.x += i as f32/2.0;
-        commands.spawn_bundle(get_sprite_sheet_bundle(fah.clone(), new_v, char_to_pos(ch)))
+        commands.spawn_bundle(get_sprite_sheet_bundle(fah.clone(), new_v, char_to_pos(ch), WHITE))
         .insert(c);
     }
 }
 
 pub fn print_wizard(commands: &mut Commands, tah: Handle<TextureAtlas>, v: Vec2, idx: usize, c: impl Component + std::marker::Copy) {
-    commands.spawn_bundle(get_sprite_sheet_bundle(tah, v, WIZARD_IDX + idx))
+    commands.spawn_bundle(get_sprite_sheet_bundle(tah, v, WIZARD_IDX + idx, WHITE))
     .insert(c);
 }
 
@@ -103,7 +111,7 @@ pub fn spawn_anim(
     num: usize
 ) -> Entity {
     return commands
-        .spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle, v, init))
+        .spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle, v, init, WHITE))
         .insert(RepeatAnimation {
             max: init+num-1,
             init,

@@ -36,7 +36,7 @@ fn cursor_setup(
 ) {
     let x = 0;
     let y = 0;
-    let entity = commands.spawn_bundle(display::get_sprite_sheet_bundle_z(game.tah(), Vec2::new(f32::from(x), f32::from(y)), CURSOR_SPRITE_ID, CURSOR_Z));
+    let entity = commands.spawn_bundle(display::get_sprite_sheet_bundle_z(game.tah(), Vec2::new(f32::from(x), f32::from(y)), CURSOR_SPRITE_ID, display::WHITE, CURSOR_Z));
     game.cursor = Cursor{
         visible: true,
         flash: true,
@@ -58,11 +58,11 @@ fn keyboard_input(
         game.cursor.x -= 1;
         moved = true;
     }
-    if keys.just_pressed(KeyCode::Right) && game.cursor.x < WIDTH as u8 {
+    if keys.just_pressed(KeyCode::Right) && game.cursor.x < WIDTH as u8 -2 {
         game.cursor.x += 1;
         moved = true;
     }
-    if keys.just_pressed(KeyCode::Up) && game.cursor.y < HEIGHT as u8 {
+    if keys.just_pressed(KeyCode::Up) && game.cursor.y < HEIGHT as u8 -3 {
         game.cursor.y += 1;
         moved = true;
     }
