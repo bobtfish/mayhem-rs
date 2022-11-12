@@ -25,14 +25,17 @@ impl Plugin for MenuPlugin {
 #[derive(Component, Clone, Copy)]
 struct InitialMenuScreen;
 
-fn initial_menu_setup(mut commands: Commands, g: Res<Game>) {
+fn initial_menu_setup(
+    mut commands: Commands,
+    g: Res<Game>,
+    mut ev_text: EventWriter<BottomTextEvent>,
+) {
     get_border(&mut commands, g.tah());
     print_text("  MAYHEM - Remake of Chaos", &mut commands, g.fah(), Vec2::new(0.5, 8.0), InitialMenuScreen);
     print_text("         By bobtfish", &mut commands, g.fah(), Vec2::new(0.5, 7.0), InitialMenuScreen);
     print_text("How many wizards?", &mut commands, g.fah(), Vec2::new(0.5, 5.0), InitialMenuScreen);
     print_text("(Press 2 to 8)", &mut commands, g.fah(), Vec2::new(0.5, 4.0), InitialMenuScreen);
-	//textBottom("       Press H for help", ss, win)
-
+    ev_text.send(BottomTextEvent::from("      Press H for help"));
 }
 
 
@@ -41,6 +44,7 @@ fn initial_menu_keyboard_input(
     mut state: ResMut<State<GameState>>,
     mut game: ResMut<Game>,
     mut commands: Commands,
+    mut ev_text: EventWriter<BottomTextEvent>,
 ) {
     for ev in char_evr.iter() {
         let c = ev.char as u32;
@@ -57,6 +61,7 @@ fn initial_menu_keyboard_input(
             print_text(&game.ai_level.to_string(), &mut commands, game.fah(), Vec2::new(8.0, 1.0), InitialMenuScreen);
             // TODO - Do we want a pause here?
             state.set(GameState::PlayerNameMenu).unwrap();
+            ev_text.send(BottomTextEvent::clear());
         }
     }
 }

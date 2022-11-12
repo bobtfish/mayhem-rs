@@ -11,5 +11,6 @@ pub enum GameState {
     PlayerMenuExamineBoard,
     PlayerMenuTransition,
     Game,
+    GameCastSpell,
 }
 

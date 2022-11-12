@@ -1,8 +1,22 @@
-use bevy::{prelude::*, math::vec3};
+use bevy::{prelude::*, math::{vec3, vec2}};
 use rand::Rng;
 
+use crate::game::Game;
+use crate::gamestate::GameState;
 use crate::constants::*;
 const WIZARD_IDX: usize = 170;
+
+pub struct DisplayPlugin;
+
+impl Plugin for DisplayPlugin {
+    fn build(&self, app: &mut App) {
+        app
+        .add_startup_system(setup)
+        .add_event::<BottomTextEvent>()
+        .add_system(manage_text_bottom)
+        .add_system(animate_sprite);
+    }
+}
 
 pub fn setup(
     mut commands: Commands,
@@ -66,12 +80,45 @@ pub fn get_sprite_sheet_bundle_z(
 }
 
 
-pub fn print_text(str: &str, commands: &mut Commands, fah: Handle<TextureAtlas>, v: Vec2, c: impl Component + std::marker::Copy) {
+pub fn print_text(str: &str, commands: &mut Commands, fah: Handle<TextureAtlas>, v: Vec2, c: impl Component + std::marker::Copy) -> Vec<Entity> {
+    let mut entities = Vec::new();
     for (i,ch) in str.chars().enumerate() {
         let mut new_v = v;
         new_v.x += i as f32/2.0;
-        commands.spawn_bundle(get_sprite_sheet_bundle(fah.clone(), new_v, char_to_pos(ch), WHITE))
-        .insert(c);
+        let new = commands.spawn_bundle(get_sprite_sheet_bundle(fah.clone(), new_v, char_to_pos(ch), WHITE))
+        .insert(c).id();
+        entities.push(new);
+    }
+    return entities;
+}
+
+#[derive(Component, Copy, Clone)]
+pub struct BottomText;
+
+#[derive(Deref)]
+pub struct BottomTextEvent(Option<String>);
+impl BottomTextEvent {
+    pub fn from(s: &str) -> Self {
+        Self(Some(String::from(s)))
+    }
+    pub const fn clear() -> Self {
+        Self(None)
+    }
+}
+
+pub fn manage_text_bottom(
+    mut commands: Commands,
+    game: Res<Game>,
+    mut ev_text: EventReader<BottomTextEvent>,
+    to_despawn: Query<Entity, With<BottomText>>,
+) {
+    for ev in ev_text.iter() {
+        for entity in &to_despawn {
+            commands.entity(entity).despawn_recursive();
+        }
+        if ev.is_some() {
+            print_text(ev.as_ref().unwrap(), &mut commands, game.fah(), vec2(0.0, -1.5), BottomText);
+        }
     }
 }
 

@@ -23,6 +23,14 @@ impl Player {
         self.spells = sample;
 
     }
+    pub fn get_chosen_spell(
+        &self
+    ) -> Option<&Spell> {
+        if self.chosen_spell.is_none() {
+            return None;
+        }
+        Some(&self.spells[self.chosen_spell.unwrap()])
+    }
     pub fn spawn(
         &mut self,
         commands: &mut Commands,
