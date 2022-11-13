@@ -3,7 +3,7 @@ use crate::gamestate::GameState;
 use crate::game::Game;
 use crate::display::{BottomTextEvent};
 use crate::system;
-use crate::cursor;
+use crate::cursor::{self, CURSOR_SPELL};
 
 pub struct BoardPlugin;
 
@@ -15,19 +15,12 @@ impl Plugin for BoardPlugin {
                     .with_system(game_setup)
                     .with_system(cursor::set_visible)
             )
-            .add_system_set(
-                SystemSet::on_update(GameState::Game)
-                    .with_system(game_next)
-                )
-            .add_system_set(
-                SystemSet::on_exit(GameState::Game)
-                    .with_system(system::despawn_screen::<OnGameScreen>),
-            )
+            .add_system_set(SystemSet::on_update(GameState::Game).with_system(game_next))
+            .add_system_set(SystemSet::on_exit(GameState::Game).with_system(system::despawn_screen::<OnGameScreen>))
             .add_system_set(SystemSet::on_enter(GameState::GameCastSpell).with_system(cast_spell_setup))
-            .add_system_set(
-                SystemSet::on_update(GameState::GameCastSpell)
-                    .with_system(cast_spell_keyboard)
-                );
+            .add_system_set(SystemSet::on_update(GameState::GameCastSpell).with_system(cast_spell_keyboard))
+            .add_system_set(SystemSet::on_exit(GameState::GameCastSpell).with_system(cast_spell_finish))
+            .add_system_set(SystemSet::on_enter(GameState::GameMove).with_system(move_setup));
     }
 }
 
@@ -58,9 +51,18 @@ fn game_setup(
 }
 
 fn game_next(
-    mut state: ResMut<State<GameState>>
+    mut state: ResMut<State<GameState>>,
+    mut g: ResMut<Game>,
 ) {
-    state.push(GameState::GameCastSpell).unwrap();
+    if g.player_turn >= g.players {
+        g.player_turn = 0;
+        println!("Spell casting finished, do movement now");
+        state.push(GameState::GameMove).unwrap();
+    } else {
+        println!("Player turn to cast spell");
+        // Next player's turn to cast a spell
+        state.push(GameState::GameCastSpell).unwrap();
+    }
 }
 
 fn cast_spell_setup(
@@ -68,6 +70,7 @@ fn cast_spell_setup(
     mut ev_text: EventWriter<BottomTextEvent>,
     mut state: ResMut<State<GameState>>
 ) {
+    g.cursor.set_type(CURSOR_SPELL);
     let player = g.get_player();
     let spell = player.get_chosen_spell();
     if spell.is_none() {
@@ -85,15 +88,24 @@ fn cast_spell_setup(
 }
 
 fn cast_spell_keyboard(
-    keys: Res<Input<KeyCode>>,
+    mut keys: ResMut<Input<KeyCode>>,
     mut g: ResMut<Game>,
     mut commands: Commands,
+    mut state: ResMut<State<GameState>>
 ) {
     let tah = g.tah();
     if keys.just_pressed(KeyCode::S) {
+        keys.reset(KeyCode::S);
         let pos = g.cursor.get_pos_v();
         let player = g.get_player_mut();
-        let spell = player.get_chosen_spell().unwrap();
-        spell.cast(pos, &mut commands, tah);
+        player.cast(pos, &mut commands, tah);
+        state.pop().unwrap();
     }
 }
+
+fn cast_spell_finish(mut g: ResMut<Game>) {
+    println!("Finish cast spell, increment player turn");
+    g.player_turn += 1;
+}
+
+fn move_setup() {}

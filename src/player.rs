@@ -38,6 +38,19 @@ impl Player {
     ) {
         self.handle = Some(commands.spawn(display::get_sprite_sheet_bundle(tah, Vec2::new(self.x, self.y), (169 + self.character_icon) as usize, display::WHITE)).id());
     }
+    pub fn cast(
+        &mut self,
+        pos: Vec2,
+        commands: &mut Commands,
+        tah: Handle<TextureAtlas>
+    ) {
+        let spell = self.get_chosen_spell().unwrap();
+        spell.cast(pos, commands, tah);
+        if !spell.reusable() {
+            self.spells.remove(self.chosen_spell.unwrap());
+        }
+        self.chosen_spell = None;
+    }
 }
 
 pub fn get_start_positions(num: usize) -> Result<Vec<Vec2>, &'static str> {

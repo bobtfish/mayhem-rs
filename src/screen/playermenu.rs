@@ -93,6 +93,7 @@ fn player_menu_choose_spell_setup(
     mut commands: Commands,
     g: Res<Game>,
     screen: impl Component + std::marker::Copy,
+    mut ev_text: EventWriter<BottomTextEvent>,
 ) {
     let mut n_player = (g.player_info.len()+1).to_string();
     n_player.push_str("'s spells");
@@ -105,7 +106,7 @@ fn player_menu_choose_spell_setup(
         name_str.push_str(&spell.name());
         print_text(&name_str, &mut commands, g.fah(), Vec2::new(x, 8.0-f32::from(i/2)), screen);
     }
-    print_text("Press 0 to exit", &mut commands, g.fah(), Vec2::new(3.5, -2.0), screen);
+    ev_text.send(BottomTextEvent::from("      Press 0 to exit"));
 }
 
 #[derive(Component, Clone, Copy)]
@@ -114,8 +115,9 @@ struct ExamineSpellScreen;
 fn player_menu_examine_spell_setup(
     commands: Commands,
     g: Res<Game>,
+    mut ev_text: EventWriter<BottomTextEvent>,
 ) {
-    player_menu_choose_spell_setup(commands, g, ExamineSpellScreen);
+    player_menu_choose_spell_setup(commands, g, ExamineSpellScreen, ev_text);
 }
 
 fn player_menu_choose_spell_keyboard(
@@ -163,13 +165,14 @@ fn player_menu_examine_one_spell_setup(
     mut commands: Commands,
     g: Res<Game>,
     mut ev_choose_spell: EventReader<PlayerMenuEvent>,
+    mut ev_text: EventWriter<BottomTextEvent>,
 ) {
     for ev in ev_choose_spell.iter() {
         // FIXME
         print_text(&g.get_player().spells[ev.0].name(), &mut commands, g.fah(), Vec2::new(1.0, 10.0), ExamineOneSpellScreen);
     }
     // FIXME - add more spell details
-    print_text("Any key to exit", &mut commands, g.fah(), Vec2::new(4.0, 0.0), ExamineOneSpellScreen);
+    ev_text.send(BottomTextEvent::from("    Any key to exit"));
 }
 
 fn player_menu_examine_one_spell_keyboard(
@@ -187,8 +190,9 @@ struct SelectSpellScreen;
 fn player_menu_select_spell_setup(
     commands: Commands,
     g: Res<Game>,
+    mut ev_text: EventWriter<BottomTextEvent>,
 ) {
-    player_menu_choose_spell_setup(commands, g, SelectSpellScreen);
+    player_menu_choose_spell_setup(commands, g, SelectSpellScreen, ev_text);
 }
 
 fn player_menu_select_spell_keyboard(
@@ -206,10 +210,9 @@ fn player_menu_select_spell_keyboard(
 struct ExamineBoardScreen;
 
 fn player_menu_examine_board_setup(
-    mut commands: Commands,
-    g: Res<Game>,
+    mut ev_text: EventWriter<BottomTextEvent>,
 ) {
-    print_text("Press 0 to exit", &mut commands, g.fah(), Vec2::new(2.0, 6.0), ExamineBoardScreen);
+    ev_text.send(BottomTextEvent::from("      Press 0 to exit"));
 }
 
 fn player_menu_examine_board_keyboard(

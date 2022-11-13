@@ -11,6 +11,7 @@ pub trait ASpell {
     fn get_sep(&self) -> &str;
     fn clone(&self) -> SpellBox;
     fn cast(&self, pos: Vec2, commands: &mut Commands, tah: Handle<TextureAtlas>);
+    fn reusable(&self) -> bool;
 }
 
 #[derive(Default, Clone)]
@@ -43,14 +44,21 @@ impl ASpell for Spell {
     fn clone(&self) -> SpellBox {
         Box::new(std::clone::Clone::clone(self))
     }
-    fn cast(&self, pos: Vec2, commands: Commands, tah: Handle<TextureAtlas>) {
+    fn cast(&self, pos: Vec2, commands: &mut Commands, tah: Handle<TextureAtlas>) {
 
+    }
+    fn reusable(&self) -> bool {
+        self.reusable
     }
 }
 
 pub fn load_all_spells() -> AllSpells {
     let mut spells: Vec<SpellBox> = vec![
-        Box::new(Spell {name: "Disbelieve".to_string(), ..Default::default()}),
+        Box::new(Spell {
+            name: "Disbelieve".to_string(),
+            reusable: true,
+            ..Default::default()
+        }),
         Box::new(Spell {
             name: "Raise Dead".to_string(),
             law_rating: -1,

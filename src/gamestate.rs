@@ -14,5 +14,6 @@ pub enum GameState {
     PlayerMenuTransition,
     Game,
     GameCastSpell,
+    GameMove,
 }
 

@@ -1,10 +1,15 @@
 use bevy::math::vec2;
 use bevy::{prelude::*};
 use super::constants::{ANIMATION_TICK, WIDTH, HEIGHT, CURSOR_Z};
-use super::{GameState, Game};
+use super::Game;
 use crate::display;
 
-const CURSOR_SPRITE_ID: usize = 165;
+const CURSOR_SPRITE_ID: usize = 164;
+pub const CURSOR_SPELL: usize = 0;
+pub const CURSOR_BOX: usize = 1;
+pub const CURSOR_FLY: usize = 2;
+pub const CURSOR_TARGET: usize = 3;
+
 pub struct CursorPlugin;
 
 impl Plugin for CursorPlugin {
@@ -21,6 +26,7 @@ pub struct CursorEntity;
 
 #[derive(Default)]
 pub struct Cursor {
+    cursor: usize,
     visible: bool,
     x: f32,
     y: f32,
@@ -38,6 +44,10 @@ impl Cursor {
     }
     pub fn set_invisible(&mut self) {
         self.visible = false;
+        self.moved = true;
+    }
+    pub fn set_type(&mut self, t: usize) {
+        self.cursor = t;
         self.moved = true;
     }
     pub fn set_pos(&mut self, x: f32, y: f32) {
@@ -63,6 +73,7 @@ fn cursor_setup(
     sprite.visibility.is_visible = false;
     commands.spawn(sprite).insert(CursorEntity);
     game.cursor = Cursor{
+        cursor: CURSOR_BOX,
         visible: false,
         x: 0.0,
         y: 0.0,
@@ -112,13 +123,16 @@ pub fn set_invisible(
 fn animate_cursor(
     mut game: ResMut<Game>,
     time: Res<Time>,
-    mut transform: Query<&mut Transform, With<CursorEntity>>,
-    mut query: Query<&mut Visibility, With<CursorEntity>>,
+    mut query: Query<(&mut Visibility, &mut Transform, &mut TextureAtlasSprite), With<CursorEntity>>,
 ) {
-    let mut vis = query.single_mut();
+    let item = query.single_mut();
+    let mut vis = item.0;
+    let mut transform = item.1;
+    let mut sprite = item.2;
     if game.cursor.moved {
+        sprite.index = game.cursor.cursor + CURSOR_SPRITE_ID;
         vis.is_visible = game.cursor.is_visible();
-        *transform.single_mut() = transform.single().with_translation(vec2(game.cursor.x, game.cursor.y).extend(CURSOR_Z));
+        *transform = transform.with_translation(vec2(game.cursor.x, game.cursor.y).extend(CURSOR_Z));
         game.cursor.moved = false;
     }
     if !game.cursor.is_visible() {

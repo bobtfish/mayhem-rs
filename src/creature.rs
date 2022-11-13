@@ -40,7 +40,10 @@ impl ASpell for CreatureSpell {
         Box::new(std::clone::Clone::clone(self))
     }
     fn cast(&self, pos: Vec2, commands: &mut Commands, tah: Handle<TextureAtlas>) {
-        self.creature.to_entity(pos, &mut commands, tah);
+        self.creature.to_entity(pos, commands, tah);
+    }
+    fn reusable(&self) -> bool {
+        false
     }
 }
 
