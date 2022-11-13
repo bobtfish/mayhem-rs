@@ -52,13 +52,13 @@ fn cursor_setup(
     let y = 0;
     let mut sprite = display::get_sprite_sheet_bundle_z(game.tah(), Vec2::new(f32::from(x), f32::from(y)), CURSOR_SPRITE_ID, display::WHITE, CURSOR_Z);
     sprite.sprite.color.set_a(0.0);
-    let entity = commands.spawn_bundle(sprite).id();
+    let entity = commands.spawn(sprite).id();
     game.cursor = Cursor{
         visible: false,
         flash: true,
         x,
         y,
-        flash_timer: Timer::from_seconds(ANIMATION_TICK/2.0, true),
+        flash_timer: Timer::from_seconds(ANIMATION_TICK/2.0, TimerMode::Repeating),
         entity: Some(entity),
         moved: false,
     };

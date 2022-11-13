@@ -2,7 +2,8 @@
 #![warn(clippy::nursery, clippy::pedantic)]
 #![allow(clippy::wildcard_imports, clippy::too_many_arguments, clippy::unused_self, clippy::needless_pass_by_value, clippy::module_name_repetitions, clippy::similar_names, clippy::cast_precision_loss, clippy::cast_possible_truncation)]
 
-use bevy::{prelude::*, render::texture::ImageSettings, window::PresentMode};
+//use bevy::log::{LogPlugin, Level};
+use bevy::{prelude::*, window::PresentMode};
 
 mod screen;
 mod game;
@@ -22,18 +23,23 @@ use crate::gamestate::GameState;
 
 fn main() {
     App::new()
-        .insert_resource(WindowDescriptor {
-            title: "Mayhem!".to_string(),
-            width: SCREEN_WIDTH,
-            height: SCREEN_HEIGHT,
-            present_mode: PresentMode::AutoVsync,
-            ..default()
-        })
+        .add_plugins(
+            DefaultPlugins.set(
+            WindowPlugin {window: WindowDescriptor {
+                    title: "Mayhem!".to_string(),
+                    width: SCREEN_WIDTH,
+                    height: SCREEN_HEIGHT,
+                    present_mode: PresentMode::AutoVsync,
+                    ..default()
+                },
+                ..default()
+            })
+            .set(ImagePlugin::default_nearest())
+            //.set(LogPlugin {level: Level::DEBUG, ..default()})
+        )
         .add_plugin(game::GamePlugin)
-        .insert_resource(ImageSettings::default_nearest()) // prevents blurry sprites
         .insert_resource(ClearColor(Color::rgb(0.0, 0.0, 0.0)))
         .insert_resource(load_all_spells())
-        .add_plugins(DefaultPlugins)
         .add_state(GameState::InitialMenu)
         .add_plugin(screen::ScreenPlugin)        
         .add_plugin(cursor::CursorPlugin)

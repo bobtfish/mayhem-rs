@@ -3,7 +3,7 @@ use crate::player::Player;
 use crate::cursor::Cursor;
 use crate::constants::*;
 
-#[derive(Default)]
+#[derive(Default, Resource)]
 pub struct Game {
     tah: Handle<TextureAtlas>,
     fah: Handle<TextureAtlas>,
@@ -35,9 +35,9 @@ fn setup_game(
     mut game: ResMut<Game>,
 ) {
     let texture_handle = asset_server.load("sprite_sheet.png");
-    let texture_atlas = TextureAtlas::from_grid(texture_handle.clone(), Vec2::new(SPRITE_SIZE as f32, SPRITE_SIZE as f32), 10, 41);
+    let texture_atlas = TextureAtlas::from_grid(texture_handle.clone(), Vec2::new(SPRITE_SIZE as f32, SPRITE_SIZE as f32), 10, 41, None, None);
     game.tah = texture_atlases.add(texture_atlas);
-    let font_atlas = TextureAtlas::from_grid(texture_handle, Vec2::new((SPRITE_SIZE/2) as f32, SPRITE_SIZE as f32), 20, 41);
+    let font_atlas = TextureAtlas::from_grid(texture_handle, Vec2::new((SPRITE_SIZE/2) as f32, SPRITE_SIZE as f32), 20, 41, None, None);
     game.fah = texture_atlases.add(font_atlas);
 }
 

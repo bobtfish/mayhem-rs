@@ -21,7 +21,7 @@ impl Plugin for DisplayPlugin {
 pub fn setup(
     mut commands: Commands,
 ) {
-    commands.spawn_bundle(Camera2dBundle {
+    commands.spawn(Camera2dBundle {
         transform: Transform::from_scale(vec3(1.0/(SCALE*SPRITE_SIZE as f32), 1.0/(SCALE*SPRITE_SIZE as f32), 1.0))
             .with_translation(vec3((WIDTH/2) as f32-1.0, (HEIGHT/2) as f32-2.0, CAMERA_Z)),
         ..default()
@@ -32,17 +32,17 @@ pub fn get_border(
     commands: &mut Commands,
     texture_atlas_handle: Handle<TextureAtlas>
 ) {
-    commands.spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(-0.5, -0.5), BORDER_BOTTOMLEFT, WHITE));
-    commands.spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(-0.5, (HEIGHT-1) as f32-1.5), BORDER_TOPLEFT, WHITE));
-    commands.spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new((WIDTH) as f32-1.5, -0.5), BORDER_BOTTOMRIGHT, WHITE));
-    commands.spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new((WIDTH) as f32-1.5, HEIGHT as f32-2.5), BORDER_TOPRIGHT, WHITE));
+    commands.spawn(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(-0.5, -0.5), BORDER_BOTTOMLEFT, WHITE));
+    commands.spawn(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(-0.5, (HEIGHT-1) as f32-1.5), BORDER_TOPLEFT, WHITE));
+    commands.spawn(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new((WIDTH) as f32-1.5, -0.5), BORDER_BOTTOMRIGHT, WHITE));
+    commands.spawn(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new((WIDTH) as f32-1.5, HEIGHT as f32-2.5), BORDER_TOPRIGHT, WHITE));
     for n in 2..HEIGHT-1 {
-        commands.spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(-0.5, n as f32-1.5), BORDER_LEFT, WHITE));
-        commands.spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new((WIDTH) as f32-1.5, n as f32-1.5), BORDER_RIGHT, WHITE));
+        commands.spawn(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(-0.5, n as f32-1.5), BORDER_LEFT, WHITE));
+        commands.spawn(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new((WIDTH) as f32-1.5, n as f32-1.5), BORDER_RIGHT, WHITE));
     }
     for n in 1..WIDTH-1 {
-        commands.spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(n as f32-0.5, -0.5), BORDER_BOTTOM, WHITE));
-        commands.spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(n as f32-0.5, HEIGHT as f32-2.5), BORDER_TOP, WHITE));
+        commands.spawn(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(n as f32-0.5, -0.5), BORDER_BOTTOM, WHITE));
+        commands.spawn(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(n as f32-0.5, HEIGHT as f32-2.5), BORDER_TOP, WHITE));
     }
 }
 
@@ -85,7 +85,7 @@ pub fn print_text(str: &str, commands: &mut Commands, fah: Handle<TextureAtlas>,
     for (i,ch) in str.chars().enumerate() {
         let mut new_v = v;
         new_v.x += i as f32/2.0;
-        let new = commands.spawn_bundle(get_sprite_sheet_bundle(fah.clone(), new_v, char_to_pos(ch), WHITE))
+        let new = commands.spawn(get_sprite_sheet_bundle(fah.clone(), new_v, char_to_pos(ch), WHITE))
         .insert(c).id();
         entities.push(new);
     }
@@ -123,7 +123,7 @@ pub fn manage_text_bottom(
 }
 
 pub fn print_wizard(commands: &mut Commands, tah: Handle<TextureAtlas>, v: Vec2, idx: usize, c: impl Component + std::marker::Copy) {
-    commands.spawn_bundle(get_sprite_sheet_bundle(tah, v, WIZARD_IDX + idx, WHITE))
+    commands.spawn(get_sprite_sheet_bundle(tah, v, WIZARD_IDX + idx, WHITE))
     .insert(c);
 }
 
@@ -158,11 +158,11 @@ pub fn spawn_anim(
     num: usize
 ) -> Entity {
     return commands
-        .spawn_bundle(get_sprite_sheet_bundle(texture_atlas_handle, v, init, WHITE))
+        .spawn(get_sprite_sheet_bundle(texture_atlas_handle, v, init, WHITE))
         .insert(RepeatAnimation {
             max: init+num-1,
             init,
-            timer: Timer::from_seconds(ANIMATION_TICK, true),
+            timer: Timer::from_seconds(ANIMATION_TICK, TimerMode::Repeating),
         }).id();
 }
 

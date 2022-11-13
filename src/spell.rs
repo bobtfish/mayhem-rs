@@ -1,13 +1,8 @@
+use bevy::prelude::*;
 use crate::creature::load_creatures;
-use std::ops::Deref;
 
+#[derive(Resource, Deref)]
 pub struct AllSpells(Vec<Spell>);
-impl Deref for AllSpells {
-    type Target = Vec<Spell>;
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
 
 #[derive(Default, Clone)]
 pub struct Spell {
