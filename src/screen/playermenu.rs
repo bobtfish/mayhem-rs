@@ -102,7 +102,7 @@ fn player_menu_choose_spell_setup(
         let x = if 1 == i % 2 { 7.0 } else { 0.5 };
         let mut name_str = ((i+65) as char).to_string();
         name_str.push_str(spell.get_sep());
-        name_str.push_str(&spell.name);
+        name_str.push_str(&spell.name());
         print_text(&name_str, &mut commands, g.fah(), Vec2::new(x, 8.0-f32::from(i/2)), screen);
     }
     print_text("Press 0 to exit", &mut commands, g.fah(), Vec2::new(3.5, -2.0), screen);
@@ -165,7 +165,8 @@ fn player_menu_examine_one_spell_setup(
     mut ev_choose_spell: EventReader<PlayerMenuEvent>,
 ) {
     for ev in ev_choose_spell.iter() {
-        print_text(&g.get_player().spells[ev.0].name, &mut commands, g.fah(), Vec2::new(1.0, 10.0), ExamineOneSpellScreen);
+        // FIXME
+        print_text(&g.get_player().spells[ev.0].name(), &mut commands, g.fah(), Vec2::new(1.0, 10.0), ExamineOneSpellScreen);
     }
     // FIXME - add more spell details
     print_text("Any key to exit", &mut commands, g.fah(), Vec2::new(4.0, 0.0), ExamineOneSpellScreen);

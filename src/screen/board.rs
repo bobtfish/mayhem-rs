@@ -76,7 +76,7 @@ fn cast_spell_setup(
     let spell = spell.unwrap();
     let mut text = String::from(&player.name);
     text.push(' ');
-    text.push_str(&spell.name);
+    text.push_str(&spell.name());
     ev_text.send(BottomTextEvent::from(&text));
     let x = player.x;
     let y = player.y;
@@ -93,6 +93,6 @@ fn cast_spell_keyboard(
         let pos = g.cursor.get_posV();
         let player = g.get_player_mut();
         let spell = player.get_chosen_spell().unwrap();
-        spell.cast(pos, commands);
+        //spell.cast(pos, commands);
     }
 }

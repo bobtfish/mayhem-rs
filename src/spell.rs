@@ -2,7 +2,12 @@ use bevy::prelude::*;
 use crate::creature::load_creatures;
 
 #[derive(Resource, Deref)]
-pub struct AllSpells(Vec<Spell>);
+pub struct AllSpells(Vec<Box<Spell>>);
+
+pub trait ASpell {
+    fn name(&self) -> String;
+    fn get_sep(&self) -> &str;
+}
 
 #[derive(Default, Clone)]
 pub struct Spell {
@@ -17,44 +22,53 @@ pub struct Spell {
 
 impl Spell {
     pub const fn get_sep(&self) -> &str {
-        return "-";
+        "-"
     }
     pub fn cast(&self, pos: Vec2, mut commands: Commands) {
 
     }
 }
 
+impl ASpell for Spell {
+    fn name(&self) -> String {
+        self.name.clone()
+    }
+    fn get_sep(&self) -> &str {
+        "-"
+    }
+}
+
 pub fn load_all_spells() -> AllSpells {
     let mut spells = vec![
-        Spell {name: "Disbelieve".to_string(), ..Default::default()},
-        Spell {
+        Box::new(Spell {name: "Disbelieve".to_string(), ..Default::default()}),
+        Box::new(Spell {
             name: "Raise Dead".to_string(),
             law_rating: -1,
             casting_chance: 60,
             cast_range: 4,
             ..Default::default()
-        },
-        Spell {
+        }),
+        Box::new(Spell {
             name: "Subversion".to_string(),
             cast_range: 7,
             ..Default::default()
-        },
-        Spell {
+        }),
+        Box::new(Spell {
             name: "Vengence".to_string(),
             casting_chance: 80,
             cast_range: 20,
             no_line_of_sight_needed: true,
             ..Default::default()
-        },
-        Spell {
+        }),
+        Box::new(Spell {
             name: "Decree".to_string(),
             casting_chance: 80,
             cast_range: 20,
             law_rating: 1,
             no_line_of_sight_needed: true,
             ..Default::default()
-        },
-        Spell {
+        }),
+        Box::new(Spell {
             name: "Dark Power".to_string(),
             casting_chance: 50,
             cast_range: 20,
@@ -62,8 +76,8 @@ pub fn load_all_spells() -> AllSpells {
             tries: 3,
             no_line_of_sight_needed: true,
             ..Default::default()
-        },
-        Spell {
+        }),
+        Box::new(Spell {
             name: "Justice".to_string(),
             casting_chance: 50,
             cast_range: 20,
@@ -71,56 +85,56 @@ pub fn load_all_spells() -> AllSpells {
             tries: 3,
             no_line_of_sight_needed: true,
             ..Default::default()
-        },
-        Spell {
+        }),
+        Box::new(Spell {
             name: "Law-1".to_string(),
             casting_chance: 100,
             law_rating: 2,
             ..Default::default()
-        },
-        Spell {
+        }),
+        Box::new(Spell {
             name: "Law-2".to_string(),
             casting_chance: 100,
             law_rating: 4,
             ..Default::default()
-        },
-        Spell {
+        }),
+        Box::new(Spell {
             name: "Chaos-1".to_string(),
             casting_chance: 100,
             law_rating: -2,
             ..Default::default()
-        },
-        Spell {
+        }),
+        Box::new(Spell {
             name: "Chaos-2".to_string(),
             casting_chance: 100,
             law_rating: -4,
             ..Default::default()
-        },
-        Spell {
+        }),
+        Box::new(Spell {
             name: "Lightning".to_string(),
             casting_chance: 100,
             cast_range: 4,
             ..Default::default()
-        },
-        Spell {
+        }),
+        Box::new(Spell {
             name: "Magic Bolt".to_string(),
             casting_chance: 100,
             cast_range: 6,
             ..Default::default()
-        },
-        Spell {
+        }),
+        Box::new(Spell {
             name: "Magic Wood".to_string(),
             casting_chance: 80,
             law_rating: 1,
             ..Default::default()
-        }
+        })
     ];
     let creature_map = load_creatures();
     for (_, c) in creature_map {
-        spells.push(Spell{
+        spells.push(Box::new(Spell{
             name: c.name,
             ..Default::default()
-        });
+        }));
     }
     AllSpells(spells)
 }
