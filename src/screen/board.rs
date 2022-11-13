@@ -23,7 +23,11 @@ impl Plugin for BoardPlugin {
                 SystemSet::on_exit(GameState::Game)
                     .with_system(system::despawn_screen::<OnGameScreen>),
             )
-            .add_system_set(SystemSet::on_enter(GameState::GameCastSpell).with_system(cast_spell_setup));
+            .add_system_set(SystemSet::on_enter(GameState::GameCastSpell).with_system(cast_spell_setup))
+            .add_system_set(
+                SystemSet::on_update(GameState::GameCastSpell)
+                    .with_system(cast_spell_keyboard)
+                );
     }
 }
 
@@ -71,11 +75,24 @@ fn cast_spell_setup(
     }
     let spell = spell.unwrap();
     let mut text = String::from(&player.name);
-    text.push_str(" ");
+    text.push(' ');
     text.push_str(&spell.name);
     ev_text.send(BottomTextEvent::from(&text));
     let x = player.x;
     let y = player.y;
-    g.cursor.set_pos(x as u8, y as u8);
-    println!("SET CURSOR TO {} {}", x, y);
+    g.cursor.set_pos(x, y);
+    println!("SET CURSOR TO {x} {y}");
+}
+
+fn cast_spell_keyboard(
+    keys: Res<Input<KeyCode>>,
+    mut g: ResMut<Game>,
+    mut commands: Commands,
+) {
+    if keys.just_pressed(KeyCode::S) {
+        let pos = g.cursor.get_posV();
+        let player = g.get_player_mut();
+        let spell = player.get_chosen_spell().unwrap();
+        spell.cast(pos, commands);
+    }
 }

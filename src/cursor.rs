@@ -20,8 +20,8 @@ impl Plugin for CursorPlugin {
 pub struct Cursor {
     visible: bool,
     flash: bool,
-    x: u8,
-    y: u8,
+    x: f32,
+    y: f32,
     entity: Option<Entity>,
     flash_timer: Timer,
     moved: bool,
@@ -37,10 +37,18 @@ impl Cursor {
     pub fn set_invisible(&mut self) {
         self.visible = false;
     }
-    pub fn set_pos(&mut self, x: u8, y: u8) {
+    pub fn set_pos(&mut self, x: f32, y: f32) {
         self.x = x;
         self.y = y;
         self.moved = true;
+    }
+    pub fn set_posV(&mut self, v: Vec2) {
+        self.x = v.x;
+        self.y = v.y;
+        self.moved = true;
+    }
+    pub fn get_posV(&self) -> Vec2 {
+        Vec2 { x: self.x, y: self.y }
     }
 }
 
@@ -48,16 +56,14 @@ fn cursor_setup(
     mut game: ResMut<Game>,
     mut commands: Commands,
 ) {
-    let x = 0;
-    let y = 0;
-    let mut sprite = display::get_sprite_sheet_bundle_z(game.tah(), Vec2::new(f32::from(x), f32::from(y)), CURSOR_SPRITE_ID, display::WHITE, CURSOR_Z);
+    let mut sprite = display::get_sprite_sheet_bundle_z(game.tah(), Vec2::new(0.0, 0.0), CURSOR_SPRITE_ID, display::WHITE, CURSOR_Z);
     sprite.sprite.color.set_a(0.0);
     let entity = commands.spawn(sprite).id();
     game.cursor = Cursor{
         visible: false,
         flash: true,
-        x,
-        y,
+        x: 0.0,
+        y: 0.0,
         flash_timer: Timer::from_seconds(ANIMATION_TICK/2.0, TimerMode::Repeating),
         entity: Some(entity),
         moved: false,
@@ -73,20 +79,20 @@ fn keyboard_input(
         return;
     }
     let mut moved = false;
-    if keys.just_pressed(KeyCode::Left) && game.cursor.x > 0 {
-        game.cursor.x -= 1;
+    if keys.just_pressed(KeyCode::Left) && game.cursor.x > 0.0 {
+        game.cursor.x -= 1.0;
         game.cursor.moved = true;
     }
-    if keys.just_pressed(KeyCode::Right) && game.cursor.x < WIDTH as u8 -2 {
-        game.cursor.x += 1;
+    if keys.just_pressed(KeyCode::Right) && game.cursor.x < WIDTH as f32 -2.0 {
+        game.cursor.x += 1.0;
         game.cursor.moved = true;
     }
-    if keys.just_pressed(KeyCode::Up) && game.cursor.y < HEIGHT as u8 -3 {
-        game.cursor.y += 1;
+    if keys.just_pressed(KeyCode::Up) && game.cursor.y < HEIGHT as f32 -3.0 {
+        game.cursor.y += 1.0;
         game.cursor.moved = true;
     }
-    if keys.just_pressed(KeyCode::Down) && game.cursor.y > 0 {
-        game.cursor.y -= 1;
+    if keys.just_pressed(KeyCode::Down) && game.cursor.y > 0.0 {
+        game.cursor.y -= 1.0;
         game.cursor.moved = true;
     }
 }

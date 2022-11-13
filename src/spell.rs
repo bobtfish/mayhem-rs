@@ -19,6 +19,9 @@ impl Spell {
     pub const fn get_sep(&self) -> &str {
         return "-";
     }
+    pub fn cast(&self, pos: Vec2, mut commands: Commands) {
+
+    }
 }
 
 pub fn load_all_spells() -> AllSpells {
