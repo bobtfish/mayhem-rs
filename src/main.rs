@@ -1,6 +1,6 @@
 #![feature(custom_inner_attributes)]
 #![warn(clippy::nursery, clippy::pedantic)]
-#![allow(clippy::wildcard_imports, clippy::too_many_arguments, clippy::unused_self, clippy::needless_pass_by_value, clippy::module_name_repetitions, clippy::similar_names, clippy::cast_precision_loss, clippy::cast_possible_truncation)]
+#![allow(clippy::wildcard_imports, clippy::too_many_arguments, clippy::missing_const_for_fn, clippy::unused_self, clippy::needless_pass_by_value, clippy::module_name_repetitions, clippy::similar_names, clippy::cast_precision_loss, clippy::cast_possible_truncation)]
 
 //use bevy::log::{LogPlugin, Level};
 use bevy::{prelude::*, window::PresentMode};

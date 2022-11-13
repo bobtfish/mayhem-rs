@@ -90,7 +90,7 @@ fn cast_spell_keyboard(
     mut commands: Commands,
 ) {
     if keys.just_pressed(KeyCode::S) {
-        let pos = g.cursor.get_posV();
+        let pos = g.cursor.get_pos_v();
         let player = g.get_player_mut();
         let spell = player.get_chosen_spell().unwrap();
         //spell.cast(pos, commands);
