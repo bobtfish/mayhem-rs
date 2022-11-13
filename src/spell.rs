@@ -2,11 +2,14 @@ use bevy::prelude::*;
 use crate::creature::load_creatures;
 
 #[derive(Resource, Deref)]
-pub struct AllSpells(Vec<Box<Spell>>);
+pub struct AllSpells(Vec<SpellBox>);
+
+pub type SpellBox = Box<dyn ASpell + Sync + Send>;
 
 pub trait ASpell {
     fn name(&self) -> String;
     fn get_sep(&self) -> &str;
+    fn clone(&self) -> SpellBox;
 }
 
 #[derive(Default, Clone)]
@@ -36,10 +39,13 @@ impl ASpell for Spell {
     fn get_sep(&self) -> &str {
         "-"
     }
+    fn clone(&self) -> SpellBox {
+        Box::new(std::clone::Clone::clone(self))
+    }
 }
 
 pub fn load_all_spells() -> AllSpells {
-    let mut spells = vec![
+    let mut spells: Vec<SpellBox> = vec![
         Box::new(Spell {name: "Disbelieve".to_string(), ..Default::default()}),
         Box::new(Spell {
             name: "Raise Dead".to_string(),
@@ -131,10 +137,7 @@ pub fn load_all_spells() -> AllSpells {
     ];
     let creature_map = load_creatures();
     for (_, c) in creature_map {
-        spells.push(Box::new(Spell{
-            name: c.name,
-            ..Default::default()
-        }));
+        spells.push(c.to_spell());
     }
     AllSpells(spells)
 }

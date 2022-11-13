@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use crate::display;
-use crate::spell::{AllSpells, Spell, ASpell};
+use crate::spell::{AllSpells, SpellBox, ASpell};
 use rand::prelude::SliceRandom;
 
 pub struct Player {
@@ -17,9 +17,9 @@ pub struct Player {
 
 impl Player {
     pub fn pick_spells(&mut self, allspells: &AllSpells) {
-        let mut sample: Vec<Box<dyn ASpell + Sync + Send>> = Vec::new();
-        for spell in allspells[1..].choose_multiple(&mut rand::thread_rng(), 13).cloned() {
-            sample.push(spell);
+        let mut sample: Vec<SpellBox> = Vec::new();
+        for spell in allspells[1..].choose_multiple(&mut rand::thread_rng(), 13) {
+            sample.push((*spell).clone());
         }
         sample.insert(0, allspells[0].clone());
         self.spells = sample;
@@ -28,9 +28,7 @@ impl Player {
     pub fn get_chosen_spell(
         &self
     ) -> Option<&dyn ASpell> {
-        if self.chosen_spell.is_none() {
-            return None;
-        }
+        self.chosen_spell?;
         Some(&*self.spells[self.chosen_spell.unwrap()])
     }
     pub fn spawn(
