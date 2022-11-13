@@ -10,6 +10,7 @@ pub trait ASpell {
     fn name(&self) -> String;
     fn get_sep(&self) -> &str;
     fn clone(&self) -> SpellBox;
+    fn cast(&self, pos: Vec2, commands: &mut Commands, tah: Handle<TextureAtlas>);
 }
 
 #[derive(Default, Clone)]
@@ -41,6 +42,9 @@ impl ASpell for Spell {
     }
     fn clone(&self) -> SpellBox {
         Box::new(std::clone::Clone::clone(self))
+    }
+    fn cast(&self, pos: Vec2, commands: Commands, tah: Handle<TextureAtlas>) {
+
     }
 }
 
