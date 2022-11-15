@@ -79,10 +79,10 @@ impl Player {
         commands: &mut Commands,
         tah: Handle<TextureAtlas>
     ) {
+        let mut ss = display::get_sprite_sheet_bundle(tah, Vec2::new(self.x, self.y), (169 + self.character_icon) as usize, display::WHITE);
+        ss.visibility.is_visible = false;
         self.handle = Some(
-            commands.spawn(
-                display::get_sprite_sheet_bundle(tah, Vec2::new(self.x, self.y), (169 + self.character_icon) as usize, display::WHITE)
-            )
+            commands.spawn(ss)
             .insert(BoardEntity)
             .id()
         );

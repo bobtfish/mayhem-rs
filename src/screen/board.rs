@@ -47,10 +47,6 @@ fn game_setup(
     //let creature_map = load_creatures();
     //creature_map.get("Pegasus").unwrap().to_entity(Vec2::splat(4.0), &mut commands, g.tah());
     g.player_turn = 0;
-
-    for p in &mut g.player_info {
-        p.spawn(&mut commands, tah.clone());
-    }
 }
 
 fn game_next(
