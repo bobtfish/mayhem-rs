@@ -12,3 +12,27 @@ pub fn despawn_screen<T: Component>(
     }
     ev_text.send(BottomTextEvent::clear());
 }
+
+#[derive(Component)]
+pub struct BoardEntity;
+
+pub fn hide_board_entities (
+    mut to_hide: Query<&mut Visibility, With<BoardEntity>>,
+) {
+    toggle_board_entities(to_hide, false);
+}
+
+pub fn show_board_entities (
+    mut to_show: Query<&mut Visibility, With<BoardEntity>>,
+) {
+    toggle_board_entities(to_show, true);
+}
+
+pub fn toggle_board_entities (
+    mut q: Query<&mut Visibility, With<BoardEntity>>,
+    set: bool
+) {
+    for mut vis in q.iter_mut() {
+        vis.is_visible = set;
+    }
+}

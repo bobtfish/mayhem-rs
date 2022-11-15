@@ -157,17 +157,12 @@ fn player_name_menu_keyboard_input(
         }
     }
     if player.color.is_some() {
-        let mut p = Player {
-            name: player.name.clone().unwrap(),
-            computer_controlled: player.computer_controlled.unwrap(),
-            character_icon: player.character_icon.unwrap(),
-            color: player.color.unwrap(),
-            chosen_spell: None,
-            spells: Vec::new(),
-            x: 0.0,
-            y: 0.0,
-            handle: None,
-        };
+        let mut p = Player::new(
+            player.name.clone().unwrap(),
+            player.computer_controlled.unwrap(),
+            player.character_icon.unwrap(),
+            player.color.unwrap(),
+        );
         p.pick_spells(&allspells);
         g.player_info.push(p);
         *player = CapturePlayer{..Default::default()};

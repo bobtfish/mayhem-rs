@@ -14,13 +14,16 @@ impl Plugin for BoardPlugin {
                 SystemSet::on_enter(GameState::Game)
                     .with_system(game_setup)
                     .with_system(cursor::set_visible)
+                    .with_system(system::show_board_entities)
             )
             .add_system_set(SystemSet::on_update(GameState::Game).with_system(game_next))
             .add_system_set(SystemSet::on_exit(GameState::Game).with_system(system::despawn_screen::<OnGameScreen>))
             .add_system_set(SystemSet::on_enter(GameState::GameCastSpell).with_system(cast_spell_setup))
             .add_system_set(SystemSet::on_update(GameState::GameCastSpell).with_system(cast_spell_keyboard))
             .add_system_set(SystemSet::on_exit(GameState::GameCastSpell).with_system(cast_spell_finish))
-            .add_system_set(SystemSet::on_enter(GameState::GameMove).with_system(move_setup));
+            .add_system_set(SystemSet::on_enter(GameState::GameMove).with_system(move_setup))
+            .add_system_set(SystemSet::on_enter(GameState::NextTurn).with_system(system::hide_board_entities))
+            .add_system_set(SystemSet::on_update(GameState::NextTurn).with_system(next_turn));
     }
 }
 
@@ -57,7 +60,9 @@ fn game_next(
     if g.player_turn >= g.players {
         g.player_turn = 0;
         println!("Spell casting finished, do movement now");
-        state.push(GameState::GameMove).unwrap();
+        //state.push(GameState::GameMove).unwrap();
+        // FIXME - for the moment, lets just do spells
+        state.set(GameState::NextTurn).unwrap();
     } else {
         println!("Player turn to cast spell");
         // Next player's turn to cast a spell
@@ -68,13 +73,13 @@ fn game_next(
 fn cast_spell_setup(
     mut g: ResMut<Game>,
     mut ev_text: EventWriter<BottomTextEvent>,
-    mut state: ResMut<State<GameState>>
 ) {
+    println!("cast_spell_setup");
     g.cursor.set_type(CURSOR_SPELL);
     let player = g.get_player();
-    let spell = player.get_chosen_spell();
+    let spell = player.spells.get_chosen_spell();
     if spell.is_none() {
-        state.pop().unwrap();
+        return;
     }
     let spell = spell.unwrap();
     let mut text = String::from(&player.name);
@@ -93,6 +98,13 @@ fn cast_spell_keyboard(
     mut commands: Commands,
     mut state: ResMut<State<GameState>>
 ) {
+    let player = g.get_player();
+    let spell = player.spells.get_chosen_spell();
+    if spell.is_none() {
+        println!("STATE POP - no spell");
+        state.pop().unwrap();
+        return;
+    }
     let tah = g.tah();
     if keys.just_pressed(KeyCode::S) {
         keys.reset(KeyCode::S);
@@ -109,3 +121,13 @@ fn cast_spell_finish(mut g: ResMut<Game>) {
 }
 
 fn move_setup() {}
+
+fn next_turn(
+    mut state: ResMut<State<GameState>>,
+    mut g: ResMut<Game>,
+) {
+    println!("next_turn set state GameState::PlayerMenu");
+    g.player_turn = 0;
+    g.cursor.set_invisible();
+    state.set(GameState::PlayerMenu).unwrap();
+}

@@ -31,9 +31,17 @@ impl Plugin for PlayerMenuPlugin {
             .add_system_set(SystemSet::on_update(GameState::PlayerMenuSelectSpell).with_system(player_menu_choose_spell_keyboard))
             .add_system_set(SystemSet::on_exit(GameState::PlayerMenuSelectSpell).with_system(system::despawn_screen::<SelectSpellScreen>))
 
-            .add_system_set(SystemSet::on_enter(GameState::PlayerMenuExamineBoard).with_system(player_menu_examine_board_setup))
+            .add_system_set(SystemSet::on_enter(
+                GameState::PlayerMenuExamineBoard)
+                .with_system(player_menu_examine_board_setup)
+                .with_system(system::show_board_entities)
+            )
             .add_system_set(SystemSet::on_update(GameState::PlayerMenuExamineBoard).with_system(player_menu_examine_board_keyboard))
-            .add_system_set(SystemSet::on_exit(GameState::PlayerMenuExamineBoard).with_system(system::despawn_screen::<ExamineBoardScreen>))
+            .add_system_set(
+                SystemSet::on_exit(GameState::PlayerMenuExamineBoard)
+                .with_system(system::hide_board_entities)
+                .with_system(player_menu_examine_board_exit)
+            )
             ;
     }
 }
@@ -99,7 +107,7 @@ fn player_menu_choose_spell_setup(
     n_player.push_str("'s spells");
     print_text(&n_player, &mut commands, g.fah(), Vec2::new(0.5, 9.0), screen);
     let player = g.get_player();
-    for (i, spell) in (0_u8..).zip((&player.spells).into_iter()) {
+    for (i, spell) in (0_u8..).zip((&player.spells.spells).into_iter()) {
         let x = if 1 == i % 2 { 7.0 } else { 0.5 };
         let mut name_str = ((i+65) as char).to_string();
         name_str.push_str(spell.get_sep());
@@ -168,8 +176,9 @@ fn player_menu_examine_one_spell_setup(
     mut ev_text: EventWriter<BottomTextEvent>,
 ) {
     for ev in ev_choose_spell.iter() {
+        let spell_id = ev.0;
         // FIXME
-        print_text(&g.get_player().spells[ev.0].name(), &mut commands, g.fah(), Vec2::new(1.0, 10.0), ExamineOneSpellScreen);
+        print_text(&g.get_player().spells.get_spell(spell_id).name(), &mut commands, g.fah(), Vec2::new(1.0, 10.0), ExamineOneSpellScreen);
     }
     // FIXME - add more spell details
     ev_text.send(BottomTextEvent::from("    Any key to exit"));
@@ -201,13 +210,10 @@ fn player_menu_select_spell_keyboard(
     mut g: ResMut<Game>,
 ) {
     for ev in ev_choose_spell.iter() {
-        g.get_player_mut().chosen_spell = Some(ev.0);
+        g.get_player_mut().spells.set_chosen(ev.0);
         state.set(GameState::PlayerMenu).unwrap();
     }
 }
-
-#[derive(Component, Clone, Copy)]
-struct ExamineBoardScreen;
 
 fn player_menu_examine_board_setup(
     mut ev_text: EventWriter<BottomTextEvent>,
@@ -223,4 +229,10 @@ fn player_menu_examine_board_keyboard(
         keys.reset(KeyCode::Key0);
         state.set(GameState::PlayerMenu).unwrap();
     }
+}
+
+fn player_menu_examine_board_exit(
+    mut ev_text: EventWriter<BottomTextEvent>,
+) {
+    ev_text.send(BottomTextEvent::clear());
 }

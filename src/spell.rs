@@ -10,7 +10,7 @@ pub trait ASpell {
     fn name(&self) -> String;
     fn get_sep(&self) -> &str;
     fn clone(&self) -> SpellBox;
-    fn cast(&self, pos: Vec2, commands: &mut Commands, tah: Handle<TextureAtlas>);
+    fn cast(&self, pos: Vec2, commands: &mut Commands, tah: Handle<TextureAtlas>) -> Option<Entity>;
     fn reusable(&self) -> bool;
 }
 
@@ -29,8 +29,8 @@ impl Spell {
     pub const fn get_sep(&self) -> &str {
         "-"
     }
-    pub fn cast(&self, pos: Vec2, mut commands: Commands) {
-
+    pub fn cast(&self, pos: Vec2, mut commands: Commands) -> Option<Entity> {
+        None
     }
 }
 
@@ -44,8 +44,8 @@ impl ASpell for Spell {
     fn clone(&self) -> SpellBox {
         Box::new(std::clone::Clone::clone(self))
     }
-    fn cast(&self, pos: Vec2, commands: &mut Commands, tah: Handle<TextureAtlas>) {
-
+    fn cast(&self, pos: Vec2, commands: &mut Commands, tah: Handle<TextureAtlas>) -> Option<Entity> {
+        None
     }
     fn reusable(&self) -> bool {
         self.reusable

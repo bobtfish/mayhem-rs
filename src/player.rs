@@ -1,42 +1,91 @@
 use bevy::prelude::*;
 use crate::display;
 use crate::spell::{AllSpells, SpellBox, ASpell};
+use crate::system::BoardEntity;
 use rand::prelude::SliceRandom;
 
+pub struct SpellList {
+    pub spells: Vec<Box<dyn ASpell + Sync + Send>>,
+    pub chosen_spell: Option<usize>,
+}
+impl SpellList {
+    pub fn set_chosen(&mut self, idx: usize) {
+        self.chosen_spell = Some(idx);
+    }
+    pub fn get_chosen_spell(
+        &self
+    ) -> Option<&dyn ASpell> {
+        self.chosen_spell?;
+        Some(self.get_spell(self.chosen_spell.unwrap()))
+    }
+    pub fn get_spell(&self, idx: usize) -> &dyn ASpell {
+        &*self.spells[idx]
+    }
+    pub fn remove(&mut self, i: usize) {
+        self.spells.remove(i);
+    }
+    pub fn len(&self) -> usize {
+        self.spells.len()
+    }
+    pub fn pop_chosen_spell(&mut self) -> Box<dyn ASpell> {
+        let idx = self.chosen_spell.unwrap();
+        self.chosen_spell = None;
+        if !self.spells[idx].reusable() {
+            return self.spells.remove(idx);
+        }
+        return self.spells[idx].clone();
+    }
+}
 pub struct Player {
     pub name: String,
     pub computer_controlled: bool,
     pub character_icon: u8,
     pub color: u8,
-    pub chosen_spell: Option<usize>,
-    pub spells: Vec<Box<dyn ASpell + Sync + Send>>,
+    pub spells: SpellList,
     pub x: f32,
     pub y: f32,
-    pub handle: Option<Entity>
+    pub handle: Option<Entity>,
+    pub creations: Vec<Entity>,
 }
 
 impl Player {
+    pub fn new(name: String, cc: bool, icon: u8, color: u8) -> Self {
+        Self {
+            name,
+            computer_controlled: cc,
+            character_icon: icon,
+            color,
+            spells: SpellList {
+                spells: Vec::new(),
+                chosen_spell: None,
+            },
+            x: 0.0,
+            y: 0.0,
+            handle: None,
+            creations: Vec::new(),
+        }
+    }
     pub fn pick_spells(&mut self, allspells: &AllSpells) {
         let mut sample: Vec<SpellBox> = Vec::new();
         for spell in allspells[1..].choose_multiple(&mut rand::thread_rng(), 13) {
             sample.push((*spell).clone());
         }
         sample.insert(0, allspells[0].clone());
-        self.spells = sample;
+        self.spells.spells = sample;
 
-    }
-    pub fn get_chosen_spell(
-        &self
-    ) -> Option<&dyn ASpell> {
-        self.chosen_spell?;
-        Some(&*self.spells[self.chosen_spell.unwrap()])
     }
     pub fn spawn(
         &mut self,
         commands: &mut Commands,
         tah: Handle<TextureAtlas>
     ) {
-        self.handle = Some(commands.spawn(display::get_sprite_sheet_bundle(tah, Vec2::new(self.x, self.y), (169 + self.character_icon) as usize, display::WHITE)).id());
+        self.handle = Some(
+            commands.spawn(
+                display::get_sprite_sheet_bundle(tah, Vec2::new(self.x, self.y), (169 + self.character_icon) as usize, display::WHITE)
+            )
+            .insert(BoardEntity)
+            .id()
+        );
     }
     pub fn cast(
         &mut self,
@@ -44,12 +93,11 @@ impl Player {
         commands: &mut Commands,
         tah: Handle<TextureAtlas>
     ) {
-        let spell = self.get_chosen_spell().unwrap();
-        spell.cast(pos, commands, tah);
-        if !spell.reusable() {
-            self.spells.remove(self.chosen_spell.unwrap());
+        let spell = self.spells.pop_chosen_spell();
+        let e = spell.cast(pos, commands, tah);
+        if let Some(entity) = e {
+            self.creations.push(entity);
         }
-        self.chosen_spell = None;
     }
 }
 
