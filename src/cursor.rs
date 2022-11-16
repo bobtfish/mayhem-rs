@@ -50,12 +50,7 @@ impl Cursor {
         self.cursor = t;
         self.moved = true;
     }
-    pub fn set_pos(&mut self, x: f32, y: f32) {
-        self.x = x;
-        self.y = y;
-        self.moved = true;
-    }
-    pub fn set_pos_v(&mut self, v: Vec2) {
+    pub fn set_pos(&mut self, v: Vec2) {
         self.x = v.x;
         self.y = v.y;
         self.moved = true;

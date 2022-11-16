@@ -42,8 +42,7 @@ pub struct Player {
     pub character_icon: u8,
     pub color: u8,
     pub spells: SpellList,
-    pub x: f32,
-    pub y: f32,
+    pub pos: Vec2,
     pub handle: Option<Entity>,
     pub creations: Vec<Entity>,
 }
@@ -59,8 +58,7 @@ impl Player {
                 spells: Vec::new(),
                 chosen_spell: None,
             },
-            x: 0.0,
-            y: 0.0,
+            pos: Vec2{x: 0.0, y: 0.0},
             handle: None,
             creations: Vec::new(),
         }
@@ -79,7 +77,7 @@ impl Player {
         commands: &mut Commands,
         tah: Handle<TextureAtlas>
     ) {
-        let mut ss = display::get_sprite_sheet_bundle(tah, Vec2::new(self.x, self.y), (169 + self.character_icon) as usize, display::WHITE);
+        let mut ss = display::get_sprite_sheet_bundle(tah, self.pos.clone(), (169 + self.character_icon) as usize, display::WHITE);
         ss.visibility.is_visible = false;
         self.handle = Some(
             commands.spawn(ss)

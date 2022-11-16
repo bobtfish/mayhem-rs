@@ -184,8 +184,7 @@ fn player_name_menu_transition(
     if g.players == g.player_info.len() as u8 {
         let positions = crate::player::get_start_positions(g.players as usize).unwrap();
         for (i, pos) in positions.iter().enumerate() {
-            g.player_info[i].x = pos.x;
-            g.player_info[i].y = pos.y;
+            g.player_info[i].pos = *pos;
         }
         state.set(GameState::PlayerMenu).unwrap();
     } else {

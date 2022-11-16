@@ -77,15 +77,13 @@ fn cast_spell_setup(
     if spell.is_none() {
         return;
     }
+    let pos = player.pos.clone();
     let spell = spell.unwrap();
     let mut text = String::from(&player.name);
     text.push(' ');
     text.push_str(&spell.name());
     ev_text.send(BottomTextEvent::from(&text));
-    let x = player.x;
-    let y = player.y;
-    g.cursor.set_pos(x, y);
-    println!("SET CURSOR TO {x} {y}");
+    g.cursor.set_pos(pos);
 }
 
 fn cast_spell_keyboard(
