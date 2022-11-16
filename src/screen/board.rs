@@ -2,6 +2,7 @@ use bevy::prelude::*;
 use crate::gamestate::GameState;
 use crate::game::Game;
 use crate::display::{BottomTextEvent};
+use crate::player::CastFailed;
 use crate::system;
 use crate::cursor::{self, CURSOR_SPELL};
 
@@ -90,7 +91,9 @@ fn cast_spell_keyboard(
     mut keys: ResMut<Input<KeyCode>>,
     mut g: ResMut<Game>,
     mut commands: Commands,
-    mut state: ResMut<State<GameState>>
+    mut state: ResMut<State<GameState>>,
+    mut ev_text: EventWriter<BottomTextEvent>,
+    mut ev_cursor: EventReader<CursorMoved>,
 ) {
     let player = g.get_player();
     let spell = player.spells.get_chosen_spell();
@@ -104,8 +107,17 @@ fn cast_spell_keyboard(
         keys.reset(KeyCode::S);
         let pos = g.cursor.get_pos_v();
         let player = g.get_player_mut();
-        player.cast(pos, &mut commands, tah);
-        state.pop().unwrap();
+        match player.cast(pos, &mut commands, tah) {
+            Ok(v) => state.pop().unwrap(),
+            Err(CastFailed::OutOfRange) => {
+                ev_text.send(BottomTextEvent::from("Out of range"));
+                g.cursor.hide_till_moved();
+            }
+        }
+    }
+    for _ in ev_cursor.iter() {
+        println!("Got cursor moved event, clear");
+        ev_text.send(BottomTextEvent::clear());
     }
 }
 

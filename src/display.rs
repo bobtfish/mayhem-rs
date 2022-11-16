@@ -2,6 +2,7 @@ use bevy::{prelude::*, math::{vec3, vec2}};
 use rand::Rng;
 
 use crate::game::Game;
+use crate::gamestate::GameState;
 use crate::constants::*;
 const WIZARD_IDX: usize = 170;
 

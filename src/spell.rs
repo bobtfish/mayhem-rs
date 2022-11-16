@@ -12,6 +12,7 @@ pub trait ASpell {
     fn clone(&self) -> SpellBox;
     fn cast(&self, pos: Vec2, commands: &mut Commands, tah: Handle<TextureAtlas>) -> Option<Entity>;
     fn reusable(&self) -> bool;
+    fn cast_range(&self) -> u8;
 }
 
 #[derive(Default, Clone)]
@@ -49,6 +50,9 @@ impl ASpell for Spell {
     }
     fn reusable(&self) -> bool {
         self.reusable
+    }
+    fn cast_range(&self) -> u8 {
+        self.cast_range
     }
 }
 

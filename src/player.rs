@@ -47,6 +47,10 @@ pub struct Player {
     pub creations: Vec<Entity>,
 }
 
+pub enum CastFailed {
+    OutOfRange
+}
+
 impl Player {
     pub fn new(name: String, cc: bool, icon: u8, color: u8) -> Self {
         Self {
@@ -90,12 +94,20 @@ impl Player {
         pos: Vec2,
         commands: &mut Commands,
         tah: Handle<TextureAtlas>
-    ) {
+    ) -> Result<Option<Entity>, CastFailed> {
+        let range = self.spells.get_chosen_spell().unwrap().cast_range();
+        let dist = (pos - self.pos).length().floor();
+        println!("RANGE IS {} DIST IS {}", range, dist);
+        if dist > f32::from(range) {
+            println!("Return too far");
+            return Err(CastFailed::OutOfRange);
+        }
         let spell = self.spells.pop_chosen_spell();
         let e = spell.cast(pos, commands, tah);
         if let Some(entity) = e {
             self.creations.push(entity);
         }
+        Ok(e)
     }
 }
 

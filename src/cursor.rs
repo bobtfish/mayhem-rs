@@ -15,11 +15,14 @@ pub struct CursorPlugin;
 impl Plugin for CursorPlugin {
     fn build(&self, app: &mut App) {
         app
+            .add_event::<CursorMovedEvent>()
             .add_startup_system(cursor_setup.at_end())
             .add_system(keyboard_input)
             .add_system(animate_cursor);
     }
 }
+
+pub struct CursorMovedEvent;
 
 #[derive(Component)]
 pub struct CursorEntity;
@@ -32,6 +35,7 @@ pub struct Cursor {
     y: f32,
     flash_timer: Timer,
     moved: bool,
+    hide_till_moved: bool,
 }
 
 impl Cursor {
@@ -58,6 +62,10 @@ impl Cursor {
     pub fn get_pos_v(&self) -> Vec2 {
         Vec2 { x: self.x, y: self.y }
     }
+    pub fn hide_till_moved(&mut self) {
+        println!("SET HIDE TILL MOVED");
+        self.hide_till_moved = true;
+    }
 }
 
 fn cursor_setup(
@@ -74,6 +82,7 @@ fn cursor_setup(
         y: 0.0,
         flash_timer: Timer::from_seconds(ANIMATION_TICK/2.0, TimerMode::Repeating),
         moved: false,
+        hide_till_moved: false,
     };
 }
 
@@ -81,25 +90,32 @@ fn cursor_setup(
 fn keyboard_input(
     keys: Res<Input<KeyCode>>,
     mut game: ResMut<Game>,
+    mut ev_cursor_moved: EventWriter<CursorMovedEvent>,
 ) {
-    if !game.cursor.is_visible() {
+    let mut cursor = &mut game.cursor;
+    if !cursor.is_visible() {
         return;
     }
-    if keys.just_pressed(KeyCode::Left) && game.cursor.x > 0.0 {
-        game.cursor.x -= 1.0;
-        game.cursor.moved = true;
+    if keys.just_pressed(KeyCode::Left) && cursor.x > 0.0 {
+        cursor.x -= 1.0;
+        cursor.moved = true;
     }
-    if keys.just_pressed(KeyCode::Right) && game.cursor.x < WIDTH as f32 -2.0 {
-        game.cursor.x += 1.0;
-        game.cursor.moved = true;
+    if keys.just_pressed(KeyCode::Right) && cursor.x < WIDTH as f32 -2.0 {
+        cursor.x += 1.0;
+        cursor.moved = true;
     }
-    if keys.just_pressed(KeyCode::Up) && game.cursor.y < HEIGHT as f32 -3.0 {
-        game.cursor.y += 1.0;
-        game.cursor.moved = true;
+    if keys.just_pressed(KeyCode::Up) && cursor.y < HEIGHT as f32 -3.0 {
+        cursor.y += 1.0;
+        cursor.moved = true;
     }
-    if keys.just_pressed(KeyCode::Down) && game.cursor.y > 0.0 {
-        game.cursor.y -= 1.0;
-        game.cursor.moved = true;
+    if keys.just_pressed(KeyCode::Down) && cursor.y > 0.0 {
+        cursor.y -= 1.0;
+        cursor.moved = true;
+    }
+    if cursor.moved {
+        cursor.hide_till_moved = false;
+        println!("SEND cursor moved event");
+        ev_cursor_moved.send(CursorMovedEvent{});
     }
 }
 
@@ -124,17 +140,23 @@ fn animate_cursor(
     let mut vis = item.0;
     let mut transform = item.1;
     let mut sprite = item.2;
-    if game.cursor.moved {
-        sprite.index = game.cursor.cursor + CURSOR_SPRITE_ID;
-        vis.is_visible = game.cursor.is_visible();
-        *transform = transform.with_translation(vec2(game.cursor.x, game.cursor.y).extend(CURSOR_Z));
-        game.cursor.moved = false;
+    let mut cursor = &mut game.cursor;
+    if cursor.moved || cursor.hide_till_moved {
+        sprite.index = cursor.cursor + CURSOR_SPRITE_ID;
+        if cursor.hide_till_moved {
+            vis.is_visible = false;
+        } else {
+            vis.is_visible = cursor.is_visible();
+        }
+        *transform = transform.with_translation(vec2(cursor.x, cursor.y).extend(CURSOR_Z));
+        println!("UNSET MOVED");
+        cursor.moved = false;
     }
-    if !game.cursor.is_visible() {
+    if !cursor.is_visible() || cursor.hide_till_moved {
         return;
     }
-    game.cursor.flash_timer.tick(time.delta());
-    if game.cursor.flash_timer.just_finished() {
+    cursor.flash_timer.tick(time.delta());
+    if cursor.flash_timer.just_finished() {
         if vis.is_visible {
             vis.is_visible = false;
         } else {

@@ -54,6 +54,9 @@ impl ASpell for CreatureSpell {
     fn reusable(&self) -> bool {
         false
     }
+    fn cast_range(&self) -> u8 {
+        1
+    }
 }
 
 pub fn load_creatures() -> HashMap<String, Creature> {
