@@ -11,8 +11,13 @@ pub trait ASpell {
     fn get_sep(&self) -> &str;
     fn clone(&self) -> SpellBox;
     fn cast(&self, pos: Vec2, commands: &mut Commands, tah: Handle<TextureAtlas>) -> Option<Entity>;
-    fn reusable(&self) -> bool;
+    fn reusable(&self) -> bool {
+        false
+    }
     fn cast_range(&self) -> u8;
+    fn can_be_illusion(&self) -> bool {
+        false
+    }
 }
 
 #[derive(Default, Clone)]

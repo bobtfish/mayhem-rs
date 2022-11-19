@@ -208,14 +208,41 @@ fn player_menu_select_spell_setup(
     player_menu_choose_spell_setup(commands, g, SelectSpellScreen, ev_text);
 }
 
+#[derive(Default)]
+struct PickIllusion(bool);
+
 fn player_menu_select_spell_keyboard(
     mut state: ResMut<State<GameState>>,
     mut ev_choose_spell: EventReader<PlayerMenuEvent>,
     mut g: ResMut<Game>,
+    mut ev_text: EventWriter<BottomTextEvent>,
+    mut pickillusion: Local<PickIllusion>,
+    mut keys: ResMut<Input<KeyCode>>,
 ) {
-    for ev in ev_choose_spell.iter() {
-        g.get_player_mut().spells.set_chosen(ev.0);
-        state.set(GameState::PlayerMenu).unwrap();
+    if (*pickillusion).0 {
+        if keys.just_pressed(KeyCode::Y) {
+            keys.reset(KeyCode::Y);
+            g.get_player_mut().spells.illusion = true;
+            (*pickillusion).0 = false;
+            state.set(GameState::PlayerMenu).unwrap();
+        }
+        if keys.just_pressed(KeyCode::N) {
+            keys.reset(KeyCode::N);
+            g.get_player_mut().spells.illusion = false;
+            (*pickillusion).0 = false;
+            state.set(GameState::PlayerMenu).unwrap();
+        }
+    } else {
+        for ev in ev_choose_spell.iter() {
+            g.get_player_mut().spells.set_chosen(ev.0);
+            let can_be_illusion = g.get_player_mut().spells.get_chosen_spell().unwrap().can_be_illusion();
+            if can_be_illusion {
+                (*pickillusion).0 = true;
+                ev_text.send(BottomTextEvent::from("Illusion? (Y/N)"));
+            } else {
+                state.set(GameState::PlayerMenu).unwrap();
+            }
+        }
     }
 }
 

@@ -7,6 +7,7 @@ use rand::prelude::SliceRandom;
 pub struct SpellList {
     pub spells: Vec<Box<dyn ASpell + Sync + Send>>,
     pub chosen_spell: Option<usize>,
+    pub illusion: bool,
 }
 impl SpellList {
     pub fn set_chosen(&mut self, idx: usize) {
@@ -58,6 +59,7 @@ impl Player {
             spells: SpellList {
                 spells: Vec::new(),
                 chosen_spell: None,
+                illusion: false,
             },
             pos: Vec2{x: 0.0, y: 0.0},
             handle: None,

@@ -57,6 +57,9 @@ impl ASpell for CreatureSpell {
     fn cast_range(&self) -> u8 {
         1
     }
+    fn can_be_illusion(&self) -> bool {
+        true
+    }
 }
 
 pub fn load_creatures() -> HashMap<String, Creature> {
