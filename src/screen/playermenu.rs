@@ -111,7 +111,7 @@ fn player_menu_choose_spell_setup(
     n_player.push_str("'s spells");
     print_text(&n_player, &mut commands, g.fah(), Vec2::new(0.5, 9.0), screen);
     let player = g.get_player();
-    for (i, spell) in (0_u8..).zip((&player.spells.spells).into_iter()) {
+    for (i, spell) in (0_u8..).zip(player.spells.spells.iter()) {
         let x = if 1 == i % 2 { 7.0 } else { 0.5 };
         let mut name_str = ((i+65) as char).to_string();
         name_str.push_str(spell.get_sep());
@@ -127,7 +127,7 @@ struct ExamineSpellScreen;
 fn player_menu_examine_spell_setup(
     commands: Commands,
     g: Res<Game>,
-    mut ev_text: EventWriter<BottomTextEvent>,
+    ev_text: EventWriter<BottomTextEvent>,
 ) {
     player_menu_choose_spell_setup(commands, g, ExamineSpellScreen, ev_text);
 }
@@ -148,12 +148,12 @@ fn player_menu_choose_spell_keyboard(
         let c = ev.char as usize;
         if c >= 65 && c <= 65 + player.spells.len() {
             let choice = c-65;
-            println!("Chosen spell {}", choice);
+            println!("Chosen spell {choice}");
             ev_choose_spell.send(PlayerMenuEvent(choice));
         }
         if c >= 97 && c <= 97 + player.spells.len() {
             let choice = c-97;
-            println!("Chosen spell {}", choice);
+            println!("Chosen spell {choice}");
             ev_choose_spell.send(PlayerMenuEvent(choice));
         }
     }
@@ -203,7 +203,7 @@ struct SelectSpellScreen;
 fn player_menu_select_spell_setup(
     commands: Commands,
     g: Res<Game>,
-    mut ev_text: EventWriter<BottomTextEvent>,
+    ev_text: EventWriter<BottomTextEvent>,
 ) {
     player_menu_choose_spell_setup(commands, g, SelectSpellScreen, ev_text);
 }

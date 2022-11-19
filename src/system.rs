@@ -17,13 +17,13 @@ pub fn despawn_screen<T: Component>(
 pub struct BoardEntity;
 
 pub fn hide_board_entities (
-    mut to_hide: Query<&mut Visibility, With<BoardEntity>>,
+    to_hide: Query<&mut Visibility, With<BoardEntity>>,
 ) {
     toggle_board_entities(to_hide, false);
 }
 
 pub fn show_board_entities (
-    mut to_show: Query<&mut Visibility, With<BoardEntity>>,
+    to_show: Query<&mut Visibility, With<BoardEntity>>,
 ) {
     toggle_board_entities(to_show, true);
 }

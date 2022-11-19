@@ -7,8 +7,10 @@ use crate::display;
 const CURSOR_SPRITE_ID: usize = 164;
 pub const CURSOR_SPELL: usize = 0;
 pub const CURSOR_BOX: usize = 1;
+/*
 pub const CURSOR_FLY: usize = 2;
 pub const CURSOR_TARGET: usize = 3;
+*/
 
 pub struct CursorPlugin;
 
@@ -118,18 +120,6 @@ fn keyboard_input(
         ev_cursor_moved.send(CursorMovedEvent{});
     }
 }
-
-pub fn set_visible(
-    mut game: ResMut<Game>,
-) {
-    game.cursor.set_visible();
-}
-pub fn set_invisible(
-    mut game: ResMut<Game>,
-) {
-    game.cursor.set_invisible();
-}
-
 
 fn animate_cursor(
     mut game: ResMut<Game>,

@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-use crate::creature::Creature;
 use crate::player::Player;
 use crate::cursor::Cursor;
 use crate::constants::*;

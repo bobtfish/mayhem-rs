@@ -26,15 +26,6 @@ pub struct Spell {
     pub no_line_of_sight_needed: bool,
 }
 
-impl Spell {
-    pub const fn get_sep(&self) -> &str {
-        "-"
-    }
-    pub fn cast(&self, pos: Vec2, mut commands: Commands) -> Option<Entity> {
-        None
-    }
-}
-
 impl ASpell for Spell {
     fn name(&self) -> String {
         self.name.clone()
@@ -45,7 +36,7 @@ impl ASpell for Spell {
     fn clone(&self) -> SpellBox {
         Box::new(std::clone::Clone::clone(self))
     }
-    fn cast(&self, pos: Vec2, commands: &mut Commands, tah: Handle<TextureAtlas>) -> Option<Entity> {
+    fn cast(&self, _pos: Vec2, _commands: &mut Commands, _tah: Handle<TextureAtlas>) -> Option<Entity> {
         None
     }
     fn reusable(&self) -> bool {

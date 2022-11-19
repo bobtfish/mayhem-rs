@@ -4,7 +4,7 @@ use crate::game::Game;
 use crate::display::{BottomTextEvent};
 use crate::player::CastFailed;
 use crate::system;
-use crate::cursor::{self, CURSOR_SPELL};
+use crate::cursor::CURSOR_SPELL;
 
 pub struct BoardPlugin;
 
@@ -14,7 +14,6 @@ impl Plugin for BoardPlugin {
             .add_system_set(
                 SystemSet::on_enter(GameState::Game)
                     .with_system(game_setup)
-                    .with_system(cursor::set_visible)
                     .with_system(system::show_board_entities)
             )
             .add_system_set(SystemSet::on_update(GameState::Game).with_system(game_next))
@@ -33,10 +32,10 @@ impl Plugin for BoardPlugin {
 struct OnGameScreen;
 
 fn game_setup(
-    mut commands: Commands,
+    //mut commands: Commands,
     mut g: ResMut<Game>,
 ) {
-    let tah = g.tah();
+    //let tah = g.tah();
     // Wizard with bow
     //spawn_anim(&mut commands, g.tah(), Vec2::splat(2.0), 120, 8);
     // Spell/splodey thing
@@ -48,6 +47,7 @@ fn game_setup(
     //let creature_map = load_creatures();
     //creature_map.get("Pegasus").unwrap().to_entity(Vec2::splat(4.0), &mut commands, g.tah());
     g.player_turn = 0;
+    g.cursor.set_visible();
 }
 
 fn game_next(
@@ -78,7 +78,7 @@ fn cast_spell_setup(
     if spell.is_none() {
         return;
     }
-    let pos = player.pos.clone();
+    let pos = player.pos;
     let spell = spell.unwrap();
     let mut text = String::from(&player.name);
     text.push(' ');
@@ -108,7 +108,7 @@ fn cast_spell_keyboard(
         let pos = g.cursor.get_pos_v();
         let player = g.get_player_mut();
         match player.cast(pos, &mut commands, tah) {
-            Ok(v) => state.pop().unwrap(),
+            Ok(_) => state.pop().unwrap(),
             Err(CastFailed::OutOfRange) => {
                 ev_text.send(BottomTextEvent::from("Out of range"));
                 g.cursor.hide_till_moved();

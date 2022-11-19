@@ -21,9 +21,6 @@ impl SpellList {
     pub fn get_spell(&self, idx: usize) -> &dyn ASpell {
         &*self.spells[idx]
     }
-    pub fn remove(&mut self, i: usize) {
-        self.spells.remove(i);
-    }
     pub fn len(&self) -> usize {
         self.spells.len()
     }
@@ -81,7 +78,7 @@ impl Player {
         commands: &mut Commands,
         tah: Handle<TextureAtlas>
     ) {
-        let mut ss = display::get_sprite_sheet_bundle(tah, self.pos.clone(), (169 + self.character_icon) as usize, display::WHITE);
+        let mut ss = display::get_sprite_sheet_bundle(tah, self.pos, (169 + self.character_icon) as usize, display::WHITE);
         ss.visibility.is_visible = false;
         self.handle = Some(
             commands.spawn(ss)
@@ -97,7 +94,7 @@ impl Player {
     ) -> Result<Option<Entity>, CastFailed> {
         let range = self.spells.get_chosen_spell().unwrap().cast_range();
         let dist = (pos - self.pos).length().floor();
-        println!("RANGE IS {} DIST IS {}", range, dist);
+        println!("RANGE IS {range} DIST IS {dist}");
         if dist > f32::from(range) {
             println!("Return too far");
             return Err(CastFailed::OutOfRange);

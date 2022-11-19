@@ -1,8 +1,6 @@
 use bevy::{prelude::*, math::{vec3, vec2}};
-use rand::Rng;
 
 use crate::game::Game;
-use crate::gamestate::GameState;
 use crate::constants::*;
 const WIZARD_IDX: usize = 170;
 
@@ -56,10 +54,12 @@ pub fn get_sprite_sheet_bundle(
     get_sprite_sheet_bundle_z(texture_atlas_handle, v, init, color, 0.0)
 }
 
+/* 
 pub fn random_color() -> Color {
     let mut rng = rand::thread_rng();
     Color::rgba(rng.gen::<f32>(), rng.gen::<f32>(), rng.gen::<f32>(), 1.0)
 }
+*/
 
 pub const WHITE: Color = Color::rgba(1.0, 1.0, 1.0, 1.0);
 
@@ -90,7 +90,7 @@ pub fn print_text(str: &str, commands: &mut Commands, fah: Handle<TextureAtlas>,
         .insert(c).id();
         entities.push(new);
     }
-    return entities;
+    entities
 }
 
 #[derive(Component, Copy, Clone)]
