@@ -10,6 +10,7 @@ pub struct Creature {
     pub name: String,
     sprite_index: usize,
     entity: Option<Entity>,
+    is_illusion: bool,
 }
 
 #[derive(Component)]
@@ -48,7 +49,7 @@ impl ASpell for CreatureSpell {
     fn clone(&self) -> SpellBox {
         Box::new(std::clone::Clone::clone(self))
     }
-    fn cast(&self, pos: Vec2, commands: &mut Commands, tah: Handle<TextureAtlas>) -> Option<Entity> {
+    fn cast(&self, illusion: bool, pos: Vec2, commands: &mut Commands, tah: Handle<TextureAtlas>) -> Option<Entity> {
         Some(self.creature.to_entity(pos, commands, tah))
     }
     fn reusable(&self) -> bool {

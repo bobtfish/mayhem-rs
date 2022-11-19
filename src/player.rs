@@ -102,7 +102,7 @@ impl Player {
             return Err(CastFailed::OutOfRange);
         }
         let spell = self.spells.pop_chosen_spell();
-        let e = spell.cast(pos, commands, tah);
+        let e = spell.cast(self.spells.illusion, pos, commands, tah);
         if let Some(entity) = e {
             self.creations.push(entity);
         }
