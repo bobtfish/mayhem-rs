@@ -45,7 +45,12 @@ fn initial_menu_keyboard_input(
     mut game: ResMut<Game>,
     mut commands: Commands,
     mut ev_text: EventWriter<BottomTextEvent>,
+    keys: Res<Input<KeyCode>>,
 ) {
+    if keys.just_pressed(KeyCode::H) {
+        state.set(GameState::Help).unwrap();
+        return
+    }
     for ev in char_evr.iter() {
         let c = ev.char as u32;
         if game.players == 0 {

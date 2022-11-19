@@ -4,6 +4,7 @@ use bevy::prelude::*;
 #[derive(Clone, Eq, PartialEq, Debug, Hash, Resource)]
 pub enum GameState {
     InitialMenu,
+    Help,
     PlayerNameMenu,
     PlayerNameMenuTransition,
     PlayerMenu,
