@@ -4,7 +4,7 @@ use crate::game::Game;
 use crate::display::{BottomTextEvent};
 use crate::player::CastFailed;
 use crate::system;
-use crate::cursor::CURSOR_SPELL;
+use crate::cursor::{CURSOR_SPELL, CURSOR_BOX};
 
 pub struct BoardPlugin;
 
@@ -21,7 +21,10 @@ impl Plugin for BoardPlugin {
             .add_system_set(SystemSet::on_enter(GameState::GameCastSpell).with_system(cast_spell_setup))
             .add_system_set(SystemSet::on_update(GameState::GameCastSpell).with_system(cast_spell_keyboard))
             .add_system_set(SystemSet::on_exit(GameState::GameCastSpell).with_system(cast_spell_finish))
-            .add_system_set(SystemSet::on_enter(GameState::GameMove).with_system(move_setup))
+            .add_system_set(SystemSet::on_enter(GameState::GameMoveSetup).with_system(move_setup))
+            .add_system_set(SystemSet::on_update(GameState::GameMoveSetup).with_system(move_next))
+            .add_system_set(SystemSet::on_enter(GameState::GameMoveOnePlayer).with_system(move_one_setup))
+            .add_system_set(SystemSet::on_update(GameState::GameMoveOnePlayer).with_system(move_one_keyboard))
             .add_system_set(SystemSet::on_enter(GameState::NextTurn).with_system(system::hide_board_entities))
             .add_system_set(SystemSet::on_update(GameState::NextTurn).with_system(next_turn));
     }
@@ -57,9 +60,7 @@ fn game_next(
     if g.player_turn >= g.players {
         g.player_turn = 0;
         println!("Spell casting finished, do movement now");
-        //state.push(GameState::GameMove).unwrap();
-        // FIXME - for the moment, lets just do spells
-        state.set(GameState::NextTurn).unwrap();
+        state.set(GameState::GameMoveSetup).unwrap();
     } else {
         println!("Player turn to cast spell");
         // Next player's turn to cast a spell
@@ -126,7 +127,58 @@ fn cast_spell_finish(mut g: ResMut<Game>) {
     g.player_turn += 1;
 }
 
-fn move_setup() {}
+fn move_setup(
+    mut g: ResMut<Game>,
+) {
+    g.cursor.set_type(CURSOR_BOX);
+    g.player_turn = 0;
+    println!("In move setup");
+}
+
+fn move_next(
+    mut state: ResMut<State<GameState>>,
+    mut g: ResMut<Game>,
+) {
+    if g.player_turn >= g.players {
+        g.player_turn = 0;
+        println!("Moving finished, next turn now");
+        state.set(GameState::NextTurn).unwrap();
+    } else {
+        println!("Player turn to move");
+        state.push(GameState::GameMoveOnePlayer).unwrap();
+    }
+}
+
+fn move_one_setup(
+    mut g: ResMut<Game>,
+    mut ev_text: EventWriter<BottomTextEvent>,
+) {
+    println!("Move one for player {}", g.player_turn);
+    let player = g.get_player();
+    let mut s = player.name.clone();
+    let pos = player.pos;
+    g.cursor.set_pos(pos);
+    s.push_str("'s turn");
+    ev_text.send(BottomTextEvent::from(&s));
+}
+
+fn move_one_keyboard(
+    mut g: ResMut<Game>,
+    mut keys: ResMut<Input<KeyCode>>,
+    mut state: ResMut<State<GameState>>,
+) {
+    if keys.just_pressed(KeyCode::Key0) {
+        keys.reset(KeyCode::Key0);
+        g.player_turn += 1;
+        state.pop().unwrap();
+        println!("Next player turn");
+    }
+    if keys.just_pressed(KeyCode::S) {
+        keys.reset(KeyCode::S);
+        let pos = g.cursor.get_pos_v();
+        println!("Find thing at {}, {} to move", pos.x, pos.y);
+    }
+}
 
 fn next_turn(
     mut state: ResMut<State<GameState>>,

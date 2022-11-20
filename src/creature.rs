@@ -10,22 +10,24 @@ pub struct Creature {
     pub name: String,
     sprite_index: usize,
     entity: Option<Entity>,
-    is_illusion: bool,
 }
 
 #[derive(Component)]
-struct CreatureComponent;
+struct CreatureComponent {
+    is_illusion: bool
+}
 
 impl Creature {
     fn to_entity(
         &self,
+        illusion: bool,
         v: Vec2,
         commands: &mut Commands,
         texture_atlas_handle: Handle<TextureAtlas>
     ) -> Entity {
         let e = spawn_anim(commands, texture_atlas_handle, v, self.sprite_index, 4);
         commands.get_entity(e).unwrap()
-            .insert(CreatureComponent)
+            .insert(CreatureComponent{is_illusion: illusion})
             .insert(BoardEntity);
         e
     }
@@ -50,7 +52,7 @@ impl ASpell for CreatureSpell {
         Box::new(std::clone::Clone::clone(self))
     }
     fn cast(&self, illusion: bool, pos: Vec2, commands: &mut Commands, tah: Handle<TextureAtlas>) -> Option<Entity> {
-        Some(self.creature.to_entity(pos, commands, tah))
+        Some(self.creature.to_entity(illusion, pos, commands, tah))
     }
     fn reusable(&self) -> bool {
         false

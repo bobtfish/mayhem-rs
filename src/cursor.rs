@@ -139,7 +139,6 @@ fn animate_cursor(
             vis.is_visible = cursor.is_visible();
         }
         *transform = transform.with_translation(vec2(cursor.x, cursor.y).extend(CURSOR_Z));
-        println!("UNSET MOVED");
         cursor.moved = false;
     }
     if !cursor.is_visible() || cursor.hide_till_moved {
