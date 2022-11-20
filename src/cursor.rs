@@ -24,7 +24,8 @@ impl Plugin for CursorPlugin {
     }
 }
 
-pub struct CursorMovedEvent;
+#[derive(Deref)]
+pub struct CursorMovedEvent(Vec2);
 
 #[derive(Component)]
 pub struct CursorEntity;
@@ -117,7 +118,7 @@ fn keyboard_input(
     if cursor.moved {
         cursor.hide_till_moved = false;
         println!("SEND cursor moved event");
-        ev_cursor_moved.send(CursorMovedEvent{});
+        ev_cursor_moved.send(CursorMovedEvent(Vec2::new(cursor.x, cursor.y)));
     }
 }
 

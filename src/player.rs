@@ -1,7 +1,8 @@
 use bevy::prelude::*;
+use crate::board::GameBoard;
 use crate::display;
 use crate::spell::{AllSpells, SpellBox, ASpell};
-use crate::system::BoardEntity;
+use crate::system::{BoardEntity, Named, BelongsToPlayer};
 use rand::prelude::SliceRandom;
 
 pub struct SpellList {
@@ -78,15 +79,17 @@ impl Player {
     pub fn spawn(
         &mut self,
         commands: &mut Commands,
-        tah: Handle<TextureAtlas>
+        tah: Handle<TextureAtlas>,
+        board: &mut GameBoard,
     ) {
         let mut ss = display::get_sprite_sheet_bundle(tah, self.pos, (169 + self.character_icon) as usize, display::WHITE);
         ss.visibility.is_visible = false;
-        self.handle = Some(
-            commands.spawn(ss)
+        let entity = commands.spawn(ss)
             .insert(BoardEntity)
-            .id()
-        );
+            .insert(Named{ name: self.name.clone() })
+            .id();
+        self.handle = Some(entity);
+        board.put_entity(self.pos, entity);
     }
     pub fn cast(
         &mut self,
@@ -104,6 +107,8 @@ impl Player {
         let spell = self.spells.pop_chosen_spell();
         let e = spell.cast(self.spells.illusion, pos, commands, tah);
         if let Some(entity) = e {
+            commands.get_entity(e.unwrap()).unwrap()
+                .insert(BelongsToPlayer{player_entity: self.handle.unwrap()});
             self.creations.push(entity);
         }
         Ok(e)

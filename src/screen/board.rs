@@ -3,8 +3,8 @@ use crate::gamestate::GameState;
 use crate::game::Game;
 use crate::display::{BottomTextEvent};
 use crate::player::CastFailed;
-use crate::system;
-use crate::cursor::{CURSOR_SPELL, CURSOR_BOX};
+use crate::system::{self, Named, BelongsToPlayer};
+use crate::cursor::{CURSOR_SPELL, CURSOR_BOX, CursorMovedEvent};
 
 pub struct BoardPlugin;
 
@@ -94,7 +94,7 @@ fn cast_spell_keyboard(
     mut commands: Commands,
     mut state: ResMut<State<GameState>>,
     mut ev_text: EventWriter<BottomTextEvent>,
-    mut ev_cursor: EventReader<CursorMoved>,
+    mut ev_cursor: EventReader<CursorMovedEvent>,
 ) {
     let player = g.get_player();
     let spell = player.spells.get_chosen_spell();
@@ -109,7 +109,10 @@ fn cast_spell_keyboard(
         let pos = g.cursor.get_pos_v();
         let player = g.get_player_mut();
         match player.cast(pos, &mut commands, tah) {
-            Ok(_) => state.pop().unwrap(),
+            Ok(e) => {
+                g.board_mut().put_entity(pos, e.unwrap());
+                state.pop().unwrap();
+            },
             Err(CastFailed::OutOfRange) => {
                 ev_text.send(BottomTextEvent::from("Out of range"));
                 g.cursor.hide_till_moved();
@@ -166,6 +169,10 @@ fn move_one_keyboard(
     mut g: ResMut<Game>,
     mut keys: ResMut<Input<KeyCode>>,
     mut state: ResMut<State<GameState>>,
+    mut ev_cursor: EventReader<CursorMovedEvent>,
+    mut query: Query<(&Named, Option<&BelongsToPlayer>)>,
+    mut playername: Query<&Named>,
+    mut ev_text: EventWriter<BottomTextEvent>,
 ) {
     if keys.just_pressed(KeyCode::Key0) {
         keys.reset(KeyCode::Key0);
@@ -177,6 +184,24 @@ fn move_one_keyboard(
         keys.reset(KeyCode::S);
         let pos = g.cursor.get_pos_v();
         println!("Find thing at {}, {} to move", pos.x, pos.y);
+    }
+    for cur in ev_cursor.iter() {
+        println!("Got cursor moved event, clear");
+        if g.board().has_entity(**cur) {
+            let e = g.board().get_entity(**cur).unwrap();
+            let (named, belongs) = query.get_mut(e).unwrap();
+            let mut text = named.name.clone();
+            if belongs.is_some() {
+                text.push('(');
+                let player_named = playername.get_mut(belongs.unwrap().player_entity);
+                text.push_str(&player_named.unwrap().name);
+                text.push(')');
+            }
+            ev_text.send(BottomTextEvent::from(&text));
+        }
+        else {
+            ev_text.send(BottomTextEvent::clear());
+        }
     }
 }
 

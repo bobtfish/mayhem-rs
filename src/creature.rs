@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, fs::File};
 use crate::display::spawn_anim;
 use crate::spell::{ASpell, SpellBox};
-use crate::system::BoardEntity;
+use crate::system::{BoardEntity, Named};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Creature {
@@ -28,7 +28,8 @@ impl Creature {
         let e = spawn_anim(commands, texture_atlas_handle, v, self.sprite_index, 4);
         commands.get_entity(e).unwrap()
             .insert(CreatureComponent{is_illusion: illusion})
-            .insert(BoardEntity);
+            .insert(BoardEntity)
+            .insert(Named{ name: self.name.clone() });
         e
     }
     pub fn to_spell(&self) -> SpellBox {

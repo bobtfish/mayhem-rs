@@ -1,4 +1,5 @@
 #![feature(custom_inner_attributes)]
+#![feature(array_map)]
 #![warn(clippy::nursery, clippy::pedantic)]
 #![allow(clippy::wildcard_imports, clippy::too_many_arguments, clippy::missing_const_for_fn, clippy::unused_self, clippy::needless_pass_by_value, clippy::module_name_repetitions, clippy::similar_names, clippy::cast_precision_loss, clippy::cast_possible_truncation)]
 
@@ -15,6 +16,7 @@ mod creature;
 mod constants;
 mod system;
 mod gamestate;
+mod board;
 
 use crate::spell::load_all_spells;
 use crate::game::Game;

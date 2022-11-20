@@ -14,6 +14,16 @@ pub fn despawn_screen<T: Component>(
 }
 
 #[derive(Component)]
+pub struct Named {
+    pub name: String
+}
+
+#[derive(Component)]
+pub struct BelongsToPlayer {
+    pub player_entity: Entity
+}
+
+#[derive(Component)]
 pub struct BoardEntity;
 
 pub fn hide_board_entities (

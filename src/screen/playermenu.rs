@@ -56,9 +56,7 @@ fn player_menu_setup(
 ) {
     let tah = g.tah();
     keys.clear();
-    for p in &mut g.player_info {
-        p.spawn(&mut commands, tah.clone());
-    }
+    g.spawn_players(&mut commands, tah.clone());
     print_text(&g.get_player().name, &mut commands, g.fah(), Vec2::new(1.0, 7.0), PlayerMenu);
     print_text("1. Examine Spells", &mut commands, g.fah(), Vec2::new(1.0, 5.0), PlayerMenu);
     print_text("2. Select Spell", &mut commands, g.fah(), Vec2::new(1.0, 4.0), PlayerMenu);
