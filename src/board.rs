@@ -23,6 +23,10 @@ impl GameBoard {
         }
         Some(stack[stack.len()-1])
     }
+    pub fn pop_entity(&mut self, pos: Vec2) -> Entity {
+        let stack = &mut self.0[pos.x as usize].0[pos.y as usize].0;
+        stack.remove(stack.len()-1)
+    }
     pub fn as_ref(&self) -> &Self {
         self
     }

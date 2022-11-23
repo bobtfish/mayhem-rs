@@ -11,6 +11,7 @@ pub struct BoardPlugin;
 impl Plugin for BoardPlugin {
     fn build(&self, app: &mut App) {
         app
+            .init_resource::<Moving>()
             .add_system_set(
                 SystemSet::on_enter(GameState::Game)
                     .with_system(game_setup)
@@ -28,6 +29,13 @@ impl Plugin for BoardPlugin {
             .add_system_set(SystemSet::on_enter(GameState::NextTurn).with_system(system::hide_board_entities))
             .add_system_set(SystemSet::on_update(GameState::NextTurn).with_system(next_turn));
     }
+}
+
+#[derive(Resource, Default)]
+struct Moving {
+    entity: Option<Entity>,
+    distance_left: u8,
+    pos: Vec2,
 }
 
 // Tag component used to tag entities added on the menu screen
@@ -170,37 +178,69 @@ fn move_one_keyboard(
     mut keys: ResMut<Input<KeyCode>>,
     mut state: ResMut<State<GameState>>,
     mut ev_cursor: EventReader<CursorMovedEvent>,
-    mut query: Query<(&Named, Option<&BelongsToPlayer>)>,
+    mut query: Query<(&Named, Option<&BelongsToPlayer>, &mut Transform,)>,
     mut playername: Query<&Named>,
     mut ev_text: EventWriter<BottomTextEvent>,
+    mut moving: ResMut<Moving>,
 ) {
-    if keys.just_pressed(KeyCode::Key0) {
-        keys.reset(KeyCode::Key0);
-        g.player_turn += 1;
-        state.pop().unwrap();
-        println!("Next player turn");
-    }
-    if keys.just_pressed(KeyCode::S) {
-        keys.reset(KeyCode::S);
-        let pos = g.cursor.get_pos_v();
-        println!("Find thing at {}, {} to move", pos.x, pos.y);
-    }
-    for cur in ev_cursor.iter() {
-        println!("Got cursor moved event, clear");
-        if g.board().has_entity(**cur) {
-            let e = g.board().get_entity(**cur).unwrap();
-            let (named, belongs) = query.get_mut(e).unwrap();
-            let mut text = named.name.clone();
-            if belongs.is_some() {
-                text.push('(');
-                let player_named = playername.get_mut(belongs.unwrap().player_entity);
-                text.push_str(&player_named.unwrap().name);
-                text.push(')');
-            }
-            ev_text.send(BottomTextEvent::from(&text));
-        }
-        else {
+    if let Some(entity) = moving.entity {
+        for cur in ev_cursor.iter() {
+            println!("Got cursor moved event in move one");
             ev_text.send(BottomTextEvent::clear());
+            let (_, _, mut transform) = query.get_mut(entity).unwrap();
+            g.board_mut().pop_entity(moving.pos);
+            g.board_mut().put_entity(**cur, entity);
+            *transform = transform.with_translation(cur.extend(1.0));
+            moving.distance_left -= 1;
+            if moving.distance_left == 0 {
+                println!("No movement left, clear entity");
+                moving.entity = None;
+                g.cursor.set_visible();
+            }
+        }
+    } else {
+        if keys.just_pressed(KeyCode::Key0) {
+            keys.reset(KeyCode::Key0);
+            g.player_turn += 1;
+            state.pop().unwrap();
+            println!("Next player turn");
+        }
+        if keys.just_pressed(KeyCode::S) {
+            keys.reset(KeyCode::S);
+            let pos = g.cursor.get_pos_v();
+            println!("Find thing at {}, {} to move", pos.x, pos.y);
+            if g.board().has_entity(pos) {
+                let e = g.board().get_entity(pos).unwrap();
+                let (_, belongs, _) = query.get_mut(e).unwrap();
+                if let Some(belongs) = belongs {
+                    if g.get_player().handle.unwrap() == belongs.player_entity {
+                        println!("Does belong to this player");
+                        moving.entity = Some(e);
+                        moving.pos = pos;
+                        moving.distance_left = 1;
+                        g.cursor.set_invisible();
+                        ev_text.send(BottomTextEvent::from("Movement range=xxx"));
+                    }
+                }
+            }
+        }
+        for cur in ev_cursor.iter() {
+            println!("Got cursor moved event, clear");
+            if g.board().has_entity(**cur) {
+                let e = g.board().get_entity(**cur).unwrap();
+                let (named, belongs, _) = query.get_mut(e).unwrap();
+                let mut text = named.name.clone();
+                if belongs.is_some() {
+                    text.push('(');
+                    let player_named = playername.get_mut(belongs.unwrap().player_entity);
+                    text.push_str(&player_named.unwrap().name);
+                    text.push(')');
+                }
+                ev_text.send(BottomTextEvent::from(&text));
+            }
+            else {
+                ev_text.send(BottomTextEvent::clear());
+            }
         }
     }
 }

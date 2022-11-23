@@ -38,6 +38,7 @@ pub struct Cursor {
     y: f32,
     flash_timer: Timer,
     moved: bool,
+    redraw: bool,
     hide_till_moved: bool,
 }
 
@@ -47,15 +48,15 @@ impl Cursor {
     }
     pub fn set_visible(&mut self) {
         self.visible = true;
-        self.moved = true;
+        self.redraw = true;
     }
     pub fn set_invisible(&mut self) {
         self.visible = false;
-        self.moved = true;
+        self.redraw = true;
     }
     pub fn set_type(&mut self, t: usize) {
         self.cursor = t;
-        self.moved = true;
+        self.redraw = true;
     }
     pub fn set_pos(&mut self, v: Vec2) {
         self.x = v.x;
@@ -86,6 +87,7 @@ fn cursor_setup(
         flash_timer: Timer::from_seconds(ANIMATION_TICK/2.0, TimerMode::Repeating),
         moved: false,
         hide_till_moved: false,
+        redraw: true,
     };
 }
 
@@ -96,9 +98,6 @@ fn keyboard_input(
     mut ev_cursor_moved: EventWriter<CursorMovedEvent>,
 ) {
     let mut cursor = &mut game.cursor;
-    if !cursor.is_visible() {
-        return;
-    }
     if keys.just_pressed(KeyCode::Left) && cursor.x > 0.0 {
         cursor.x -= 1.0;
         cursor.moved = true;
@@ -132,7 +131,7 @@ fn animate_cursor(
     let mut transform = item.1;
     let mut sprite = item.2;
     let mut cursor = &mut game.cursor;
-    if cursor.moved || cursor.hide_till_moved {
+    if cursor.moved || cursor.redraw || cursor.hide_till_moved {
         sprite.index = cursor.cursor + CURSOR_SPRITE_ID;
         if cursor.hide_till_moved {
             vis.is_visible = false;
@@ -141,6 +140,7 @@ fn animate_cursor(
         }
         *transform = transform.with_translation(vec2(cursor.x, cursor.y).extend(CURSOR_Z));
         cursor.moved = false;
+        cursor.redraw = false;
     }
     if !cursor.is_visible() || cursor.hide_till_moved {
         return;
@@ -153,5 +153,4 @@ fn animate_cursor(
             vis.is_visible = true;
         }
     }
-    
 }
