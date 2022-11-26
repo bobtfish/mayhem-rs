@@ -28,6 +28,8 @@ impl Plugin for BoardPlugin {
             .add_system_set(SystemSet::on_update(GameState::GameMoveSetup).with_system(move_next))
             .add_system_set(SystemSet::on_enter(GameState::GameMoveOnePlayer).with_system(move_one_setup))
             .add_system_set(SystemSet::on_update(GameState::GameMoveOnePlayer).with_system(move_one_keyboard))
+            .add_system_set(SystemSet::on_exit(GameState::GameMoveOnePlayer).with_system(move_one_finish))
+
             .add_system_set(SystemSet::on_enter(GameState::NextTurn).with_system(system::hide_board_entities))
             .add_system_set(SystemSet::on_update(GameState::NextTurn).with_system(next_turn));
     }
@@ -36,8 +38,8 @@ impl Plugin for BoardPlugin {
 // Game -push-> GameCastSpell
 //   | ^------pop------/
 //  set
-//    \-> GameMoveSetup
-//
+//    \-> GameMoveSetup -push-> GameMoveOnePlayer
+//                 ^------pop------/
 #[derive(Resource, Default)]
 struct Moving {
     entity: Option<Entity>,
@@ -222,7 +224,6 @@ fn move_one_keyboard(
     } else {
         if keys.just_pressed(KeyCode::Key0) {
             keys.reset(KeyCode::Key0);
-            g.player_turn += 1;
             state.pop().unwrap();
             println!("Next player turn");
         }
@@ -270,6 +271,11 @@ fn move_one_keyboard(
             }
         }
     }
+}
+
+fn move_one_finish(mut g: ResMut<Game>) {
+    println!("Finish move one, increment player turn");
+    g.player_turn += 1;
 }
 
 fn next_turn(
