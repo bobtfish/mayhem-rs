@@ -7,10 +7,9 @@ use crate::display;
 const CURSOR_SPRITE_ID: usize = 164;
 pub const CURSOR_SPELL: usize = 0;
 pub const CURSOR_BOX: usize = 1;
-/*
 pub const CURSOR_FLY: usize = 2;
-pub const CURSOR_TARGET: usize = 3;
-*/
+//pub const CURSOR_TARGET: usize = 3;
+
 
 pub struct CursorPlugin;
 
@@ -61,7 +60,7 @@ impl Cursor {
     pub fn set_pos(&mut self, v: Vec2) {
         self.x = v.x;
         self.y = v.y;
-        self.moved = true;
+        self.redraw = true;
     }
     pub fn get_pos_v(&self) -> Vec2 {
         Vec2 { x: self.x, y: self.y }

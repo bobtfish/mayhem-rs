@@ -1,10 +1,12 @@
 use bevy::prelude::*;
+use std::collections::HashSet;
+use crate::creature::CreatureComponent;
 use crate::gamestate::GameState;
 use crate::game::Game;
 use crate::display::{BottomTextEvent};
 use crate::player::CastFailed;
 use crate::system::{self, Named, BelongsToPlayer};
-use crate::cursor::{CURSOR_SPELL, CURSOR_BOX, CursorMovedEvent};
+use crate::cursor::{CURSOR_SPELL, CURSOR_BOX, CursorMovedEvent, CURSOR_FLY};
 
 pub struct BoardPlugin;
 
@@ -18,7 +20,7 @@ impl Plugin for BoardPlugin {
                     .with_system(system::show_board_entities)
             )
             .add_system_set(SystemSet::on_update(GameState::Game).with_system(game_next))
-            .add_system_set(SystemSet::on_exit(GameState::Game).with_system(system::despawn_screen::<OnGameScreen>))
+            .add_system_set(SystemSet::on_exit(GameState::Game).with_system(game_exit))
             .add_system_set(SystemSet::on_enter(GameState::GameCastSpell).with_system(cast_spell_setup))
             .add_system_set(SystemSet::on_update(GameState::GameCastSpell).with_system(cast_spell_keyboard))
             .add_system_set(SystemSet::on_exit(GameState::GameCastSpell).with_system(cast_spell_finish))
@@ -31,32 +33,24 @@ impl Plugin for BoardPlugin {
     }
 }
 
+// Game -push-> GameCastSpell
+//   | ^------pop------/
+//  set
+//    \-> GameMoveSetup
+//
 #[derive(Resource, Default)]
 struct Moving {
     entity: Option<Entity>,
     distance_left: u8,
+    flying: bool,
     pos: Vec2,
+    has_moved: HashSet<Entity>,
 }
 
-// Tag component used to tag entities added on the menu screen
-#[derive(Component)]
-struct OnGameScreen;
-
 fn game_setup(
-    //mut commands: Commands,
     mut g: ResMut<Game>,
 ) {
-    //let tah = g.tah();
-    // Wizard with bow
-    //spawn_anim(&mut commands, g.tah(), Vec2::splat(2.0), 120, 8);
-    // Spell/splodey thing
-    //spawn_anim(&mut commands, g.tah(), Vec2::splat(1.0), 180, 4);
-
-    //let creature = spawn_anim(&mut commands, g.tah(), Vec2::splat(3.0), 210, 4);
-    //commands.entity(creature).insert(Mortal{is_alive: false});
-
-    //let creature_map = load_creatures();
-    //creature_map.get("Pegasus").unwrap().to_entity(Vec2::splat(4.0), &mut commands, g.tah());
+    println!("game_setup");
     g.player_turn = 0;
     g.cursor.set_visible();
 }
@@ -65,6 +59,7 @@ fn game_next(
     mut state: ResMut<State<GameState>>,
     mut g: ResMut<Game>,
 ) {
+    println!("game_next");
     if g.player_turn >= g.players {
         g.player_turn = 0;
         println!("Spell casting finished, do movement now");
@@ -74,6 +69,11 @@ fn game_next(
         // Next player's turn to cast a spell
         state.push(GameState::GameCastSpell).unwrap();
     }
+}
+
+fn game_exit(
+) {
+    println!("Exit Game state");
 }
 
 fn cast_spell_setup(
@@ -119,6 +119,7 @@ fn cast_spell_keyboard(
         match player.cast(pos, &mut commands, tah) {
             Ok(e) => {
                 g.board_mut().put_entity(pos, e.unwrap());
+                println!("State POP");
                 state.pop().unwrap();
             },
             Err(CastFailed::OutOfRange) => {
@@ -163,6 +164,7 @@ fn move_next(
 fn move_one_setup(
     mut g: ResMut<Game>,
     mut ev_text: EventWriter<BottomTextEvent>,
+    mut moving: ResMut<Moving>,
 ) {
     println!("Move one for player {}", g.player_turn);
     let player = g.get_player();
@@ -171,6 +173,7 @@ fn move_one_setup(
     g.cursor.set_pos(pos);
     s.push_str("'s turn");
     ev_text.send(BottomTextEvent::from(&s));
+    moving.has_moved = HashSet::new();
 }
 
 fn move_one_keyboard(
@@ -178,24 +181,42 @@ fn move_one_keyboard(
     mut keys: ResMut<Input<KeyCode>>,
     mut state: ResMut<State<GameState>>,
     mut ev_cursor: EventReader<CursorMovedEvent>,
-    mut query: Query<(&Named, Option<&BelongsToPlayer>, &mut Transform,)>,
+    mut query: Query<(&Named, &CreatureComponent, Option<&BelongsToPlayer>, &mut Transform,)>,
     mut playername: Query<&Named>,
     mut ev_text: EventWriter<BottomTextEvent>,
     mut moving: ResMut<Moving>,
 ) {
     if let Some(entity) = moving.entity {
-        for cur in ev_cursor.iter() {
-            println!("Got cursor moved event in move one");
-            ev_text.send(BottomTextEvent::clear());
-            let (_, _, mut transform) = query.get_mut(entity).unwrap();
-            g.board_mut().pop_entity(moving.pos);
-            g.board_mut().put_entity(**cur, entity);
-            *transform = transform.with_translation(cur.extend(1.0));
-            moving.distance_left -= 1;
-            if moving.distance_left == 0 {
-                println!("No movement left, clear entity");
+        let (_, _, _, mut transform) = query.get_mut(entity).unwrap();
+        if moving.flying {
+            if keys.just_pressed(KeyCode::S) {
+                keys.reset(KeyCode::S);
+                let cursor_pos;
+                {
+                    let cursor = &mut g.cursor;
+                    cursor.set_type(CURSOR_BOX);
+                    cursor_pos = cursor.get_pos_v();
+                }
+                let board = g.board_mut();
+                board.pop_entity(moving.pos);
+                board.put_entity(cursor_pos, entity);
+                *transform = transform.with_translation(cursor_pos.extend(1.0));
+                moving.distance_left = 0;
                 moving.entity = None;
-                g.cursor.set_visible();
+            }
+        } else {
+            for cur in ev_cursor.iter() {
+                println!("Got cursor moved event in move one");
+                ev_text.send(BottomTextEvent::clear());
+                g.board_mut().pop_entity(moving.pos);
+                g.board_mut().put_entity(**cur, entity);
+                *transform = transform.with_translation(cur.extend(1.0));
+                moving.distance_left -= 1;
+                if moving.distance_left == 0 {
+                    println!("No movement left, clear entity");
+                    moving.entity = None;
+                    g.cursor.set_visible();
+                }
             }
         }
     } else {
@@ -211,14 +232,20 @@ fn move_one_keyboard(
             println!("Find thing at {}, {} to move", pos.x, pos.y);
             if g.board().has_entity(pos) {
                 let e = g.board().get_entity(pos).unwrap();
-                let (_, belongs, _) = query.get_mut(e).unwrap();
+                let (_, creature, belongs, _) = query.get_mut(e).unwrap();
                 if let Some(belongs) = belongs {
-                    if g.get_player().handle.unwrap() == belongs.player_entity {
+                    if g.get_player().handle.unwrap() == belongs.player_entity && !moving.has_moved.contains(&e) {
+                        moving.has_moved.insert(e);
                         println!("Does belong to this player");
+                        moving.flying = creature.flying;
                         moving.entity = Some(e);
                         moving.pos = pos;
-                        moving.distance_left = 1;
-                        g.cursor.set_invisible();
+                        moving.distance_left = creature.movement;
+                        if moving.flying {
+                            g.cursor.set_type(CURSOR_FLY);
+                        } else {
+                            g.cursor.set_invisible();
+                        }
                         ev_text.send(BottomTextEvent::from("Movement range=xxx"));
                     }
                 }
@@ -228,11 +255,11 @@ fn move_one_keyboard(
             println!("Got cursor moved event, clear");
             if g.board().has_entity(**cur) {
                 let e = g.board().get_entity(**cur).unwrap();
-                let (named, belongs, _) = query.get_mut(e).unwrap();
+                let (named, _, belongs, _) = query.get_mut(e).unwrap();
                 let mut text = named.name.clone();
-                if belongs.is_some() {
+                if let Some(belongs) = belongs {
                     text.push('(');
-                    let player_named = playername.get_mut(belongs.unwrap().player_entity);
+                    let player_named = playername.get_mut(belongs.player_entity);
                     text.push_str(&player_named.unwrap().name);
                     text.push(')');
                 }

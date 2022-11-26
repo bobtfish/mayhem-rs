@@ -5,16 +5,29 @@ use crate::display::spawn_anim;
 use crate::spell::{ASpell, SpellBox};
 use crate::system::{BoardEntity, Named};
 
+fn default_as_zero() -> u8 {
+    0
+}
+fn default_as_false() -> bool {
+    false
+}
+
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Creature {
     pub name: String,
     sprite_index: usize,
     entity: Option<Entity>,
+    #[serde(default = "default_as_zero")]
+    movement: u8,
+    #[serde(default = "default_as_false")]
+    flying: bool,
 }
 
 #[derive(Component)]
-struct CreatureComponent {
-    is_illusion: bool
+pub struct CreatureComponent {
+    pub is_illusion: bool,
+    pub movement: u8,
+    pub flying: bool,
 }
 
 impl Creature {
@@ -27,7 +40,11 @@ impl Creature {
     ) -> Entity {
         let e = spawn_anim(commands, texture_atlas_handle, v, self.sprite_index, 4);
         commands.get_entity(e).unwrap()
-            .insert(CreatureComponent{is_illusion: illusion})
+            .insert(CreatureComponent{
+                is_illusion: illusion,
+                movement: self.movement,
+                flying: self.flying,
+            })
             .insert(BoardEntity)
             .insert(Named{ name: self.name.clone() });
         e
