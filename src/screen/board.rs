@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use std::collections::HashSet;
+use crate::board::GameBoard;
 use crate::creature::CreatureComponent;
 use crate::gamestate::GameState;
 use crate::game::Game;
@@ -101,6 +102,7 @@ fn cast_spell_setup(
 fn cast_spell_keyboard(
     mut keys: ResMut<Input<KeyCode>>,
     mut g: ResMut<Game>,
+    mut board: ResMut<GameBoard>,
     mut commands: Commands,
     mut state: ResMut<State<GameState>>,
     mut ev_text: EventWriter<BottomTextEvent>,
@@ -120,7 +122,7 @@ fn cast_spell_keyboard(
         let player = g.get_player_mut();
         match player.cast(pos, &mut commands, tah) {
             Ok(e) => {
-                g.board_mut().put_entity(pos, e.unwrap());
+                board.put_entity(pos, e.unwrap());
                 println!("State POP");
                 state.pop().unwrap();
             },
@@ -180,6 +182,7 @@ fn move_one_setup(
 
 fn move_one_keyboard(
     mut g: ResMut<Game>,
+    mut board: ResMut<GameBoard>,
     mut keys: ResMut<Input<KeyCode>>,
     mut state: ResMut<State<GameState>>,
     mut ev_cursor: EventReader<CursorMovedEvent>,
@@ -199,7 +202,6 @@ fn move_one_keyboard(
                     cursor.set_type(CURSOR_BOX);
                     cursor_pos = cursor.get_pos_v();
                 }
-                let board = g.board_mut();
                 board.pop_entity(moving.pos);
                 board.put_entity(cursor_pos, entity);
                 *transform = transform.with_translation(cursor_pos.extend(1.0));
@@ -210,8 +212,8 @@ fn move_one_keyboard(
             for cur in ev_cursor.iter() {
                 println!("Got cursor moved event in move one");
                 ev_text.send(BottomTextEvent::clear());
-                g.board_mut().pop_entity(moving.pos);
-                g.board_mut().put_entity(**cur, entity);
+                board.pop_entity(moving.pos);
+                board.put_entity(**cur, entity);
                 *transform = transform.with_translation(cur.extend(1.0));
                 moving.distance_left -= 1;
                 if moving.distance_left == 0 {
@@ -231,8 +233,8 @@ fn move_one_keyboard(
             keys.reset(KeyCode::S);
             let pos = g.cursor.get_pos_v();
             println!("Find thing at {}, {} to move", pos.x, pos.y);
-            if g.board().has_entity(pos) {
-                let e = g.board().get_entity(pos).unwrap();
+            if board.has_entity(pos) {
+                let e = board.get_entity(pos).unwrap();
                 let (_, creature, belongs, _) = query.get_mut(e).unwrap();
                 if let Some(belongs) = belongs {
                     if g.get_player().handle.unwrap() == belongs.player_entity && !moving.has_moved.contains(&e) {
@@ -254,8 +256,8 @@ fn move_one_keyboard(
         }
         for cur in ev_cursor.iter() {
             println!("Got cursor moved event, clear");
-            if g.board().has_entity(**cur) {
-                let e = g.board().get_entity(**cur).unwrap();
+            if board.has_entity(**cur) {
+                let e = board.get_entity(**cur).unwrap();
                 let (named, _, belongs, _) = query.get_mut(e).unwrap();
                 let mut text = named.name.clone();
                 if let Some(belongs) = belongs {

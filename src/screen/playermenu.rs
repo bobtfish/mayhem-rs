@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 
+use crate::board::GameBoard;
 use crate::display::*;
 use crate::game::Game;
 use crate::gamestate::GameState;
@@ -52,11 +53,14 @@ struct PlayerMenu;
 fn player_menu_setup(
     mut commands: Commands,
     mut g: ResMut<Game>,
+    mut board: ResMut<GameBoard>,
     mut keys: ResMut<Input<KeyCode>>,
 ) {
     let tah = g.tah();
     keys.clear();
-    g.spawn_players(&mut commands, tah.clone());
+    for p in &mut g.player_info {
+        p.spawn(&mut commands, tah.clone(), &mut board);
+    }
     print_text(&g.get_player().name, &mut commands, g.fah(), Vec2::new(1.0, 7.0), PlayerMenu);
     print_text("1. Examine Spells", &mut commands, g.fah(), Vec2::new(1.0, 5.0), PlayerMenu);
     print_text("2. Select Spell", &mut commands, g.fah(), Vec2::new(1.0, 4.0), PlayerMenu);

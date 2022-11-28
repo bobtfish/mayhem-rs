@@ -1,6 +1,21 @@
 
 use bevy::prelude::*;
 use crate::constants::{WIDTH, HEIGHT};
+
+pub struct BoardPlugin;
+
+impl Plugin for BoardPlugin {
+    fn build(&self, app: &mut App) {
+        app
+        //.add_startup_system(setup)
+        //.add_event::<BottomTextEvent>()
+        //.add_system(manage_text_bottom)
+        //.add_system(animate_sprite);
+        .insert_resource(GameBoard::new());
+    }
+}
+
+#[derive(Resource)]
 pub struct GameBoard([GameColumn; WIDTH]);
 struct GameColumn([GameSquare; HEIGHT]);
 struct GameSquare(Vec<Entity>);
