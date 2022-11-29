@@ -24,6 +24,7 @@ impl Plugin for BoardPlugin {
             .add_system_set(SystemSet::on_update(GameState::GameMoveSetup).with_system(move_next))
             .add_system_set(SystemSet::on_enter(GameState::GameMoveOnePlayer).with_system(move_one_setup))
             .add_system_set(SystemSet::on_update(GameState::GameMoveOnePlayer).with_system(move_one_keyboard))
+            .add_system_set(SystemSet::on_update(GameState::GameMoveOnePlayer).with_system(board_describe_piece))
             .add_system_set(SystemSet::on_exit(GameState::GameMoveOnePlayer).with_system(move_one_finish))
 
             .add_system_set(SystemSet::on_enter(GameState::NextTurn).with_system(system::hide_board_entities))
@@ -118,7 +119,6 @@ fn move_one_keyboard(
     mut state: ResMut<State<GameState>>,
     mut ev_cursor: EventReader<CursorMovedEvent>,
     mut query: Query<(&Named, &MoveableComponent, Option<&BelongsToPlayer>, &mut Transform,)>,
-    mut playername: Query<&Named>,
     mut ev_text: EventWriter<BottomTextEvent>,
     mut moving: ResMut<Moving>,
     mut ev_move: EventWriter<BoardMove>,
@@ -193,23 +193,32 @@ fn move_one_keyboard(
                 }
             }
         }
-        for cur in ev_cursor.iter() {
-            if board.has_entity(**cur) {
-                println!("HAs entity here");
-                let e = board.get_entity(**cur).unwrap();
-                let (named, _, belongs, _) = query.get_mut(e).unwrap();
-                let mut text = named.name.clone();
-                if let Some(belongs) = belongs {
-                    text.push('(');
-                    let player_named = playername.get_mut(belongs.player_entity);
-                    text.push_str(&player_named.unwrap().name);
-                    text.push(')');
-                }
-                ev_text.send(BottomTextEvent::from(&text));
+    }
+}
+
+pub fn board_describe_piece(
+    board: Res<GameBoard>,
+    mut ev_cursor: EventReader<CursorMovedEvent>,
+    mut query: Query<(&Named, &MoveableComponent, Option<&BelongsToPlayer>, &mut Transform,)>,
+    mut playername: Query<&Named>,
+    mut ev_text: EventWriter<BottomTextEvent>,
+) {
+    for cur in ev_cursor.iter() {
+        if board.has_entity(**cur) {
+            println!("HAs entity here");
+            let e = board.get_entity(**cur).unwrap();
+            let (named, _, belongs, _) = query.get_mut(e).unwrap();
+            let mut text = named.name.clone();
+            if let Some(belongs) = belongs {
+                text.push('(');
+                let player_named = playername.get_mut(belongs.player_entity);
+                text.push_str(&player_named.unwrap().name);
+                text.push(')');
             }
-            else {
-                ev_text.send(BottomTextEvent::clear());
-            }
+            ev_text.send(BottomTextEvent::from(&text));
+        }
+        else {
+            ev_text.send(BottomTextEvent::clear());
         }
     }
 }

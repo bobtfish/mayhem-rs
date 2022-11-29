@@ -9,7 +9,10 @@ impl Plugin for SpellCastingPlugin {
         app
         .add_system_set(SystemSet::on_enter(GameState::GameCastSpell).with_system(cast_spell_setup))
         .add_system_set(SystemSet::on_update(GameState::GameCastSpell).with_system(cast_spell_keyboard))
-        .add_system_set(SystemSet::on_exit(GameState::GameCastSpell).with_system(cast_spell_finish));
+        .add_system_set(SystemSet::on_exit(GameState::GameCastSpell).with_system(cast_spell_finish))
+        .add_event::<CastSpell>()
+        .add_system_set(SystemSet::on_update(GameState::GameCastSpell).with_system(cast_spell))
+        .add_system_set(SystemSet::on_update(GameState::GameCastSpell).with_system(super::board::board_describe_piece));
     }
 }
 
@@ -27,31 +30,33 @@ fn cast_spell_setup(
     }
 }
 
-fn cast_spell_keyboard(
-    mut keys: ResMut<Input<KeyCode>>,
+struct CastSpell {
+    target: Vec2
+}
+
+fn cast_spell(
     mut g: ResMut<Game>,
-    mut commands: Commands,
+    mut ev_cast: EventReader<CastSpell>,
     mut state: ResMut<State<GameState>>,
-    mut ev_text: EventWriter<BottomTextEvent>,
-    mut ev_cursor: EventReader<CursorMovedEvent>,
-    mut ev_board_put: EventWriter<BoardPutEntity>,
     mut query: Query<&mut Transform>,
+    mut commands: Commands,
+    mut ev_text: EventWriter<BottomTextEvent>,
+    mut ev_board_put: EventWriter<BoardPutEntity>,
 ) {
     let player = g.get_player();
-    let transform = query.get_mut(player.handle.unwrap()).unwrap();
-    let from = Vec2{ x: transform.translation.x, y: transform.translation.y };
     let spell = player.spells.get_chosen_spell();
     if spell.is_none() {
         println!("STATE POP - no spell");
         state.pop().unwrap();
         return;
     }
+    let transform = query.get_mut(player.handle.unwrap()).unwrap();
+    let from = Vec2{ x: transform.translation.x, y: transform.translation.y };
     let tah = g.tah();
-    if keys.just_pressed(KeyCode::S) {
-        keys.reset(KeyCode::S);
-        let to = g.cursor.get_pos_v();
+    for e in ev_cast.iter() {
+        let to = e.target;
         let player = g.get_player_mut();
-        match player.cast(from, to, &mut commands, tah) {
+        match player.cast(from, to, &mut commands, tah.clone()) {
             Ok(e) => {
                 ev_board_put.send(BoardPutEntity{
                     entity: e.unwrap(),
@@ -66,8 +71,21 @@ fn cast_spell_keyboard(
             }
         }
     }
+}
+
+fn cast_spell_keyboard(
+    mut keys: ResMut<Input<KeyCode>>,
+    g: Res<Game>,
+    mut ev_text: EventWriter<BottomTextEvent>,
+    mut ev_cursor: EventReader<CursorMovedEvent>,
+    mut ev_cast: EventWriter<CastSpell>,
+) {
+    if keys.just_pressed(KeyCode::S) {
+        keys.reset(KeyCode::S);
+        let to = g.cursor.get_pos_v();
+        ev_cast.send(CastSpell{target: to});
+    }
     for _ in ev_cursor.iter() {
-        println!("Got cursor moved event, clear");
         ev_text.send(BottomTextEvent::clear());
     }
 }
