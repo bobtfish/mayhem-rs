@@ -60,10 +60,10 @@ struct GameSquare(Vec<Entity>);
 
 #[allow(clippy::cast_sign_loss)]
 impl GameBoard {
-    pub fn new() -> Self {
+    fn new() -> Self {
         Self([GameColumn; WIDTH].map(|_| GameColumn::new()))
     }
-    pub fn put_entity(&mut self, pos: Vec2, e: Entity) {
+    fn put_entity(&mut self, pos: Vec2, e: Entity) {
         self.0[pos.x as usize].0[pos.y as usize].0.push(e);
     }
     pub fn has_entity(&self, pos: Vec2) -> bool {
@@ -76,7 +76,7 @@ impl GameBoard {
         }
         Some(stack[stack.len()-1])
     }
-    pub fn pop_entity(&mut self, pos: Vec2) -> Entity {
+    fn pop_entity(&mut self, pos: Vec2) -> Entity {
         let stack = &mut self.0[pos.x as usize].0[pos.y as usize].0;
         stack.remove(stack.len()-1)
     }

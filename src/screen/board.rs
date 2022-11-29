@@ -1,7 +1,6 @@
 use bevy::prelude::*;
 use std::collections::HashSet;
-use crate::board::{GameBoard, BoardMove, MoveableComponent};
-use crate::creature::CreatureComponent;
+use crate::board::{GameBoard, BoardMove, MoveableComponent, BoardPutEntity};
 use crate::gamestate::GameState;
 use crate::game::Game;
 use crate::display::{BottomTextEvent};
@@ -102,11 +101,11 @@ fn cast_spell_setup(
 fn cast_spell_keyboard(
     mut keys: ResMut<Input<KeyCode>>,
     mut g: ResMut<Game>,
-    mut board: ResMut<GameBoard>,
     mut commands: Commands,
     mut state: ResMut<State<GameState>>,
     mut ev_text: EventWriter<BottomTextEvent>,
     mut ev_cursor: EventReader<CursorMovedEvent>,
+    mut ev_board_put: EventWriter<BoardPutEntity>,
 ) {
     let player = g.get_player();
     let spell = player.spells.get_chosen_spell();
@@ -122,7 +121,10 @@ fn cast_spell_keyboard(
         let player = g.get_player_mut();
         match player.cast(pos, &mut commands, tah) {
             Ok(e) => {
-                board.put_entity(pos, e.unwrap());
+                ev_board_put.send(BoardPutEntity{
+                    entity: e.unwrap(),
+                    pos
+                });
                 println!("State POP");
                 state.pop().unwrap();
             },

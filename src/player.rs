@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::board::{GameBoard, MoveableComponent};
+use crate::board::MoveableComponent;
 use crate::display;
 use crate::spell::{AllSpells, SpellBox, ASpell};
 use crate::system::{BoardEntity, Named, BelongsToPlayer};
@@ -80,7 +80,6 @@ impl Player {
         &mut self,
         commands: &mut Commands,
         tah: Handle<TextureAtlas>,
-        board: &mut GameBoard,
     ) {
         let mut ss = display::get_sprite_sheet_bundle(tah, self.pos, (169 + self.character_icon) as usize, display::WHITE);
         ss.visibility.is_visible = false;
@@ -93,7 +92,6 @@ impl Player {
             .insert(Named{ name: self.name.clone() })
             .id();
         self.handle = Some(entity);
-        board.put_entity(self.pos, entity);
     }
     pub fn cast(
         &mut self,
