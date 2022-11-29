@@ -5,7 +5,7 @@ use crate::gamestate::GameState;
 use crate::game::Game;
 use crate::display::{BottomTextEvent};
 use crate::system::{self, Named, BelongsToPlayer};
-use crate::cursor::{CURSOR_BOX, CursorMovedEvent, CURSOR_FLY, PositionCursorOnEntity};
+use crate::cursor::{CURSOR_BOX, CursorMovedEvent, CURSOR_FLY, PositionCursorOnEntity, Cursor};
 
 pub struct BoardPlugin;
 
@@ -48,10 +48,11 @@ struct Moving {
 
 fn game_setup(
     mut g: ResMut<Game>,
+    mut cursor: ResMut<Cursor>,
 ) {
     println!("game_setup");
     g.player_turn = 0;
-    g.cursor.set_visible();
+    cursor.set_visible();
 }
 
 fn game_next(
@@ -77,8 +78,9 @@ fn game_exit(
 
 fn move_setup(
     mut g: ResMut<Game>,
+    mut cursor: ResMut<Cursor>,
 ) {
-    g.cursor.set_type(CURSOR_BOX);
+    cursor.set_type(CURSOR_BOX);
     g.player_turn = 0;
     println!("In move setup");
 }
@@ -114,6 +116,7 @@ fn move_one_setup(
 
 fn move_one_keyboard(
     mut g: ResMut<Game>,
+    mut cursor: ResMut<Cursor>,
     board: Res<GameBoard>,
     mut keys: ResMut<Input<KeyCode>>,
     mut state: ResMut<State<GameState>>,
@@ -127,12 +130,8 @@ fn move_one_keyboard(
         if moving.flying {
             if keys.just_pressed(KeyCode::S) {
                 keys.reset(KeyCode::S);
-                let cursor_pos;
-                {
-                    let cursor = &mut g.cursor;
-                    cursor.set_type(CURSOR_BOX);
-                    cursor_pos = cursor.get_pos_v();
-                }
+                cursor.set_type(CURSOR_BOX);
+                let cursor_pos = cursor.get_pos_v();
                 ev_move.send(BoardMove{
                     from: moving.pos,
                     to: cursor_pos,
@@ -152,7 +151,7 @@ fn move_one_keyboard(
                 if moving.distance_left == 0 {
                     println!("No movement left, clear entity");
                     moving.entity = None;
-                    g.cursor.set_visible();
+                    cursor.set_visible();
                 }
             }
         }
@@ -164,7 +163,7 @@ fn move_one_keyboard(
         }
         if keys.just_pressed(KeyCode::S) {
             keys.reset(KeyCode::S);
-            let pos = g.cursor.get_pos_v();
+            let pos = cursor.get_pos_v();
             println!("Find thing at {}, {} to move", pos.x, pos.y);
             if board.has_entity(pos) {
                 let e = board.get_entity(pos).unwrap();
@@ -183,9 +182,9 @@ fn move_one_keyboard(
                     moving.pos = pos;
                     moving.distance_left = moveable.movement;
                     if moving.flying {
-                        g.cursor.set_type(CURSOR_FLY);
+                        cursor.set_type(CURSOR_FLY);
                     } else {
-                        g.cursor.set_invisible();
+                        cursor.set_invisible();
                     }
                     let mut text = String::from("Movement range=");
                     text.push_str(&moveable.movement.to_string());
@@ -231,9 +230,10 @@ fn move_one_finish(mut g: ResMut<Game>) {
 fn next_turn(
     mut state: ResMut<State<GameState>>,
     mut g: ResMut<Game>,
+    mut cursor: ResMut<Cursor>,
 ) {
     println!("next_turn set state GameState::PlayerMenu");
     g.player_turn = 0;
-    g.cursor.set_invisible();
+    cursor.set_invisible();
     state.set(GameState::PlayerMenu).unwrap();
 }

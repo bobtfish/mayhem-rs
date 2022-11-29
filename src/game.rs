@@ -7,7 +7,6 @@ use crate::constants::*;
 pub struct Game {
     tah: Handle<TextureAtlas>,
     fah: Handle<TextureAtlas>,
-    pub cursor: Cursor,
     pub players: u8,
     pub ai_level: u8,
     pub player_info: Vec<Player>,

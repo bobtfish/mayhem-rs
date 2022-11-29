@@ -30,7 +30,6 @@ pub fn get_border(
     commands: &mut Commands,
     texture_atlas_handle: Handle<TextureAtlas>
 ) {
-    println!("Draw border");
     commands.spawn(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(-0.5, -0.5), BORDER_BOTTOMLEFT, WHITE));
     commands.spawn(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(-0.5, (HEIGHT-1) as f32-1.5), BORDER_TOPLEFT, WHITE));
     commands.spawn(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new((WIDTH) as f32-1.5, -0.5), BORDER_BOTTOMRIGHT, WHITE));

@@ -16,6 +16,7 @@ pub struct CursorPlugin;
 impl Plugin for CursorPlugin {
     fn build(&self, app: &mut App) {
         app
+            .init_resource::<Cursor>()
             .add_event::<CursorMovedEvent>()
             .add_startup_system(cursor_setup.at_end())
             .add_system(keyboard_input)
@@ -31,7 +32,7 @@ pub struct CursorMovedEvent(Vec2);
 #[derive(Component)]
 pub struct CursorEntity;
 
-#[derive(Default)]
+#[derive(Default, Resource)]
 pub struct Cursor {
     cursor: usize,
     visible: bool,
@@ -74,13 +75,14 @@ impl Cursor {
 }
 
 fn cursor_setup(
-    mut game: ResMut<Game>,
+    game: Res<Game>,
+    mut cursor: ResMut<Cursor>,
     mut commands: Commands,
 ) {
     let mut sprite = display::get_sprite_sheet_bundle_z(game.tah(), Vec2::new(0.0, 0.0), CURSOR_SPRITE_ID, display::WHITE, CURSOR_Z);
     sprite.visibility.is_visible = false;
     commands.spawn(sprite).insert(CursorEntity);
-    game.cursor = Cursor{
+    *cursor = Cursor{
         cursor: CURSOR_BOX,
         visible: false,
         x: 0.0,
@@ -95,10 +97,9 @@ fn cursor_setup(
 #[allow(clippy::useless_let_if_seq)]
 fn keyboard_input(
     keys: Res<Input<KeyCode>>,
-    mut game: ResMut<Game>,
+    mut cursor: ResMut<Cursor>,
     mut ev_cursor_moved: EventWriter<CursorMovedEvent>,
 ) {
-    let mut cursor = &mut game.cursor;
     if keys.just_pressed(KeyCode::Left) && cursor.x > 0.0 {
         cursor.x -= 1.0;
         cursor.moved = true;
@@ -123,7 +124,7 @@ fn keyboard_input(
 }
 
 fn animate_cursor(
-    mut game: ResMut<Game>,
+    mut cursor: ResMut<Cursor>,
     time: Res<Time>,
     mut query: Query<(&mut Visibility, &mut Transform, &mut TextureAtlasSprite), With<CursorEntity>>,
 ) {
@@ -131,7 +132,6 @@ fn animate_cursor(
     let mut vis = item.0;
     let mut transform = item.1;
     let mut sprite = item.2;
-    let mut cursor = &mut game.cursor;
     if cursor.moved || cursor.redraw || cursor.hide_till_moved {
         sprite.index = cursor.cursor + CURSOR_SPRITE_ID;
         if cursor.hide_till_moved {
@@ -161,10 +161,10 @@ pub struct PositionCursorOnEntity(pub Entity);
 fn position_cursor_on_entity(
     mut query: Query<&mut Transform>,
     mut ev: EventReader<PositionCursorOnEntity>,
-    mut game: ResMut<Game>,
+    mut cursor: ResMut<Cursor>,
 ) {
     for e in ev.iter() {
         let transform = query.get_mut(e.0).unwrap();
-        game.cursor.set_pos(Vec2{ x: transform.translation.x, y: transform.translation.y });
+        cursor.set_pos(Vec2{ x: transform.translation.x, y: transform.translation.y });
     }
 }

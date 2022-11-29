@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{gamestate::GameState, display::BottomTextEvent, game::Game, board::{BoardPutEntity, GameBoard}, player::CastFailed, cursor::{CursorMovedEvent, CURSOR_SPELL, PositionCursorOnEntity}};
+use crate::{gamestate::GameState, display::BottomTextEvent, game::Game, board::{BoardPutEntity, GameBoard}, player::CastFailed, cursor::{CursorMovedEvent, CURSOR_SPELL, PositionCursorOnEntity, Cursor}};
 
 pub struct SpellCastingPlugin;
 
@@ -19,12 +19,13 @@ impl Plugin for SpellCastingPlugin {
 }
 
 fn cast_spell_setup(
-    mut g: ResMut<Game>,
+    g: Res<Game>,
+    mut cursor: ResMut<Cursor>,
     mut ev_text: EventWriter<BottomTextEvent>,
     mut ev_cursor_pos: EventWriter<PositionCursorOnEntity>,
 ) {
     println!("cast_spell_setup");
-    g.cursor.set_type(CURSOR_SPELL);
+    cursor.set_type(CURSOR_SPELL);
     let player = g.get_player();
     if let Some(spell_name) = player.get_chosen_spell_name() {
         ev_text.send(BottomTextEvent::from(&spell_name));
@@ -79,7 +80,7 @@ fn cast_spell(
 type CastSpellResult = Result<Option<Entity>, CastFailed>;
 fn cast_spell_result(
     mut ev_cast: EventReader<CastSpellResult>,
-    mut g: ResMut<Game>,
+    mut cursor: ResMut<Cursor>,
     mut ev_text: EventWriter<BottomTextEvent>,
 ) {
     for e in ev_cast.iter() {
@@ -88,7 +89,7 @@ fn cast_spell_result(
             },
             Err(CastFailed::OutOfRange) => {
                 ev_text.send(BottomTextEvent::from("Out of range"));
-                g.cursor.hide_till_moved();
+                cursor.hide_till_moved();
             }
             Err(CastFailed::NotThere) => {
             }
@@ -98,12 +99,12 @@ fn cast_spell_result(
 
 fn cast_spell_keyboard(
     mut keys: ResMut<Input<KeyCode>>,
-    g: Res<Game>,
+    cursor: Res<Cursor>,
     mut ev_cast: EventWriter<CastSpell>,
 ) {
     if keys.just_pressed(KeyCode::S) {
         keys.reset(KeyCode::S);
-        let to = g.cursor.get_pos_v();
+        let to = cursor.get_pos_v();
         ev_cast.send(CastSpell{target: to});
     }
 }
