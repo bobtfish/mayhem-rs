@@ -58,9 +58,11 @@ fn player_menu_setup(
 ) {
     let tah = g.tah();
     keys.clear();
-    for p in &mut g.player_info {
-        p.spawn(&mut commands, tah.clone());
-        ev_board_put.send(BoardPutEntity { entity: p.handle.unwrap(), pos: p.pos });
+    let positions = crate::player::get_start_positions(g.players as usize).unwrap();
+    for (i, p) in &mut g.player_info.iter_mut().enumerate() {
+        let pos = positions[i];
+        p.spawn(&mut commands, tah.clone(), pos);
+        ev_board_put.send(BoardPutEntity { entity: p.handle.unwrap(), pos });
     }
     print_text(&g.get_player().name, &mut commands, g.fah(), Vec2::new(1.0, 7.0), PlayerMenu);
     print_text("1. Examine Spells", &mut commands, g.fah(), Vec2::new(1.0, 5.0), PlayerMenu);

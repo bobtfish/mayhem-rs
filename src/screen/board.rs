@@ -6,7 +6,7 @@ use crate::game::Game;
 use crate::display::{BottomTextEvent};
 use crate::player::CastFailed;
 use crate::system::{self, Named, BelongsToPlayer};
-use crate::cursor::{CURSOR_SPELL, CURSOR_BOX, CursorMovedEvent, CURSOR_FLY};
+use crate::cursor::{CURSOR_SPELL, CURSOR_BOX, CursorMovedEvent, CURSOR_FLY, PositionCursorOnEntity};
 
 pub struct BoardPlugin;
 
@@ -81,15 +81,17 @@ fn game_exit(
 fn cast_spell_setup(
     mut g: ResMut<Game>,
     mut ev_text: EventWriter<BottomTextEvent>,
+    mut query: Query<&mut Transform>,
 ) {
     println!("cast_spell_setup");
     g.cursor.set_type(CURSOR_SPELL);
     let player = g.get_player();
+    let mut transform = query.get_mut(player.handle.unwrap()).unwrap();
     let spell = player.spells.get_chosen_spell();
     if spell.is_none() {
         return;
     }
-    let pos = player.pos;
+    let pos = Vec2{ x: transform.translation.x, y: transform.translation.y };
     let spell = spell.unwrap();
     let mut text = String::from(&player.name);
     text.push(' ');
@@ -106,8 +108,11 @@ fn cast_spell_keyboard(
     mut ev_text: EventWriter<BottomTextEvent>,
     mut ev_cursor: EventReader<CursorMovedEvent>,
     mut ev_board_put: EventWriter<BoardPutEntity>,
+    mut query: Query<&mut Transform>,
 ) {
     let player = g.get_player();
+    let mut transform = query.get_mut(player.handle.unwrap()).unwrap();
+    let pos = Vec2{ x: transform.translation.x, y: transform.translation.y };
     let spell = player.spells.get_chosen_spell();
     if spell.is_none() {
         println!("STATE POP - no spell");
@@ -117,9 +122,9 @@ fn cast_spell_keyboard(
     let tah = g.tah();
     if keys.just_pressed(KeyCode::S) {
         keys.reset(KeyCode::S);
-        let pos = g.cursor.get_pos_v();
+        let to = g.cursor.get_pos_v();
         let player = g.get_player_mut();
-        match player.cast(pos, &mut commands, tah) {
+        match player.cast(pos, to, &mut commands, tah) {
             Ok(e) => {
                 ev_board_put.send(BoardPutEntity{
                     entity: e.unwrap(),
@@ -171,12 +176,12 @@ fn move_one_setup(
     mut g: ResMut<Game>,
     mut ev_text: EventWriter<BottomTextEvent>,
     mut moving: ResMut<Moving>,
+    mut ev_cursor_pos: EventWriter<PositionCursorOnEntity>,
 ) {
     println!("Move one for player {}", g.player_turn);
     let player = g.get_player();
     let mut s = player.name.clone();
-    let pos = player.pos;
-    g.cursor.set_pos(pos);
+    ev_cursor_pos.send(PositionCursorOnEntity(player.handle.unwrap()));
     s.push_str("'s turn");
     ev_text.send(BottomTextEvent::from(&s));
     moving.has_moved = HashSet::new();

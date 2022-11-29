@@ -19,7 +19,9 @@ impl Plugin for CursorPlugin {
             .add_event::<CursorMovedEvent>()
             .add_startup_system(cursor_setup.at_end())
             .add_system(keyboard_input)
-            .add_system(animate_cursor);
+            .add_system(animate_cursor)
+            .add_event::<PositionCursorOnEntity>()
+            .add_system(position_cursor_on_entity);
     }
 }
 
@@ -151,5 +153,18 @@ fn animate_cursor(
         } else {
             vis.is_visible = true;
         }
+    }
+}
+
+pub struct PositionCursorOnEntity(pub Entity);
+
+fn position_cursor_on_entity(
+    mut query: Query<&mut Transform>,
+    mut ev: EventReader<PositionCursorOnEntity>,
+    mut game: ResMut<Game>,
+) {
+    for e in ev.iter() {
+        let mut transform = query.get_mut(e.0).unwrap();
+        game.cursor.set_pos(Vec2{ x: transform.translation.x, y: transform.translation.y })
     }
 }

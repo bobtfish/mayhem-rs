@@ -41,7 +41,6 @@ pub struct Player {
     pub character_icon: u8,
     pub color: u8,
     pub spells: SpellList,
-    pub pos: Vec2,
     pub handle: Option<Entity>,
     pub creations: Vec<Entity>,
 }
@@ -62,7 +61,6 @@ impl Player {
                 chosen_spell: None,
                 illusion: false,
             },
-            pos: Vec2{x: 0.0, y: 0.0},
             handle: None,
             creations: Vec::new(),
         }
@@ -80,8 +78,9 @@ impl Player {
         &mut self,
         commands: &mut Commands,
         tah: Handle<TextureAtlas>,
+        pos: Vec2,
     ) {
-        let mut ss = display::get_sprite_sheet_bundle(tah, self.pos, (169 + self.character_icon) as usize, display::WHITE);
+        let mut ss = display::get_sprite_sheet_bundle(tah, pos, (169 + self.character_icon) as usize, display::WHITE);
         ss.visibility.is_visible = false;
         let entity = commands.spawn(ss)
             .insert(MoveableComponent{
@@ -95,19 +94,20 @@ impl Player {
     }
     pub fn cast(
         &mut self,
-        pos: Vec2,
+        from: Vec2,
+        to: Vec2,
         commands: &mut Commands,
         tah: Handle<TextureAtlas>
     ) -> Result<Option<Entity>, CastFailed> {
         let range = self.spells.get_chosen_spell().unwrap().cast_range();
-        let dist = (pos - self.pos).length().floor();
+        let dist = (to - from).length().floor();
         println!("RANGE IS {range} DIST IS {dist}");
         if dist > f32::from(range) {
             println!("Return too far");
             return Err(CastFailed::OutOfRange);
         }
         let spell = self.spells.pop_chosen_spell();
-        let e = spell.cast(self.spells.illusion, pos, commands, tah);
+        let e = spell.cast(self.spells.illusion, to, commands, tah);
         if let Some(entity) = e {
             commands.get_entity(e.unwrap()).unwrap()
                 .insert(BelongsToPlayer{player_entity: self.handle.unwrap()});
