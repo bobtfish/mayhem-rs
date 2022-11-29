@@ -116,6 +116,15 @@ impl Player {
         }
         Ok(e)
     }
+    pub fn get_chosen_spell_name(&self) -> Option<String> {
+        let spell = self.spells.get_chosen_spell();
+        spell?;
+        let spell = spell.unwrap();
+        let mut text = self.name.clone();
+        text.push(' ');
+        text.push_str(&spell.name());
+        Some(text)
+    }
 }
 
 pub fn get_start_positions(num: usize) -> Result<Vec<Vec2>, &'static str> {

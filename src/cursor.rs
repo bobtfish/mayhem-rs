@@ -164,7 +164,7 @@ fn position_cursor_on_entity(
     mut game: ResMut<Game>,
 ) {
     for e in ev.iter() {
-        let mut transform = query.get_mut(e.0).unwrap();
-        game.cursor.set_pos(Vec2{ x: transform.translation.x, y: transform.translation.y })
+        let transform = query.get_mut(e.0).unwrap();
+        game.cursor.set_pos(Vec2{ x: transform.translation.x, y: transform.translation.y });
     }
 }

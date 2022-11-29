@@ -1,12 +1,11 @@
 use bevy::prelude::*;
 use std::collections::HashSet;
-use crate::board::{GameBoard, BoardMove, MoveableComponent, BoardPutEntity};
+use crate::board::{GameBoard, BoardMove, MoveableComponent};
 use crate::gamestate::GameState;
 use crate::game::Game;
 use crate::display::{BottomTextEvent};
-use crate::player::CastFailed;
 use crate::system::{self, Named, BelongsToPlayer};
-use crate::cursor::{CURSOR_SPELL, CURSOR_BOX, CursorMovedEvent, CURSOR_FLY, PositionCursorOnEntity};
+use crate::cursor::{CURSOR_BOX, CursorMovedEvent, CURSOR_FLY, PositionCursorOnEntity};
 
 pub struct BoardPlugin;
 
@@ -21,9 +20,6 @@ impl Plugin for BoardPlugin {
             )
             .add_system_set(SystemSet::on_update(GameState::Game).with_system(game_next))
             .add_system_set(SystemSet::on_exit(GameState::Game).with_system(game_exit))
-            .add_system_set(SystemSet::on_enter(GameState::GameCastSpell).with_system(cast_spell_setup))
-            .add_system_set(SystemSet::on_update(GameState::GameCastSpell).with_system(cast_spell_keyboard))
-            .add_system_set(SystemSet::on_exit(GameState::GameCastSpell).with_system(cast_spell_finish))
             .add_system_set(SystemSet::on_enter(GameState::GameMoveSetup).with_system(move_setup))
             .add_system_set(SystemSet::on_update(GameState::GameMoveSetup).with_system(move_next))
             .add_system_set(SystemSet::on_enter(GameState::GameMoveOnePlayer).with_system(move_one_setup))
@@ -78,78 +74,6 @@ fn game_exit(
     println!("Exit Game state");
 }
 
-fn cast_spell_setup(
-    mut g: ResMut<Game>,
-    mut ev_text: EventWriter<BottomTextEvent>,
-    mut query: Query<&mut Transform>,
-) {
-    println!("cast_spell_setup");
-    g.cursor.set_type(CURSOR_SPELL);
-    let player = g.get_player();
-    let mut transform = query.get_mut(player.handle.unwrap()).unwrap();
-    let spell = player.spells.get_chosen_spell();
-    if spell.is_none() {
-        return;
-    }
-    let pos = Vec2{ x: transform.translation.x, y: transform.translation.y };
-    let spell = spell.unwrap();
-    let mut text = String::from(&player.name);
-    text.push(' ');
-    text.push_str(&spell.name());
-    ev_text.send(BottomTextEvent::from(&text));
-    g.cursor.set_pos(pos);
-}
-
-fn cast_spell_keyboard(
-    mut keys: ResMut<Input<KeyCode>>,
-    mut g: ResMut<Game>,
-    mut commands: Commands,
-    mut state: ResMut<State<GameState>>,
-    mut ev_text: EventWriter<BottomTextEvent>,
-    mut ev_cursor: EventReader<CursorMovedEvent>,
-    mut ev_board_put: EventWriter<BoardPutEntity>,
-    mut query: Query<&mut Transform>,
-) {
-    let player = g.get_player();
-    let transform = query.get_mut(player.handle.unwrap()).unwrap();
-    let from = Vec2{ x: transform.translation.x, y: transform.translation.y };
-    let spell = player.spells.get_chosen_spell();
-    if spell.is_none() {
-        println!("STATE POP - no spell");
-        state.pop().unwrap();
-        return;
-    }
-    let tah = g.tah();
-    if keys.just_pressed(KeyCode::S) {
-        keys.reset(KeyCode::S);
-        let to = g.cursor.get_pos_v();
-        let player = g.get_player_mut();
-        match player.cast(from, to, &mut commands, tah) {
-            Ok(e) => {
-                ev_board_put.send(BoardPutEntity{
-                    entity: e.unwrap(),
-                    pos: to,
-                });
-                println!("State POP");
-                state.pop().unwrap();
-            },
-            Err(CastFailed::OutOfRange) => {
-                ev_text.send(BottomTextEvent::from("Out of range"));
-                g.cursor.hide_till_moved();
-            }
-        }
-    }
-    for _ in ev_cursor.iter() {
-        println!("Got cursor moved event, clear");
-        ev_text.send(BottomTextEvent::clear());
-    }
-}
-
-fn cast_spell_finish(mut g: ResMut<Game>) {
-    println!("Finish cast spell, increment player turn");
-    g.player_turn += 1;
-}
-
 fn move_setup(
     mut g: ResMut<Game>,
 ) {
@@ -173,7 +97,7 @@ fn move_next(
 }
 
 fn move_one_setup(
-    mut g: ResMut<Game>,
+    g: Res<Game>,
     mut ev_text: EventWriter<BottomTextEvent>,
     mut moving: ResMut<Moving>,
     mut ev_cursor_pos: EventWriter<PositionCursorOnEntity>,
