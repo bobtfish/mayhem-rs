@@ -90,6 +90,7 @@ impl Player {
             .insert(BoardEntity)
             .insert(Named{ name: self.name.clone() })
             .id();
+        println!("Add entity {:?}", entity);
         self.handle = Some(entity);
     }
     pub fn cast(

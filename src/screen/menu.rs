@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 
+use crate::board::BoardPutEntity;
 use crate::{display::*, spell::AllSpells};
 use crate::player::Player;
 use crate::game::Game;
@@ -185,8 +186,17 @@ fn show_wizards(fah: Handle<TextureAtlas>, tah: Handle<TextureAtlas>, commands: 
 fn player_name_menu_transition(
     mut state: ResMut<State<GameState>>,
     mut g: ResMut<Game>,
+    mut commands: Commands,
+    mut ev_board_put: EventWriter<BoardPutEntity>,
 ) {
     if g.players == g.player_info.len() as u8 {
+        let tah = g.tah();
+        let positions = crate::player::get_start_positions(g.players as usize).unwrap();
+        for (i, p) in &mut g.player_info.iter_mut().enumerate() {
+            let pos = positions[i];
+            p.spawn(&mut commands, tah.clone(), pos);
+            ev_board_put.send(BoardPutEntity { entity: p.handle.unwrap(), pos });
+        }
         state.set(GameState::PlayerMenu).unwrap();
     } else {
         state.set(GameState::PlayerNameMenu).unwrap();

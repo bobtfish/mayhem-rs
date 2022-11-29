@@ -1,6 +1,5 @@
 use bevy::prelude::*;
 
-use crate::board::BoardPutEntity;
 use crate::display::*;
 use crate::game::Game;
 use crate::gamestate::GameState;
@@ -52,18 +51,10 @@ struct PlayerMenu;
 
 fn player_menu_setup(
     mut commands: Commands,
-    mut g: ResMut<Game>,
+    g: Res<Game>,
     mut keys: ResMut<Input<KeyCode>>,
-    mut ev_board_put: EventWriter<BoardPutEntity>,
 ) {
-    let tah = g.tah();
     keys.clear();
-    let positions = crate::player::get_start_positions(g.players as usize).unwrap();
-    for (i, p) in &mut g.player_info.iter_mut().enumerate() {
-        let pos = positions[i];
-        p.spawn(&mut commands, tah.clone(), pos);
-        ev_board_put.send(BoardPutEntity { entity: p.handle.unwrap(), pos });
-    }
     print_text(&g.get_player().name, &mut commands, g.fah(), Vec2::new(1.0, 7.0), PlayerMenu);
     print_text("1. Examine Spells", &mut commands, g.fah(), Vec2::new(1.0, 5.0), PlayerMenu);
     print_text("2. Select Spell", &mut commands, g.fah(), Vec2::new(1.0, 4.0), PlayerMenu);

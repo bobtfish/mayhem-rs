@@ -111,8 +111,8 @@ fn cast_spell_keyboard(
     mut query: Query<&mut Transform>,
 ) {
     let player = g.get_player();
-    let mut transform = query.get_mut(player.handle.unwrap()).unwrap();
-    let pos = Vec2{ x: transform.translation.x, y: transform.translation.y };
+    let transform = query.get_mut(player.handle.unwrap()).unwrap();
+    let from = Vec2{ x: transform.translation.x, y: transform.translation.y };
     let spell = player.spells.get_chosen_spell();
     if spell.is_none() {
         println!("STATE POP - no spell");
@@ -124,11 +124,11 @@ fn cast_spell_keyboard(
         keys.reset(KeyCode::S);
         let to = g.cursor.get_pos_v();
         let player = g.get_player_mut();
-        match player.cast(pos, to, &mut commands, tah) {
+        match player.cast(from, to, &mut commands, tah) {
             Ok(e) => {
                 ev_board_put.send(BoardPutEntity{
                     entity: e.unwrap(),
-                    pos
+                    pos: to,
                 });
                 println!("State POP");
                 state.pop().unwrap();
@@ -218,7 +218,7 @@ fn move_one_keyboard(
             }
         } else {
             for cur in ev_cursor.iter() {
-                println!("Got cursor moved event in move one");
+                println!("Got cursor moved event in move one from {} to {}", moving.pos, **cur);
                 ev_text.send(BottomTextEvent::clear());
                 ev_move.send(BoardMove{
                     from: moving.pos,
@@ -270,8 +270,8 @@ fn move_one_keyboard(
             }
         }
         for cur in ev_cursor.iter() {
-            println!("Got cursor moved event, clear");
             if board.has_entity(**cur) {
+                println!("HAs entity here");
                 let e = board.get_entity(**cur).unwrap();
                 let (named, _, belongs, _) = query.get_mut(e).unwrap();
                 let mut text = named.name.clone();

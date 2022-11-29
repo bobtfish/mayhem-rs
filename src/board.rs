@@ -46,7 +46,9 @@ fn move_entity(
     mut query: Query<&mut Transform>,
 ) {
     for e in ev.iter() {
+        println!("Do Board move from {} to {}", e.from, e.to);
         let entity = board.pop_entity(e.from);
+        println!("pop entity {:?}", entity);
         let mut transform = query.get_mut(entity).unwrap();
         *transform = transform.with_translation(e.to.extend(1.0));
         board.put_entity(e.to, entity);
@@ -79,9 +81,6 @@ impl GameBoard {
     fn pop_entity(&mut self, pos: Vec2) -> Entity {
         let stack = &mut self.0[pos.x as usize].0[pos.y as usize].0;
         stack.remove(stack.len()-1)
-    }
-    pub fn as_ref(&self) -> &Self {
-        self
     }
 }
 impl GameColumn {
