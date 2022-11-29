@@ -1,7 +1,6 @@
 use bevy::prelude::*;
 use crate::player::Player;
 use crate::cursor::Cursor;
-use crate::board::GameBoard;
 use crate::constants::*;
 
 #[derive(Default, Resource)]

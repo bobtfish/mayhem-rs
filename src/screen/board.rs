@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use std::collections::HashSet;
-use crate::board::GameBoard;
+use crate::board::{GameBoard, BoardMove, MoveableComponent};
 use crate::creature::CreatureComponent;
 use crate::gamestate::GameState;
 use crate::game::Game;
@@ -182,17 +182,17 @@ fn move_one_setup(
 
 fn move_one_keyboard(
     mut g: ResMut<Game>,
-    mut board: ResMut<GameBoard>,
+    board: Res<GameBoard>,
     mut keys: ResMut<Input<KeyCode>>,
     mut state: ResMut<State<GameState>>,
     mut ev_cursor: EventReader<CursorMovedEvent>,
-    mut query: Query<(&Named, &CreatureComponent, Option<&BelongsToPlayer>, &mut Transform,)>,
+    mut query: Query<(&Named, &MoveableComponent, Option<&BelongsToPlayer>, &mut Transform,)>,
     mut playername: Query<&Named>,
     mut ev_text: EventWriter<BottomTextEvent>,
     mut moving: ResMut<Moving>,
+    mut ev_move: EventWriter<BoardMove>,
 ) {
     if let Some(entity) = moving.entity {
-        let (_, _, _, mut transform) = query.get_mut(entity).unwrap();
         if moving.flying {
             if keys.just_pressed(KeyCode::S) {
                 keys.reset(KeyCode::S);
@@ -202,9 +202,10 @@ fn move_one_keyboard(
                     cursor.set_type(CURSOR_BOX);
                     cursor_pos = cursor.get_pos_v();
                 }
-                board.pop_entity(moving.pos);
-                board.put_entity(cursor_pos, entity);
-                *transform = transform.with_translation(cursor_pos.extend(1.0));
+                ev_move.send(BoardMove{
+                    from: moving.pos,
+                    to: cursor_pos,
+                });
                 moving.distance_left = 0;
                 moving.entity = None;
             }
@@ -212,9 +213,10 @@ fn move_one_keyboard(
             for cur in ev_cursor.iter() {
                 println!("Got cursor moved event in move one");
                 ev_text.send(BottomTextEvent::clear());
-                board.pop_entity(moving.pos);
-                board.put_entity(**cur, entity);
-                *transform = transform.with_translation(cur.extend(1.0));
+                ev_move.send(BoardMove{
+                    from: moving.pos,
+                    to: **cur,
+                });
                 moving.distance_left -= 1;
                 if moving.distance_left == 0 {
                     println!("No movement left, clear entity");
@@ -235,22 +237,28 @@ fn move_one_keyboard(
             println!("Find thing at {}, {} to move", pos.x, pos.y);
             if board.has_entity(pos) {
                 let e = board.get_entity(pos).unwrap();
-                let (_, creature, belongs, _) = query.get_mut(e).unwrap();
+                let (_, moveable, belongs, _) = query.get_mut(e).unwrap();
+                let belongs_entity;
                 if let Some(belongs) = belongs {
-                    if g.get_player().handle.unwrap() == belongs.player_entity && !moving.has_moved.contains(&e) {
-                        moving.has_moved.insert(e);
-                        println!("Does belong to this player");
-                        moving.flying = creature.flying;
-                        moving.entity = Some(e);
-                        moving.pos = pos;
-                        moving.distance_left = creature.movement;
-                        if moving.flying {
-                            g.cursor.set_type(CURSOR_FLY);
-                        } else {
-                            g.cursor.set_invisible();
-                        }
-                        ev_text.send(BottomTextEvent::from("Movement range=xxx"));
+                    belongs_entity = belongs.player_entity;
+                } else {
+                    belongs_entity = e;
+                }
+                if g.get_player().handle.unwrap() == belongs_entity && !moving.has_moved.contains(&e) {
+                    moving.has_moved.insert(e);
+                    println!("Does belong to this player");
+                    moving.flying = moveable.flying;
+                    moving.entity = Some(e);
+                    moving.pos = pos;
+                    moving.distance_left = moveable.movement;
+                    if moving.flying {
+                        g.cursor.set_type(CURSOR_FLY);
+                    } else {
+                        g.cursor.set_invisible();
                     }
+                    let mut text = String::from("Movement range=");
+                    text.push_str(&moveable.movement.to_string());
+                    ev_text.send(BottomTextEvent::from(&text));
                 }
             }
         }

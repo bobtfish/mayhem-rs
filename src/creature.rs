@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, fs::File};
+use crate::board::MoveableComponent;
 use crate::display::spawn_anim;
 use crate::spell::{ASpell, SpellBox};
 use crate::system::{BoardEntity, Named};
@@ -26,8 +27,7 @@ pub struct Creature {
 #[derive(Component)]
 pub struct CreatureComponent {
     pub is_illusion: bool,
-    pub movement: u8,
-    pub flying: bool,
+
 }
 
 impl Creature {
@@ -42,6 +42,8 @@ impl Creature {
         commands.get_entity(e).unwrap()
             .insert(CreatureComponent{
                 is_illusion: illusion,
+            })
+            .insert(MoveableComponent{
                 movement: self.movement,
                 flying: self.flying,
             })

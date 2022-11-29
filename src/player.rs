@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::board::GameBoard;
+use crate::board::{GameBoard, MoveableComponent};
 use crate::display;
 use crate::spell::{AllSpells, SpellBox, ASpell};
 use crate::system::{BoardEntity, Named, BelongsToPlayer};
@@ -85,6 +85,10 @@ impl Player {
         let mut ss = display::get_sprite_sheet_bundle(tah, self.pos, (169 + self.character_icon) as usize, display::WHITE);
         ss.visibility.is_visible = false;
         let entity = commands.spawn(ss)
+            .insert(MoveableComponent{
+                movement: 1,
+                flying: false,
+            })
             .insert(BoardEntity)
             .insert(Named{ name: self.name.clone() })
             .id();

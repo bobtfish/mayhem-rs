@@ -1,5 +1,4 @@
 #![feature(custom_inner_attributes)]
-#![feature(array_map)]
 #![warn(clippy::nursery, clippy::pedantic)]
 #![allow(clippy::wildcard_imports, clippy::too_many_arguments, clippy::missing_const_for_fn, clippy::unused_self, clippy::needless_pass_by_value, clippy::module_name_repetitions, clippy::similar_names, clippy::cast_precision_loss, clippy::cast_possible_truncation)]
 
@@ -44,7 +43,7 @@ fn main() {
         .insert_resource(load_all_spells())
         .add_state(GameState::InitialMenu)
         .add_plugin(screen::ScreenPlugin)
-        .add_plugin(board::BoardPlugin) 
+        .add_plugin(board::BoardPlugin)
         .add_plugin(cursor::CursorPlugin)
         .add_plugin(display::DisplayPlugin)
         .add_system(bevy::window::close_on_esc)

@@ -7,11 +7,49 @@ pub struct BoardPlugin;
 impl Plugin for BoardPlugin {
     fn build(&self, app: &mut App) {
         app
-        //.add_startup_system(setup)
-        //.add_event::<BottomTextEvent>()
-        //.add_system(manage_text_bottom)
-        //.add_system(animate_sprite);
+        .add_event::<BoardPutEntity>()
+        .add_system(put_entity)
+        .add_event::<BoardMove>()
+        .add_system(move_entity)
         .insert_resource(GameBoard::new());
+    }
+}
+
+#[derive(Component)]
+pub struct MoveableComponent {
+    pub movement: u8,
+    pub flying: bool,
+}
+
+pub struct BoardPutEntity {
+    pub entity: Entity,
+    pub pos: Vec2,
+}
+
+fn put_entity(
+    mut ev: EventReader<BoardPutEntity>,
+    mut board: ResMut<GameBoard>,
+) {
+    for e in ev.iter() {
+        board.put_entity(e.pos, e.entity);
+    }
+}
+
+pub struct BoardMove {
+    pub from: Vec2,
+    pub to: Vec2,
+}
+
+fn move_entity(
+    mut ev: EventReader<BoardMove>,
+    mut board: ResMut<GameBoard>,
+    mut query: Query<&mut Transform>,
+) {
+    for e in ev.iter() {
+        let entity = board.pop_entity(e.from);
+        let mut transform = query.get_mut(entity).unwrap();
+        *transform = transform.with_translation(e.to.extend(1.0));
+        board.put_entity(e.to, entity);
     }
 }
 
