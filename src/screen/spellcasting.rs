@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{gamestate::GameState, display::BottomTextEvent, game::Game, board::BoardPutEntity, player::CastFailed, cursor::{CursorMovedEvent, CURSOR_SPELL, PositionCursorOnEntity}};
+use crate::{gamestate::GameState, display::BottomTextEvent, game::Game, board::{BoardPutEntity, GameBoard}, player::CastFailed, cursor::{CursorMovedEvent, CURSOR_SPELL, PositionCursorOnEntity}};
 
 pub struct SpellCastingPlugin;
 
@@ -12,6 +12,8 @@ impl Plugin for SpellCastingPlugin {
         .add_system_set(SystemSet::on_exit(GameState::GameCastSpell).with_system(cast_spell_finish))
         .add_event::<CastSpell>()
         .add_system_set(SystemSet::on_update(GameState::GameCastSpell).with_system(cast_spell))
+        .add_event::<CastSpellResult>()
+        .add_system_set(SystemSet::on_update(GameState::GameCastSpell).with_system(cast_spell_result))
         .add_system_set(SystemSet::on_update(GameState::GameCastSpell).with_system(super::board::board_describe_piece));
     }
 }
@@ -40,8 +42,9 @@ fn cast_spell(
     mut state: ResMut<State<GameState>>,
     mut query: Query<&mut Transform>,
     mut commands: Commands,
-    mut ev_text: EventWriter<BottomTextEvent>,
+    mut ev_cast_res: EventWriter<CastSpellResult>,
     mut ev_board_put: EventWriter<BoardPutEntity>,
+    board: Res<GameBoard>,
 ) {
     let player = g.get_player();
     let spell = player.spells.get_chosen_spell();
@@ -55,19 +58,39 @@ fn cast_spell(
     let tah = g.tah();
     for e in ev_cast.iter() {
         let to = e.target;
+        if board.get_entity(to).is_some() {
+            ev_cast_res.send(Err(CastFailed::NotThere));
+            return
+        }
         let player = g.get_player_mut();
-        match player.cast(from, to, &mut commands, tah.clone()) {
-            Ok(e) => {
-                ev_board_put.send(BoardPutEntity{
-                    entity: e.unwrap(),
-                    pos: to,
-                });
-                println!("State POP");
-                state.pop().unwrap();
+        let res = player.cast(from, to, &mut commands, tah.clone());
+        if let Ok(e) = res {
+            ev_board_put.send(BoardPutEntity{
+                entity: e.unwrap(),
+                pos: to,
+            });
+            println!("State POP");
+            state.pop().unwrap();
+        }
+        ev_cast_res.send(res);
+    }
+}
+
+type CastSpellResult = Result<Option<Entity>, CastFailed>;
+fn cast_spell_result(
+    mut ev_cast: EventReader<CastSpellResult>,
+    mut g: ResMut<Game>,
+    mut ev_text: EventWriter<BottomTextEvent>,
+) {
+    for e in ev_cast.iter() {
+        match e {
+            Ok(_e) => {
             },
             Err(CastFailed::OutOfRange) => {
                 ev_text.send(BottomTextEvent::from("Out of range"));
                 g.cursor.hide_till_moved();
+            }
+            Err(CastFailed::NotThere) => {
             }
         }
     }
@@ -76,17 +99,12 @@ fn cast_spell(
 fn cast_spell_keyboard(
     mut keys: ResMut<Input<KeyCode>>,
     g: Res<Game>,
-    mut ev_text: EventWriter<BottomTextEvent>,
-    mut ev_cursor: EventReader<CursorMovedEvent>,
     mut ev_cast: EventWriter<CastSpell>,
 ) {
     if keys.just_pressed(KeyCode::S) {
         keys.reset(KeyCode::S);
         let to = g.cursor.get_pos_v();
         ev_cast.send(CastSpell{target: to});
-    }
-    for _ in ev_cursor.iter() {
-        ev_text.send(BottomTextEvent::clear());
     }
 }
 

@@ -96,7 +96,7 @@ pub fn print_text(str: &str, commands: &mut Commands, fah: Handle<TextureAtlas>,
 #[derive(Component, Copy, Clone)]
 pub struct BottomText;
 
-#[derive(Deref)]
+#[derive(Deref, Debug)]
 pub struct BottomTextEvent(Option<String>);
 impl BottomTextEvent {
     pub fn from(s: &str) -> Self {

@@ -46,7 +46,8 @@ pub struct Player {
 }
 
 pub enum CastFailed {
-    OutOfRange
+    OutOfRange,
+    NotThere,
 }
 
 impl Player {
