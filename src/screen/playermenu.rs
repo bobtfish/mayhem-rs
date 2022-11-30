@@ -91,7 +91,7 @@ fn player_menu_transition(
     g.player_turn += 1;
     if g.player_turn >= g.players {
         g.player_turn = 0;
-        state.set(GameState::Game).unwrap();
+        state.set(GameState::CastSpellSetup).unwrap();
     } else {
         state.set(GameState::PlayerMenu).unwrap();
     }

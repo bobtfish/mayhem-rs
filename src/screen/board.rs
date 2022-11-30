@@ -13,19 +13,12 @@ impl Plugin for BoardPlugin {
     fn build(&self, app: &mut App) {
         app
             .init_resource::<Moving>()
-            .add_system_set(
-                SystemSet::on_enter(GameState::Game)
-                    .with_system(game_setup)
-                    .with_system(system::show_board_entities)
-            )
-            .add_system_set(SystemSet::on_update(GameState::Game).with_system(game_next))
-            .add_system_set(SystemSet::on_exit(GameState::Game).with_system(game_exit))
-            .add_system_set(SystemSet::on_enter(GameState::GameMoveSetup).with_system(move_setup))
-            .add_system_set(SystemSet::on_update(GameState::GameMoveSetup).with_system(move_next))
-            .add_system_set(SystemSet::on_enter(GameState::GameMoveOnePlayer).with_system(move_one_setup))
-            .add_system_set(SystemSet::on_update(GameState::GameMoveOnePlayer).with_system(move_one_keyboard))
-            .add_system_set(SystemSet::on_update(GameState::GameMoveOnePlayer).with_system(board_describe_piece))
-            .add_system_set(SystemSet::on_exit(GameState::GameMoveOnePlayer).with_system(move_one_finish))
+            .add_system_set(SystemSet::on_enter(GameState::MoveSetup).with_system(move_setup))
+            .add_system_set(SystemSet::on_update(GameState::MoveSetup).with_system(move_next))
+            .add_system_set(SystemSet::on_enter(GameState::MoveOnePlayer).with_system(move_one_setup))
+            .add_system_set(SystemSet::on_update(GameState::MoveOnePlayer).with_system(move_one_keyboard))
+            .add_system_set(SystemSet::on_update(GameState::MoveOnePlayer).with_system(board_describe_piece))
+            .add_system_set(SystemSet::on_exit(GameState::MoveOnePlayer).with_system(move_one_finish))
 
             .add_system_set(SystemSet::on_enter(GameState::NextTurn).with_system(system::hide_board_entities))
             .add_system_set(SystemSet::on_update(GameState::NextTurn).with_system(next_turn));
@@ -44,36 +37,6 @@ struct Moving {
     flying: bool,
     pos: Vec2,
     has_moved: HashSet<Entity>,
-}
-
-fn game_setup(
-    mut g: ResMut<Game>,
-    mut cursor: ResMut<Cursor>,
-) {
-    println!("game_setup");
-    g.player_turn = 0;
-    cursor.set_visible();
-}
-
-fn game_next(
-    mut state: ResMut<State<GameState>>,
-    mut g: ResMut<Game>,
-) {
-    println!("game_next");
-    if g.player_turn >= g.players {
-        g.player_turn = 0;
-        println!("Spell casting finished, do movement now");
-        state.set(GameState::GameMoveSetup).unwrap();
-    } else {
-        println!("Player turn to cast spell");
-        // Next player's turn to cast a spell
-        state.push(GameState::GameCastSpell).unwrap();
-    }
-}
-
-fn game_exit(
-) {
-    println!("Exit Game state");
 }
 
 fn move_setup(
@@ -95,7 +58,7 @@ fn move_next(
         state.set(GameState::NextTurn).unwrap();
     } else {
         println!("Player turn to move");
-        state.push(GameState::GameMoveOnePlayer).unwrap();
+        state.push(GameState::MoveOnePlayer).unwrap();
     }
 }
 

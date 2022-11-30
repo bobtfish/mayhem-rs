@@ -1,20 +1,54 @@
 use bevy::prelude::*;
 
-use crate::{gamestate::GameState, display::BottomTextEvent, game::Game, board::{BoardPutEntity, GameBoard}, player::CastFailed, cursor::{CursorMovedEvent, CURSOR_SPELL, PositionCursorOnEntity, Cursor}};
+use crate::{gamestate::GameState, display::BottomTextEvent, game::Game, board::{BoardPutEntity, GameBoard}, player::CastFailed, cursor::{CursorMovedEvent, CURSOR_SPELL, PositionCursorOnEntity, Cursor}, system};
 
 pub struct SpellCastingPlugin;
 
 impl Plugin for SpellCastingPlugin {
     fn build(&self, app: &mut App) {
         app
-        .add_system_set(SystemSet::on_enter(GameState::GameCastSpell).with_system(cast_spell_setup))
-        .add_system_set(SystemSet::on_update(GameState::GameCastSpell).with_system(cast_spell_keyboard))
-        .add_system_set(SystemSet::on_exit(GameState::GameCastSpell).with_system(cast_spell_finish))
         .add_event::<CastSpell>()
-        .add_system_set(SystemSet::on_update(GameState::GameCastSpell).with_system(cast_spell))
         .add_event::<CastSpellResult>()
-        .add_system_set(SystemSet::on_update(GameState::GameCastSpell).with_system(cast_spell_result))
-        .add_system_set(SystemSet::on_update(GameState::GameCastSpell).with_system(super::board::board_describe_piece));
+        .add_system_set(
+            SystemSet::on_enter(GameState::CastSpellSetup)
+                .with_system(spell_setup)
+                .with_system(system::show_board_entities)
+        )
+        .add_system_set(SystemSet::on_update(GameState::CastSpellSetup).with_system(spell_next))
+        .add_system_set(SystemSet::on_enter(GameState::CastSpell).with_system(cast_spell_setup))
+        .add_system_set(
+            SystemSet::on_update(GameState::CastSpell)
+                .with_system(cast_spell_keyboard)
+                .with_system(cast_spell)
+                .with_system(cast_spell_result)
+                .with_system(super::board::board_describe_piece)
+        )
+        .add_system_set(SystemSet::on_exit(GameState::CastSpell).with_system(cast_spell_finish));
+    }
+}
+
+fn spell_setup(
+    mut g: ResMut<Game>,
+    mut cursor: ResMut<Cursor>,
+) {
+    println!("spell_setup");
+    g.player_turn = 0;
+    cursor.set_visible();
+}
+
+fn spell_next(
+    mut state: ResMut<State<GameState>>,
+    mut g: ResMut<Game>,
+) {
+    println!("game_next");
+    if g.player_turn >= g.players {
+        g.player_turn = 0;
+        println!("Spell casting finished, do movement now");
+        state.set(GameState::MoveSetup).unwrap();
+    } else {
+        println!("Player turn to cast spell");
+        // Next player's turn to cast a spell
+        state.push(GameState::CastSpell).unwrap();
     }
 }
 

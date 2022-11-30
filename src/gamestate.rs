@@ -13,10 +13,10 @@ pub enum GameState {
     PlayerMenuSelectSpell,
     PlayerMenuExamineBoard,
     PlayerMenuTransition,
-    Game,
-    GameCastSpell,
-    GameMoveSetup,
-    GameMoveOnePlayer,
+    CastSpellSetup,
+    CastSpell,
+    MoveSetup,
+    MoveOnePlayer,
     NextTurn,
 }
 
