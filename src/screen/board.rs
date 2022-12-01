@@ -6,6 +6,7 @@ use crate::game::Game;
 use crate::display::{BottomTextEvent};
 use crate::system::{self, Named, BelongsToPlayer};
 use crate::cursor::{CURSOR_BOX, CursorMovedEvent, CURSOR_FLY, PositionCursorOnEntity, Cursor};
+use crate::vec::Vec2I;
 
 pub struct BoardPlugin;
 
@@ -33,9 +34,9 @@ impl Plugin for BoardPlugin {
 #[derive(Resource, Default)]
 struct Moving {
     entity: Option<Entity>,
-    distance_left: u8,
+    movement: u8,
     flying: bool,
-    pos: Vec2,
+    start_pos: Vec2,
     has_moved: HashSet<Entity>,
 }
 
@@ -93,25 +94,29 @@ fn move_one_keyboard(
         if moving.flying {
             if keys.just_pressed(KeyCode::S) {
                 keys.reset(KeyCode::S);
-                cursor.set_type(CURSOR_BOX);
                 let cursor_pos = cursor.get_pos_v();
-                ev_move.send(BoardMove{
-                    from: moving.pos,
-                    to: cursor_pos,
-                });
-                moving.distance_left = 0;
-                moving.entity = None;
+                let distance = Vec2I::from(cursor_pos).distance(Vec2I::from(moving.start_pos));
+                if distance > moving.movement as i8 {
+                    println!("Too far");
+                } else {
+                    cursor.set_type(CURSOR_BOX);
+                    ev_move.send(BoardMove{
+                        entity,
+                        to: cursor_pos,
+                    });
+                    moving.entity = None;
+                }
             }
         } else {
             for cur in ev_cursor.iter() {
-                println!("Got cursor moved event in move one from {} to {}", moving.pos, **cur);
+                println!("Got cursor moved event in move one from {} to {}", moving.start_pos, **cur);
                 ev_text.send(BottomTextEvent::clear());
                 ev_move.send(BoardMove{
-                    from: moving.pos,
+                    entity,
                     to: **cur,
                 });
-                moving.distance_left -= 1;
-                if moving.distance_left == 0 {
+                let distance = Vec2I::from(**cur).distance(Vec2I::from(moving.start_pos));
+                if moving.movement as i8 - distance <= 0 {
                     println!("No movement left, clear entity");
                     moving.entity = None;
                     cursor.set_visible();
@@ -128,7 +133,7 @@ fn move_one_keyboard(
             keys.reset(KeyCode::S);
             let pos = cursor.get_pos_v();
             println!("Find thing at {}, {} to move", pos.x, pos.y);
-            if board.has_entity(pos) {
+            if board.has_entity_at(pos) {
                 let e = board.get_entity(pos).unwrap();
                 let (_, moveable, belongs, _) = query.get_mut(e).unwrap();
                 let belongs_entity;
@@ -142,8 +147,8 @@ fn move_one_keyboard(
                     println!("Does belong to this player");
                     moving.flying = moveable.flying;
                     moving.entity = Some(e);
-                    moving.pos = pos;
-                    moving.distance_left = moveable.movement;
+                    moving.start_pos = pos;
+                    moving.movement = moveable.movement;
                     if moving.flying {
                         cursor.set_type(CURSOR_FLY);
                     } else {
@@ -166,7 +171,7 @@ pub fn board_describe_piece(
     mut ev_text: EventWriter<BottomTextEvent>,
 ) {
     for cur in ev_cursor.iter() {
-        if board.has_entity(**cur) {
+        if board.has_entity_at(**cur) {
             println!("HAs entity here");
             let e = board.get_entity(**cur).unwrap();
             let (named, _, belongs, _) = query.get_mut(e).unwrap();

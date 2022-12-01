@@ -5,6 +5,7 @@
 //use bevy::log::{LogPlugin, Level};
 use bevy::{prelude::*, window::PresentMode};
 
+mod vec;
 mod screen;
 mod game;
 mod display;
