@@ -16,7 +16,8 @@ pub enum GameState {
     CastSpellSetup,
     CastSpell,
     MoveSetup,
-    MoveOnePlayer,
+    MoveChoose,
+    MoveMoving,
     NextTurn,
 }
 
