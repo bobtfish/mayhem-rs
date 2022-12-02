@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-use std::collections::HashSet;
 use crate::board::{GameBoard, BoardMove, MoveableComponent};
 use crate::gamestate::GameState;
 use crate::game::Game;
@@ -13,7 +12,6 @@ pub struct BoardPlugin;
 impl Plugin for BoardPlugin {
     fn build(&self, app: &mut App) {
         app
-            .init_resource::<Moving>()
             .add_system_set(SystemSet::on_enter(GameState::MoveSetup).with_system(move_setup))
             .add_system_set(SystemSet::on_update(GameState::MoveSetup).with_system(move_next))
             .add_system_set(SystemSet::on_enter(GameState::MoveChoose).with_system(move_choose_setup))
@@ -21,6 +19,7 @@ impl Plugin for BoardPlugin {
             .add_system_set(SystemSet::on_update(GameState::MoveChoose).with_system(board_describe_piece))
             .add_system_set(SystemSet::on_exit(GameState::MoveChoose).with_system(move_choose_finish))
             .add_system_set(SystemSet::on_update(GameState::MoveMoving).with_system(move_moving_keyboard))
+            .add_system_set(SystemSet::on_exit(GameState::MoveMoving).with_system(move_moving_exit))
             .add_system_set(SystemSet::on_enter(GameState::NextTurn).with_system(system::hide_board_entities))
             .add_system_set(SystemSet::on_update(GameState::NextTurn).with_system(next_turn));
     }
@@ -31,12 +30,11 @@ impl Plugin for BoardPlugin {
 //  set
 //    \-> GameMoveSetup -push-> GameMoveChoose
 //                 ^------pop------/
-#[derive(Resource, Default)]
-struct Moving {
-    entity: Option<Entity>,
-    movement: u8,
-    flying: bool,
+
+#[derive(Component)]
+struct MovingComponent {
     start_pos: Vec2,
+    steps: u8
 }
 
 #[derive(Component)]
@@ -73,7 +71,6 @@ fn move_next(
 fn move_choose_setup(
     g: Res<Game>,
     mut ev_text: EventWriter<BottomTextEvent>,
-    mut moving: ResMut<Moving>,
     mut ev_cursor_pos: EventWriter<PositionCursorOnEntity>,
 ) {
     println!("Move one for player {}", g.player_turn);
@@ -92,7 +89,6 @@ fn move_choose_keyboard(
     mut state: ResMut<State<GameState>>,
     mut query: Query<(&Named, &MoveableComponent, Option<&BelongsToPlayer>, &mut Transform, Option<&HasMoved>)>,
     mut ev_text: EventWriter<BottomTextEvent>,
-    mut moving: ResMut<Moving>,
     mut commands: Commands,
 ) {
     if keys.just_pressed(KeyCode::Key0) {
@@ -116,15 +112,15 @@ fn move_choose_keyboard(
             if g.get_player().handle.unwrap() == belongs_entity && has_moved.is_none() {
                 commands.entity(e).insert(HasMoved);
                 println!("Does belong to this player");
-                moving.flying = moveable.flying;
-                moving.entity = Some(e);
-                moving.start_pos = pos;
-                moving.movement = moveable.movement;
-                if moving.flying {
+                if moveable.flying {
                     cursor.set_type(CURSOR_FLY);
                 } else {
                     cursor.set_invisible();
                 }
+                commands.entity(e).insert(MovingComponent{
+                    start_pos: pos,
+                    steps: 0,
+                });
                 let mut text = String::from("Movement range=");
                 text.push_str(&moveable.movement.to_string());
                 ev_text.send(BottomTextEvent::from(&text));
@@ -142,16 +138,16 @@ fn move_moving_keyboard(
     mut state: ResMut<State<GameState>>,
     mut ev_cursor: EventReader<CursorMovedEvent>,
     mut ev_text: EventWriter<BottomTextEvent>,
-    mut moving: ResMut<Moving>,
     mut ev_move: EventWriter<BoardMove>,
+    mut moving_q: Query<(Entity, &MoveableComponent, &MovingComponent)>,
 ) {
-    let entity = moving.entity.unwrap();
-    if moving.flying {
+    let (entity, movable, moving) = moving_q.single_mut();
+    if movable.flying {
         if keys.just_pressed(KeyCode::S) {
             keys.reset(KeyCode::S);
             let cursor_pos = cursor.get_pos_v();
             let distance = Vec2I::from(cursor_pos).distance(Vec2I::from(moving.start_pos));
-            if distance > moving.movement as i8 {
+            if distance > movable.movement as i8 {
                 println!("Too far");
             } else {
                 cursor.set_type(CURSOR_BOX);
@@ -159,7 +155,6 @@ fn move_moving_keyboard(
                     entity,
                     to: cursor_pos,
                 });
-                moving.entity = None;
                 state.pop().unwrap();
                 println!("Finished move");
             }
@@ -173,9 +168,8 @@ fn move_moving_keyboard(
                 to: **cur,
             });
             let distance = Vec2I::from(**cur).distance(Vec2I::from(moving.start_pos));
-            if moving.movement as i8 - distance <= 0 {
+            if movable.movement as i8 - distance <= 0 || moving.steps >= movable.movement {
                 println!("No movement left, clear entity");
-                moving.entity = None;
                 cursor.set_visible();
                 state.pop().unwrap();
                 println!("Finished move");
@@ -184,6 +178,12 @@ fn move_moving_keyboard(
     }
 }
 
+fn move_moving_exit(
+    moving_q: Query<Entity, With<MovingComponent>>,
+    mut commands: Commands,
+) {
+    commands.entity(moving_q.single()).remove::<MovingComponent>();
+}
 
 pub fn board_describe_piece(
     board: Res<GameBoard>,
