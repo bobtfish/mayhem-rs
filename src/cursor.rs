@@ -100,21 +100,61 @@ fn keyboard_input(
     mut cursor: ResMut<Cursor>,
     mut ev_cursor_moved: EventWriter<CursorMovedEvent>,
 ) {
-    if keys.just_pressed(KeyCode::Left) && cursor.x > 0.0 {
+    if keys.just_pressed(KeyCode::A) && cursor.x > 0.0 {
         cursor.x -= 1.0;
         cursor.moved = true;
     }
-    if keys.just_pressed(KeyCode::Right) && cursor.x < WIDTH as f32 -2.0 {
+    if keys.just_pressed(KeyCode::D) && cursor.x < WIDTH as f32 - 2.0  {
         cursor.x += 1.0;
         cursor.moved = true;
     }
-    if keys.just_pressed(KeyCode::Up) && cursor.y < HEIGHT as f32 -3.0 {
+    if keys.just_pressed(KeyCode::W) && cursor.y < HEIGHT as f32 - 3.0 {
         cursor.y += 1.0;
         cursor.moved = true;
     }
-    if keys.just_pressed(KeyCode::Down) && cursor.y > 0.0 {
+    if keys.just_pressed(KeyCode::Q) {
+        if cursor.y < HEIGHT as f32 - 3.0 {
+            cursor.y += 1.0;
+            cursor.moved = true;
+        }
+        if cursor.x > 0.0 {
+            cursor.x -= 1.0;
+            cursor.moved = true;
+        }
+    }
+    if keys.just_pressed(KeyCode::E) {
+        if cursor.y < HEIGHT as f32 - 3.0 {
+            cursor.y += 1.0;
+            cursor.moved = true;
+        }
+        if cursor.x < WIDTH as f32 - 2.0 {
+            cursor.x += 1.0;
+            cursor.moved = true;
+        }
+    }
+    if keys.just_pressed(KeyCode::X) && cursor.y > 0.0 {
         cursor.y -= 1.0;
         cursor.moved = true;
+    }
+    if keys.just_pressed(KeyCode::Z) {
+        if cursor.y > 0.0 {
+            cursor.y -= 1.0;
+            cursor.moved = true;
+        }
+        if cursor.x > 0.0 {
+            cursor.x -= 1.0;
+            cursor.moved = true;
+        }
+    }
+    if keys.just_pressed(KeyCode::C) {
+        if cursor.y > 0.0 {
+            cursor.y -= 1.0;
+            cursor.moved = true;
+        }
+        if cursor.x < WIDTH as f32 - 2.0 {
+            cursor.x += 1.0;
+            cursor.moved = true;
+        }
     }
     if cursor.moved {
         cursor.hide_till_moved = false;

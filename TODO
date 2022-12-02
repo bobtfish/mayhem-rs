@@ -1,4 +1,3 @@
-Border colour
 Initial Help page
 Initial name entry
  - must have some characters
@@ -16,7 +15,6 @@ Examine board screen
 Select spell screen
   - Gooey blob can be illusion
   - Magic file can be illusion
-Cursor - uses arrow keys, not qwedcxza - no diagonals possible
 Animation for spell casting
 Spell casting chance % - spells fail
 Movement - can move onto other things
@@ -25,7 +23,6 @@ Ranged attack
   - Can attack self
   - Animation
   - Actually do the attack and potentially kill things
-Draw things in colour
 Combat
 Trapped in combat
 Combat vs undead
