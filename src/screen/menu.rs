@@ -95,6 +95,7 @@ struct CapturePlayer {
     color: Option<u8>,
 }
 
+const MAX_NAME_LEN: usize = 12;
 fn player_name_menu_keyboard_input(
     mut char_evr: EventReader<ReceivedCharacter>,
     mut state: ResMut<State<GameState>>,
@@ -110,17 +111,23 @@ fn player_name_menu_keyboard_input(
         return;
     }
     if player.name.is_none() {
-        if keys.just_pressed(KeyCode::Return) {
-            println!("Text input: {}", *string);
+        if keys.just_pressed(KeyCode::Return) && string.len() >= 1 {
             player.name = Some(string.clone());
             *string = String::new();
             print_text("Computer Controlled?", &mut commands, g.fah(), Vec2::new(0.5, 5.0), PlayerNameMenuScreen);
             return;
         }
         for ev in char_evr.iter() {
-            println!("Got char: '{}'", ev.char);
-            string.push(ev.char);
+            if ev.char == 0x7f as char {
+                string.pop();
+            } else if string.len() < MAX_NAME_LEN && ((ev.char >= 'a' && ev.char <= 'z') || (ev.char >= 'A' && ev.char <= 'Z') || (ev.char >= '0' && ev.char <= '9') || ev.char == ' ') {
+                string.push(ev.char);
+            }
             print_text(&string, &mut commands, g.fah(), Vec2::new(0.5, 7.0), PlayerNameMenuScreen);
+            let spaces = MAX_NAME_LEN - string.len();
+            for i in (string.len()..string.len()+spaces) {
+                print_text(" ", &mut commands, g.fah(), Vec2::new(0.5 + f32::from(i as u8)/2.0, 7.0), PlayerNameMenuScreen);
+            }
         }
         return;
     }
