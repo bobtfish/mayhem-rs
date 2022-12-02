@@ -70,6 +70,7 @@ fn cast_spell_setup(
     if let Some(spell_name) = player.get_chosen_spell_name() {
         ev_text.send(BottomTextEvent::from(&spell_name));
         ev_cursor_pos.send(PositionCursorOnEntity(player.handle.unwrap()));
+        cursor.hide_till_moved();
     }
 }
 

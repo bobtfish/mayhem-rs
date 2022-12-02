@@ -16,14 +16,21 @@ impl Plugin for BoardPlugin {
             .add_system_set(SystemSet::on_enter(GameState::MoveSetup).with_system(move_setup))
             .add_system_set(SystemSet::on_update(GameState::MoveSetup).with_system(move_next))
             .add_system_set(SystemSet::on_enter(GameState::MoveChoose).with_system(move_choose_setup))
-            .add_system_set(SystemSet::on_update(GameState::MoveChoose).with_system(move_choose_keyboard))
-            .add_system_set(SystemSet::on_update(GameState::MoveChoose).with_system(board_describe_piece))
+            .add_system_set(
+                SystemSet::on_update(GameState::MoveChoose)
+                    .with_system(move_choose_keyboard)
+                    .with_system(board_describe_piece)
+            )
             .add_system_set(SystemSet::on_exit(GameState::MoveChoose).with_system(move_choose_finish))
             .add_system_set(SystemSet::on_update(GameState::MoveMoving).with_system(move_moving_keyboard))
             .add_system_set(SystemSet::on_enter(GameState::NextTurn).with_system(system::hide_board_entities))
             .add_system_set(SystemSet::on_update(GameState::NextTurn).with_system(next_turn))
             .add_system_set(SystemSet::on_enter(GameState::RangedAttackChoose).with_system(ranged_attack_setup))
-            .add_system_set(SystemSet::on_update(GameState::RangedAttackChoose).with_system(ranged_attack_keyboard))
+            .add_system_set(
+                SystemSet::on_update(GameState::RangedAttackChoose)
+                    .with_system(ranged_attack_keyboard)
+                    .with_system(board_describe_piece)
+            )
             .add_system_set(SystemSet::on_exit(GameState::RangedAttackChoose).with_system(ranged_attack_exit));
     }
 }
@@ -171,7 +178,8 @@ fn move_moving_keyboard(
             let cursor_pos = cursor.get_pos_v();
             let distance = Vec2I::from(cursor_pos).distance(Vec2I::from(moving.start_pos));
             if distance > movable.movement as i8 {
-                println!("Too far");
+                ev_text.send(BottomTextEvent::from("Out of range"));
+                cursor.hide_till_moved();
             } else {
                 ev_text.send(BottomTextEvent::clear());
                 cursor.set_type(CURSOR_BOX);
@@ -219,7 +227,7 @@ fn ranged_attack_setup(
 
 fn ranged_attack_keyboard(
     mut keys: ResMut<Input<KeyCode>>,
-    cursor: Res<Cursor>,
+    mut cursor: ResMut<Cursor>,
     moving_q: Query<(Entity, &RangedCombat), With<RangedAttackComponent>>,
     board: Res<GameBoard>,
     mut state: ResMut<State<GameState>>,
@@ -235,6 +243,9 @@ fn ranged_attack_keyboard(
         if distance <= ranged.range as i8 {
             println!("CAN TARGET WITH RANGED");
             state.pop().unwrap();
+        } else {
+            ev_text.send(BottomTextEvent::from("Out of range"));
+            cursor.hide_till_moved();
         }
     }
 }
