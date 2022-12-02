@@ -1,10 +1,11 @@
 use bevy::prelude::*;
 use crate::board::{GameBoard, BoardMove, MoveableComponent};
+use crate::creature::RangedCombat;
 use crate::gamestate::GameState;
 use crate::game::Game;
 use crate::display::{BottomTextEvent};
 use crate::system::{self, Named, BelongsToPlayer};
-use crate::cursor::{CURSOR_BOX, CursorMovedEvent, CURSOR_FLY, PositionCursorOnEntity, Cursor};
+use crate::cursor::{CURSOR_BOX, CursorMovedEvent, CURSOR_FLY, PositionCursorOnEntity, Cursor, CURSOR_TARGET};
 use crate::vec::Vec2I;
 
 pub struct BoardPlugin;
@@ -19,9 +20,11 @@ impl Plugin for BoardPlugin {
             .add_system_set(SystemSet::on_update(GameState::MoveChoose).with_system(board_describe_piece))
             .add_system_set(SystemSet::on_exit(GameState::MoveChoose).with_system(move_choose_finish))
             .add_system_set(SystemSet::on_update(GameState::MoveMoving).with_system(move_moving_keyboard))
-            .add_system_set(SystemSet::on_exit(GameState::MoveMoving).with_system(move_moving_exit))
             .add_system_set(SystemSet::on_enter(GameState::NextTurn).with_system(system::hide_board_entities))
-            .add_system_set(SystemSet::on_update(GameState::NextTurn).with_system(next_turn));
+            .add_system_set(SystemSet::on_update(GameState::NextTurn).with_system(next_turn))
+            .add_system_set(SystemSet::on_enter(GameState::RangedAttackChoose).with_system(ranged_attack_setup))
+            .add_system_set(SystemSet::on_update(GameState::RangedAttackChoose).with_system(ranged_attack_keyboard))
+            .add_system_set(SystemSet::on_exit(GameState::RangedAttackChoose).with_system(ranged_attack_exit));
     }
 }
 
@@ -54,6 +57,7 @@ fn move_next(
     mut g: ResMut<Game>,
     mut q: Query<Entity, With<HasMoved>>,
     mut commands: Commands,
+    mut ev_text: EventWriter<BottomTextEvent>,
 ) {
     for has_moved_entity in q.iter_mut() {
         commands.entity(has_moved_entity).remove::<HasMoved>();
@@ -61,6 +65,7 @@ fn move_next(
     if g.player_turn >= g.players {
         g.player_turn = 0;
         println!("Moving finished, next turn now");
+        ev_text.send(BottomTextEvent::clear());
         state.set(GameState::NextTurn).unwrap();
     } else {
         println!("Player turn to move");
@@ -81,6 +86,9 @@ fn move_choose_setup(
     ev_text.send(BottomTextEvent::from(&s));
 }
 
+#[derive(Component)]
+struct RangedAttackComponent;
+
 fn move_choose_keyboard(
     g: Res<Game>,
     mut cursor: ResMut<Cursor>,
@@ -90,7 +98,20 @@ fn move_choose_keyboard(
     mut query: Query<(&Named, &MoveableComponent, Option<&BelongsToPlayer>, &mut Transform, Option<&HasMoved>)>,
     mut ev_text: EventWriter<BottomTextEvent>,
     mut commands: Commands,
+    moving_q: Query<(Entity, Option<&RangedCombat>), With<MovingComponent>>,
 ) {
+    // We return here from MoveMoving with the entity that just moved still flagged with MovingComponent
+    // remove that component, but at the same time check if this entity has ranged combat, as if so we need to do that now.
+    for (e, ranged_combat) in moving_q.iter() {
+        println!("Movement finished, remove MovingComponent");
+        commands.entity(e).remove::<MovingComponent>();
+        if ranged_combat.is_some() {
+            println!("Do ranged attack now");
+            commands.entity(e).insert(RangedAttackComponent);
+            state.push(GameState::RangedAttackChoose).unwrap();
+        }
+    }
+
     if keys.just_pressed(KeyCode::Key0) {
         keys.reset(KeyCode::Key0);
         state.pop().unwrap();
@@ -112,8 +133,12 @@ fn move_choose_keyboard(
             if g.get_player().handle.unwrap() == belongs_entity && has_moved.is_none() {
                 commands.entity(e).insert(HasMoved);
                 println!("Does belong to this player");
+                let mut text = String::from("Movement range=");
+                text.push_str(&moveable.movement.to_string());
                 if moveable.flying {
                     cursor.set_type(CURSOR_FLY);
+                    cursor.hide_till_moved();
+                    text.push_str(" (flying)");
                 } else {
                     cursor.set_invisible();
                 }
@@ -121,8 +146,6 @@ fn move_choose_keyboard(
                     start_pos: pos,
                     steps: 0,
                 });
-                let mut text = String::from("Movement range=");
-                text.push_str(&moveable.movement.to_string());
                 ev_text.send(BottomTextEvent::from(&text));
                 println!("State to MoveMoving");
                 state.push(GameState::MoveMoving).unwrap();
@@ -150,6 +173,7 @@ fn move_moving_keyboard(
             if distance > movable.movement as i8 {
                 println!("Too far");
             } else {
+                ev_text.send(BottomTextEvent::clear());
                 cursor.set_type(CURSOR_BOX);
                 ev_move.send(BoardMove{
                     entity,
@@ -178,11 +202,49 @@ fn move_moving_keyboard(
     }
 }
 
-fn move_moving_exit(
-    moving_q: Query<Entity, With<MovingComponent>>,
-    mut commands: Commands,
+fn ranged_attack_setup(
+    moving_q: Query<(Entity, &RangedCombat), With<RangedAttackComponent>>,
+    mut cursor: ResMut<Cursor>,
+    board: Res<GameBoard>,
+    mut ev_text: EventWriter<BottomTextEvent>,
 ) {
-    commands.entity(moving_q.single()).remove::<MovingComponent>();
+    cursor.set_type(CURSOR_TARGET);
+    cursor.hide_till_moved();
+    let (entity, ranged) = moving_q.single();
+    cursor.set_pos(Vec2::from(board.get_entity_pos(entity)));
+    let mut text = String::from("Ranged attack, range=");
+    text.push_str(&ranged.range.to_string());
+    ev_text.send(BottomTextEvent::from(&text));
+}
+
+fn ranged_attack_keyboard(
+    mut keys: ResMut<Input<KeyCode>>,
+    cursor: Res<Cursor>,
+    moving_q: Query<(Entity, &RangedCombat), With<RangedAttackComponent>>,
+    board: Res<GameBoard>,
+    mut state: ResMut<State<GameState>>,
+    mut ev_text: EventWriter<BottomTextEvent>,
+) {
+    if keys.just_pressed(KeyCode::S) {
+        keys.reset(KeyCode::S);
+        ev_text.send(BottomTextEvent::clear());
+        let cursor_pos = cursor.get_pos_v();
+        let (entity, ranged) = moving_q.single();
+        let from = board.get_entity_pos(entity);
+        let distance = Vec2I::from(cursor_pos).distance(from);
+        if distance <= ranged.range as i8 {
+            println!("CAN TARGET WITH RANGED");
+            state.pop().unwrap();
+        }
+    }
+}
+fn ranged_attack_exit(
+    mut commands: Commands,
+    moving_q: Query<Entity, With<RangedAttackComponent>>,
+    mut cursor: ResMut<Cursor>,
+) {
+    commands.entity(moving_q.single()).remove::<RangedAttackComponent>();
+    cursor.set_type(CURSOR_BOX);
 }
 
 pub fn board_describe_piece(

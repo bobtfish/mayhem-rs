@@ -8,7 +8,7 @@ const CURSOR_SPRITE_ID: usize = 164;
 pub const CURSOR_SPELL: usize = 0;
 pub const CURSOR_BOX: usize = 1;
 pub const CURSOR_FLY: usize = 2;
-//pub const CURSOR_TARGET: usize = 3;
+pub const CURSOR_TARGET: usize = 3;
 
 
 pub struct CursorPlugin;
