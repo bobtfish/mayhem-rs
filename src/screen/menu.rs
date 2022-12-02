@@ -7,6 +7,17 @@ use crate::game::Game;
 use crate::system;
 use crate::gamestate::GameState;
 
+const WIZARD_COLORS :[Color; 8] = [
+    Color::rgba(1.0, 0.0, 0.0, 1.0),
+    Color::rgba(1.0, 0.0, 1.0, 1.0),
+    Color::rgba(0.0, 1.0, 0.0, 1.0),
+    Color::rgba(0.0, 1.0, 1.0, 1.0),
+    Color::rgba(204.0/255.0, 204.0/255.0, 0.0, 1.0),
+    Color::rgba(1.0, 1.0, 0.0, 1.0),
+    Color::rgba(204.0/255.0, 204.0/255.0, 204.0/255.0, 1.0),
+    WHITE,
+];
+
 pub struct MenuPlugin;
 
 impl Plugin for MenuPlugin {
@@ -92,7 +103,7 @@ struct CapturePlayer {
     name: Option<String>,
     computer_controlled: Option<bool>,
     character_icon: Option<u8>,
-    color: Option<u8>,
+    color: Option<Color>,
 }
 
 const MAX_NAME_LEN: usize = 12;
@@ -142,7 +153,7 @@ fn player_name_menu_keyboard_input(
         }
         if player.computer_controlled.is_some() {
             print_text("Which character?", &mut commands, g.fah(), Vec2::new(0.5, 4.0), PlayerNameMenuScreen);
-            show_wizards(g.fah(), g.tah(), &mut commands, 3.0);
+            show_wizards(g.fah(), g.tah(), &mut commands, true, 3.0);
         }
         return;
     }
@@ -154,7 +165,7 @@ fn player_name_menu_keyboard_input(
                 player.character_icon = Some(choice as u8);
                 print_text(&choice.to_string(), &mut commands, g.fah(), Vec2::new(9.0, 4.0), PlayerNameMenuScreen);
                 print_text("Which color?", &mut commands, g.fah(), Vec2::new(0.5, 2.0), PlayerNameMenuScreen);
-                show_wizards(g.fah(), g.tah(), &mut commands, 1.0);
+                show_wizards(g.fah(), g.tah(), &mut commands, false, 1.0);
             }
         }
         return;
@@ -164,7 +175,7 @@ fn player_name_menu_keyboard_input(
             let c = ev.char as u32;
             if (49..=56).contains(&c) {
                 let choice = c-48;
-                player.color= Some(choice as u8);
+                player.color= Some(WIZARD_COLORS[choice as usize]);
                 //print_text(&*choice.to_string(), &mut commands, g.fah(), Vec2::new(7.5, 3.0), PlayerNameMenuScreen);
             }
         }
@@ -183,10 +194,11 @@ fn player_name_menu_keyboard_input(
     }
 }
 
-fn show_wizards(fah: Handle<TextureAtlas>, tah: Handle<TextureAtlas>, commands: &mut Commands, y: f32) {
+fn show_wizards(fah: Handle<TextureAtlas>, tah: Handle<TextureAtlas>, commands: &mut Commands, colors: bool, y: f32) {
     for i in 0..8 {
         print_text(&(i+1).to_string(), commands, fah.clone(), Vec2::new((i as f32).mul_add(1.5, 0.5), y), PlayerNameMenuScreen);
-        print_wizard(commands, tah.clone(), Vec2::new((i as f32).mul_add(1.5, 1.25), y), i, PlayerNameMenuScreen);
+        let color = if colors { WHITE } else { WIZARD_COLORS[i] };
+        print_wizard(commands, tah.clone(), Vec2::new((i as f32).mul_add(1.5, 1.25), y), i, color, PlayerNameMenuScreen);
     }
 }
 

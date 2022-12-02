@@ -123,9 +123,9 @@ pub fn manage_text_bottom(
     }
 }
 
-pub fn print_wizard(commands: &mut Commands, tah: Handle<TextureAtlas>, v: Vec2, idx: usize, c: impl Component + std::marker::Copy) {
-    commands.spawn(get_sprite_sheet_bundle(tah, v, WIZARD_IDX + idx, WHITE))
-    .insert(c);
+pub fn print_wizard(commands: &mut Commands, tah: Handle<TextureAtlas>, v: Vec2, idx: usize, color: Color, component: impl Component + std::marker::Copy) {
+    commands.spawn(get_sprite_sheet_bundle(tah, v, WIZARD_IDX + idx, color))
+    .insert(component);
 }
 
 fn char_to_pos(c: char) -> usize {

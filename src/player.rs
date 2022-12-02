@@ -39,7 +39,7 @@ pub struct Player {
     pub name: String,
     pub computer_controlled: bool,
     pub character_icon: u8,
-    pub color: u8,
+    pub color: Color,
     pub spells: SpellList,
     pub handle: Option<Entity>,
     pub creations: Vec<Entity>,
@@ -51,7 +51,7 @@ pub enum CastFailed {
 }
 
 impl Player {
-    pub fn new(name: String, cc: bool, icon: u8, color: u8) -> Self {
+    pub fn new(name: String, cc: bool, icon: u8, color: Color) -> Self {
         Self {
             name,
             computer_controlled: cc,
@@ -81,7 +81,7 @@ impl Player {
         tah: Handle<TextureAtlas>,
         pos: Vec2,
     ) {
-        let mut ss = display::get_sprite_sheet_bundle(tah, pos, (169 + self.character_icon) as usize, display::WHITE);
+        let mut ss = display::get_sprite_sheet_bundle(tah, pos, (169 + self.character_icon) as usize, self.color);
         ss.visibility.is_visible = false;
         let entity = commands.spawn(ss)
             .insert(MoveableComponent{
