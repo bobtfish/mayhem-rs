@@ -37,8 +37,10 @@ struct Moving {
     movement: u8,
     flying: bool,
     start_pos: Vec2,
-    has_moved: HashSet<Entity>,
 }
+
+#[derive(Component)]
+struct HasMoved;
 
 fn move_setup(
     mut g: ResMut<Game>,
@@ -52,7 +54,12 @@ fn move_setup(
 fn move_next(
     mut state: ResMut<State<GameState>>,
     mut g: ResMut<Game>,
+    mut q: Query<Entity, With<HasMoved>>,
+    mut commands: Commands,
 ) {
+    for has_moved_entity in q.iter_mut() {
+        commands.entity(has_moved_entity).remove::<HasMoved>();
+    }
     if g.player_turn >= g.players {
         g.player_turn = 0;
         println!("Moving finished, next turn now");
@@ -75,7 +82,6 @@ fn move_choose_setup(
     ev_cursor_pos.send(PositionCursorOnEntity(player.handle.unwrap()));
     s.push_str("'s turn");
     ev_text.send(BottomTextEvent::from(&s));
-    moving.has_moved = HashSet::new();
 }
 
 fn move_choose_keyboard(
@@ -84,9 +90,10 @@ fn move_choose_keyboard(
     board: Res<GameBoard>,
     mut keys: ResMut<Input<KeyCode>>,
     mut state: ResMut<State<GameState>>,
-    mut query: Query<(&Named, &MoveableComponent, Option<&BelongsToPlayer>, &mut Transform,)>,
+    mut query: Query<(&Named, &MoveableComponent, Option<&BelongsToPlayer>, &mut Transform, Option<&HasMoved>)>,
     mut ev_text: EventWriter<BottomTextEvent>,
     mut moving: ResMut<Moving>,
+    mut commands: Commands,
 ) {
     if keys.just_pressed(KeyCode::Key0) {
         keys.reset(KeyCode::Key0);
@@ -99,15 +106,15 @@ fn move_choose_keyboard(
         println!("Find thing at {}, {} to move", pos.x, pos.y);
         if board.has_entity_at(pos) {
             let e = board.get_entity(pos).unwrap();
-            let (_, moveable, belongs, _) = query.get_mut(e).unwrap();
+            let (_, moveable, belongs, _, has_moved) = query.get_mut(e).unwrap();
             let belongs_entity;
             if let Some(belongs) = belongs {
                 belongs_entity = belongs.player_entity;
             } else {
                 belongs_entity = e;
             }
-            if g.get_player().handle.unwrap() == belongs_entity && !moving.has_moved.contains(&e) {
-                moving.has_moved.insert(e);
+            if g.get_player().handle.unwrap() == belongs_entity && has_moved.is_none() {
+                commands.entity(e).insert(HasMoved);
                 println!("Does belong to this player");
                 moving.flying = moveable.flying;
                 moving.entity = Some(e);
