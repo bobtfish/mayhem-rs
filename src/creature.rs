@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, fs::File};
 use crate::board::MoveableComponent;
-use crate::display::spawn_anim;
+use crate::display::{spawn_anim, WHITE};
 use crate::spell::{ASpell, SpellBox};
 use crate::system::{BoardEntity, Named};
 
@@ -32,6 +32,9 @@ pub struct Creature {
     defence: u8,
     #[serde(default = "default_as_false")]
     mountable: bool,
+    color_r: u8,
+    color_g: u8,
+    color_b: u8,
 }
 
 #[derive(Component)]
@@ -56,7 +59,8 @@ impl Creature {
         commands: &mut Commands,
         texture_atlas_handle: Handle<TextureAtlas>
     ) -> Entity {
-        let e = spawn_anim(commands, texture_atlas_handle, v, self.sprite_index, 4);
+        let color = Color::rgba(f32::from(self.color_r) / 255.0, f32::from(self.color_g) / 255.0, f32::from(self.color_b) / 255.0, 1.0);
+        let e = spawn_anim(commands, texture_atlas_handle, v, self.sprite_index, 4, color);
         let mut ec = commands.get_entity(e).unwrap();
         ec.insert(CreatureComponent{
             is_illusion: illusion,

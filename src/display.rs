@@ -30,17 +30,17 @@ pub fn get_border(
     commands: &mut Commands,
     texture_atlas_handle: Handle<TextureAtlas>
 ) {
-    commands.spawn(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(-0.5, -0.5), BORDER_BOTTOMLEFT, WHITE));
-    commands.spawn(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(-0.5, (HEIGHT-1) as f32-1.5), BORDER_TOPLEFT, WHITE));
-    commands.spawn(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new((WIDTH) as f32-1.5, -0.5), BORDER_BOTTOMRIGHT, WHITE));
-    commands.spawn(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new((WIDTH) as f32-1.5, HEIGHT as f32-2.5), BORDER_TOPRIGHT, WHITE));
+    commands.spawn(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(-0.5, -0.5), BORDER_BOTTOMLEFT, BLUE));
+    commands.spawn(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(-0.5, (HEIGHT-1) as f32-1.5), BORDER_TOPLEFT, BLUE));
+    commands.spawn(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new((WIDTH) as f32-1.5, -0.5), BORDER_BOTTOMRIGHT, BLUE));
+    commands.spawn(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new((WIDTH) as f32-1.5, HEIGHT as f32-2.5), BORDER_TOPRIGHT, BLUE));
     for n in 2..HEIGHT-1 {
-        commands.spawn(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(-0.5, n as f32-1.5), BORDER_LEFT, WHITE));
-        commands.spawn(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new((WIDTH) as f32-1.5, n as f32-1.5), BORDER_RIGHT, WHITE));
+        commands.spawn(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(-0.5, n as f32-1.5), BORDER_LEFT, BLUE));
+        commands.spawn(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new((WIDTH) as f32-1.5, n as f32-1.5), BORDER_RIGHT, BLUE));
     }
     for n in 1..WIDTH-1 {
-        commands.spawn(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(n as f32-0.5, -0.5), BORDER_BOTTOM, WHITE));
-        commands.spawn(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(n as f32-0.5, HEIGHT as f32-2.5), BORDER_TOP, WHITE));
+        commands.spawn(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(n as f32-0.5, -0.5), BORDER_BOTTOM, BLUE));
+        commands.spawn(get_sprite_sheet_bundle(texture_atlas_handle.clone(), Vec2::new(n as f32-0.5, HEIGHT as f32-2.5), BORDER_TOP, BLUE));
     }
 }
 
@@ -61,6 +61,7 @@ pub fn random_color() -> Color {
 */
 
 pub const WHITE: Color = Color::rgba(1.0, 1.0, 1.0, 1.0);
+pub const BLUE: Color = Color::rgba(0.0, 0.0, 1.0, 1.0);
 
 pub fn get_sprite_sheet_bundle_z(
     texture_atlas_handle: Handle<TextureAtlas>,
@@ -155,10 +156,11 @@ pub fn spawn_anim(
     texture_atlas_handle: Handle<TextureAtlas>,
     v: Vec2,
     init: usize,
-    num: usize
+    num: usize,
+    color: Color
 ) -> Entity {
     return commands
-        .spawn(get_sprite_sheet_bundle(texture_atlas_handle, v, init, WHITE))
+        .spawn(get_sprite_sheet_bundle(texture_atlas_handle, v, init, color))
         .insert(RepeatAnimation {
             max: init+num-1,
             init,
