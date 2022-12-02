@@ -1,6 +1,12 @@
 use bevy::prelude::*;
 
-use crate::{gamestate::GameState, display::BottomTextEvent, game::Game, board::{BoardPutEntity, GameBoard}, player::CastFailed, cursor::{CursorMovedEvent, CURSOR_SPELL, PositionCursorOnEntity, Cursor}, system};
+use crate::gamestate::GameState;
+use crate::display::BottomTextEvent;
+use crate::game::Game;
+use crate::board::{BoardPutEntity, GameBoard};
+use crate::player::CastFailed;
+use crate::cursor::{CURSOR_SPELL, PositionCursorOnEntity, Cursor};
+use crate::system;
 
 pub struct SpellCastingPlugin;
 

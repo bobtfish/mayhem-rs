@@ -22,12 +22,30 @@ pub struct Creature {
     movement: u8,
     #[serde(default = "default_as_false")]
     flying: bool,
+    #[serde(default = "default_as_zero")]
+    combat: u8,
+    #[serde(default = "default_as_zero")]
+    ranged_combat: u8,
+    #[serde(default = "default_as_zero")]
+    range: u8,
+    #[serde(default = "default_as_zero")]
+    defence: u8,
+    #[serde(default = "default_as_false")]
+    mountable: bool,
 }
 
 #[derive(Component)]
 pub struct CreatureComponent {
     pub is_illusion: bool,
+    pub combat: u8,
+    pub defence: u8,
+    pub mountable: bool,
+}
 
+#[derive(Component)]
+pub struct RangedCombat {
+    pub range: u8,
+    pub ranged_combat: u8
 }
 
 impl Creature {
@@ -39,16 +57,25 @@ impl Creature {
         texture_atlas_handle: Handle<TextureAtlas>
     ) -> Entity {
         let e = spawn_anim(commands, texture_atlas_handle, v, self.sprite_index, 4);
-        commands.get_entity(e).unwrap()
-            .insert(CreatureComponent{
-                is_illusion: illusion,
-            })
-            .insert(MoveableComponent{
-                movement: self.movement,
-                flying: self.flying,
-            })
-            .insert(BoardEntity)
-            .insert(Named{ name: self.name.clone() });
+        let mut ec = commands.get_entity(e).unwrap();
+        ec.insert(CreatureComponent{
+            is_illusion: illusion,
+            combat: self.combat,
+            defence: self.defence,
+            mountable: self.mountable,
+        });
+        ec.insert(MoveableComponent{
+            movement: self.movement,
+            flying: self.flying,
+        });
+        ec.insert(BoardEntity);
+        ec.insert(Named{ name: self.name.clone() });
+        if self.ranged_combat > 0 {
+            ec.insert(RangedCombat{
+                ranged_combat: self.ranged_combat,
+                range: self.range,
+            });
+        }
         e
     }
     pub fn to_spell(&self) -> SpellBox {

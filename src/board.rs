@@ -1,7 +1,6 @@
 
 use bevy::{prelude::*, utils::HashMap};
 use crate::{constants::{WIDTH, HEIGHT}, vec::Vec2I};
-use std::collections::HashSet;
 
 pub struct BoardPlugin;
 
@@ -85,7 +84,7 @@ impl GameBoard {
         Some(stack[stack.len()-1])
     }
     pub fn get_entity_pos(&self, e: Entity) -> Vec2I {
-        self.1.get(&e).unwrap().clone()
+        *self.1.get(&e).unwrap()
     }
     fn pop_entity(&mut self, pos: Vec2) -> Entity {
         let stack = &mut self.0[pos.x as usize].0[pos.y as usize].0;
