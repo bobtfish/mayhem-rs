@@ -178,10 +178,13 @@ fn player_menu_examine_one_spell_setup(
     for ev in ev_choose_spell.iter() {
         let spell_id = ev.0;
         // FIXME
-        print_text(&g.get_player().spells.get_spell(spell_id).name(), &mut commands, g.fah(), Vec2::new(1.0, 10.0), WHITE, ExamineOneSpellScreen);
+        let spell = g.get_player().spells.get_spell(spell_id);
+        print_text(&spell.name(), &mut commands, g.fah(), Vec2::new(1.0, 9.0), WHITE, ExamineOneSpellScreen);
+        for (i, line) in spell.get_description().iter().enumerate() {
+            print_text(line, &mut commands, g.fah(), Vec2::new(1.0, 8.0-i as f32), WHITE, ExamineOneSpellScreen);
+        }
     }
-    // FIXME - add more spell details
-    ev_text.send(BottomTextEvent::from("    Any key to exit"));
+    ev_text.send(BottomTextEvent::noclear("      Any key to exit"));
 }
 
 fn player_menu_examine_one_spell_keyboard(

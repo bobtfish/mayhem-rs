@@ -1,7 +1,4 @@
-Examine Spell screen
-  - Title
-  - Show details for character spell
-  - Any key to exit - justify
+Examine Spell screen - needs to work for non creature spells
 Track law rating of player
 Spells - actually work out casting chance based on law rating of player
 Examine board screen

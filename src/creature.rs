@@ -40,6 +40,8 @@ pub struct Creature {
     #[serde(default = "default_as_zero_signed")]
     law_chaos: i8,
     casting_chance: u8,
+    manoeuvre: u8,
+    magical_resistance: u8,
     color_r: u8,
     color_g: u8,
     color_b: u8,
@@ -124,6 +126,17 @@ impl ASpell for CreatureSpell {
     }
     fn casting_chance(&self) -> u8 {
         self.creature.casting_chance
+    }
+    fn get_description(&self) -> Vec<String> {
+        vec![
+            format!("Combat={}", self.creature.combat),
+            format!("Ranged Combat={} Range={}", self.creature.ranged_combat, self.creature.range),
+            format!("Defence={}", self.creature.defence),
+            format!("Movement Allowance={}", self.creature.movement),
+            format!("Manoeuver Rating={}", self.creature.manoeuvre),
+            format!("Magic Resistance={}", self.creature.magical_resistance),
+            format!("Casting Chance={}%", self.casting_chance()),
+        ]
     }
 }
 

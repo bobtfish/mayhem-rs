@@ -45,6 +45,7 @@ pub trait ASpell {
         }
         FUCHSIA
     }
+    fn get_description(&self) -> Vec<String>;
 }
 
 #[derive(Default, Clone)]
@@ -79,6 +80,9 @@ impl ASpell for Spell {
     }
     fn casting_chance(&self) -> u8 {
         self.casting_chance
+    }
+    fn get_description(&self) -> Vec<String> {
+        Vec::new()
     }
 }
 
