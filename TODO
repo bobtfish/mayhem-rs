@@ -8,9 +8,6 @@ Spell screens
   - Colour based on casting chance
 Examine board screen
   - Actually implement examine board
-Select spell screen
-  - Gooey blob can be illusion
-  - Magic file can be illusion
 Animation for spell casting
 Spell casting chance % - spells fail
 Movement - can move onto other things

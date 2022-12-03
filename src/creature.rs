@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, fs::File};
 use crate::board::MoveableComponent;
-use crate::display::{spawn_anim, WHITE};
+use crate::display::spawn_anim;
 use crate::spell::{ASpell, SpellBox};
 use crate::system::{BoardEntity, Named};
 
@@ -32,6 +32,8 @@ pub struct Creature {
     defence: u8,
     #[serde(default = "default_as_false")]
     mountable: bool,
+    #[serde(default = "default_as_false")]
+    can_be_illusion: bool,
     color_r: u8,
     color_g: u8,
     color_b: u8,
@@ -112,7 +114,7 @@ impl ASpell for CreatureSpell {
         1
     }
     fn can_be_illusion(&self) -> bool {
-        true
+        self.creature.can_be_illusion
     }
 }
 
