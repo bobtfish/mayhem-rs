@@ -1,8 +1,6 @@
 Examine Spell screen - needs to work for non creature spells
 Track law rating of player
 Spells - actually work out casting chance based on law rating of player
-Examine board screen
-  - Actually implement examine board
 Animation for spell casting
 Spell casting chance % - spells fail
 Movement - can move onto other things
