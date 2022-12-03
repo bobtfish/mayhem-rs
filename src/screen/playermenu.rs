@@ -1,9 +1,11 @@
 use bevy::prelude::*;
 
+use crate::cursor::{CURSOR_BOX, Cursor, PositionCursorOnEntity};
 use crate::display::*;
 use crate::game::Game;
 use crate::gamestate::GameState;
 use crate::system;
+use super::board;
 
 pub struct PlayerMenuPlugin;
 
@@ -31,12 +33,16 @@ impl Plugin for PlayerMenuPlugin {
             .add_system_set(SystemSet::on_update(GameState::PlayerMenuSelectSpell).with_system(player_menu_choose_spell_keyboard))
             .add_system_set(SystemSet::on_exit(GameState::PlayerMenuSelectSpell).with_system(system::despawn_screen::<SelectSpellScreen>))
 
-            .add_system_set(SystemSet::on_enter(
-                GameState::PlayerMenuExamineBoard)
+            .add_system_set(
+                SystemSet::on_enter(GameState::PlayerMenuExamineBoard)
                 .with_system(player_menu_examine_board_setup)
                 .with_system(system::show_board_entities)
             )
-            .add_system_set(SystemSet::on_update(GameState::PlayerMenuExamineBoard).with_system(player_menu_examine_board_keyboard))
+            .add_system_set(
+                SystemSet::on_update(GameState::PlayerMenuExamineBoard)
+                .with_system(player_menu_examine_board_keyboard)
+                .with_system(board::board_describe_piece)
+            )
             .add_system_set(
                 SystemSet::on_exit(GameState::PlayerMenuExamineBoard)
                 .with_system(system::hide_board_entities)
@@ -247,8 +253,16 @@ fn player_menu_select_spell_keyboard(
 
 fn player_menu_examine_board_setup(
     mut ev_text: EventWriter<BottomTextEvent>,
+    mut cursor: ResMut<Cursor>,
+    g: Res<Game>,
+    mut ev_cursor_pos: EventWriter<PositionCursorOnEntity>,
 ) {
     ev_text.send(BottomTextEvent::from("      Press 0 to exit"));
+    cursor.set_type(CURSOR_BOX);
+    cursor.set_visible();
+    cursor.hide_till_moved();
+    let player = g.get_player();
+    ev_cursor_pos.send(PositionCursorOnEntity(player.handle.unwrap()));
 }
 
 fn player_menu_examine_board_keyboard(
@@ -263,6 +277,8 @@ fn player_menu_examine_board_keyboard(
 
 fn player_menu_examine_board_exit(
     mut ev_text: EventWriter<BottomTextEvent>,
+    mut cursor: ResMut<Cursor>,
 ) {
     ev_text.send(BottomTextEvent::clear());
+    cursor.set_invisible();
 }
