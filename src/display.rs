@@ -101,14 +101,17 @@ pub fn print_text(str: &str, commands: &mut Commands, fah: Handle<TextureAtlas>,
 #[derive(Component, Copy, Clone)]
 pub struct BottomText;
 
-#[derive(Deref, Debug)]
-pub struct BottomTextEvent(Option<String>);
+#[derive(Debug)]
+pub struct BottomTextEvent(Option<String>, bool);
 impl BottomTextEvent {
+    pub fn noclear(s: &str) -> Self {
+        Self(Some(String::from(s)), false)
+    }
     pub fn from(s: &str) -> Self {
-        Self(Some(String::from(s)))
+        Self(Some(String::from(s)), true)
     }
     pub const fn clear() -> Self {
-        Self(None)
+        Self(None, true)
     }
 }
 
@@ -119,11 +122,13 @@ pub fn manage_text_bottom(
     to_despawn: Query<Entity, With<BottomText>>,
 ) {
     for ev in ev_text.iter() {
-        for entity in &to_despawn {
-            commands.entity(entity).despawn_recursive();
+        if ev.1 {
+            for entity in &to_despawn {
+                commands.entity(entity).despawn_recursive();
+            }
         }
-        if ev.is_some() {
-            print_text(ev.as_ref().unwrap(), &mut commands, game.fah(), vec2(0.0, -1.5), WHITE, BottomText);
+        if ev.0.is_some() {
+            print_text(ev.0.as_ref().unwrap(), &mut commands, game.fah(), vec2(0.0, -1.5), WHITE, BottomText);
         }
     }
 }

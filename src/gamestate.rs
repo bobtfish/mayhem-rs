@@ -5,6 +5,13 @@ use bevy::prelude::*;
 pub enum GameState {
     InitialMenu,
     Help,
+    HelpKeys,
+    HelpSpells,
+    HelpCombat,
+    HelpRangedCombat,
+    HelpUndead,
+    HelpMounts,
+    HelpVictory,
     PlayerNameMenu,
     PlayerNameMenuTransition,
     PlayerMenu,
