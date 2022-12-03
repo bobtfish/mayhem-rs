@@ -396,7 +396,7 @@
     "Goblin": Creature(
         name: "Goblin",
         sprite_index: 320,
-        base_casting_chance: 90,
+        casting_chance: 90,
         combat: 2,
         ranged_combat: 0,
         range: 0,

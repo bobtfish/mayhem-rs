@@ -62,6 +62,11 @@ pub fn random_color() -> Color {
 
 pub const WHITE: Color = Color::rgba(1.0, 1.0, 1.0, 1.0);
 pub const BLUE: Color = Color::rgba(0.0, 0.0, 1.0, 1.0);
+pub const GREEN: Color = Color::rgba(0.0, 1.0, 0.0, 1.0);
+pub const RED: Color = Color::rgba(1.0, 0.0, 0.0, 1.0);
+pub const AQUA: Color = Color::rgba(0.0, 1.0, 1.0, 1.0);
+pub const YELLOW: Color = Color::rgba(1.0, 1.0, 0.0, 1.0);
+pub const FUCHSIA: Color = Color::rgba(1.0, 0.0, 1.0, 1.0);
 
 pub fn get_sprite_sheet_bundle_z(
     texture_atlas_handle: Handle<TextureAtlas>,
@@ -81,13 +86,13 @@ pub fn get_sprite_sheet_bundle_z(
 }
 
 
-pub fn print_text(str: &str, commands: &mut Commands, fah: Handle<TextureAtlas>, v: Vec2, c: impl Component + std::marker::Copy) -> Vec<Entity> {
+pub fn print_text(str: &str, commands: &mut Commands, fah: Handle<TextureAtlas>, v: Vec2, color: Color, component: impl Component + std::marker::Copy) -> Vec<Entity> {
     let mut entities = Vec::new();
     for (i,ch) in str.chars().enumerate() {
         let mut new_v = v;
         new_v.x += i as f32/2.0;
-        let new = commands.spawn(get_sprite_sheet_bundle(fah.clone(), new_v, char_to_pos(ch), WHITE))
-        .insert(c).id();
+        let new = commands.spawn(get_sprite_sheet_bundle(fah.clone(), new_v, char_to_pos(ch), color))
+        .insert(component).id();
         entities.push(new);
     }
     entities
@@ -118,7 +123,7 @@ pub fn manage_text_bottom(
             commands.entity(entity).despawn_recursive();
         }
         if ev.is_some() {
-            print_text(ev.as_ref().unwrap(), &mut commands, game.fah(), vec2(0.0, -1.5), BottomText);
+            print_text(ev.as_ref().unwrap(), &mut commands, game.fah(), vec2(0.0, -1.5), WHITE, BottomText);
         }
     }
 }

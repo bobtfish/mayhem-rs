@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::gamestate::GameState;
 use crate::game::Game;
-use crate::display::print_text;
+use crate::display::{print_text, WHITE};
 use crate::system;
 pub struct HelpPlugin;
 
@@ -23,7 +23,7 @@ fn help_setup(
     g: Res<Game>,
 //    mut ev_text: EventWriter<BottomTextEvent>,
 ) {
-    print_text("  HELP SCREEN", &mut commands, g.fah(), Vec2::new(0.5, 8.0), HelpScreen);
+    print_text("  HELP SCREEN", &mut commands, g.fah(), Vec2::new(0.5, 8.0), WHITE, HelpScreen);
 }
 
 fn help_keyboard_input(

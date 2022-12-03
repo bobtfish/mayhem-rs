@@ -55,11 +55,11 @@ fn player_menu_setup(
     mut keys: ResMut<Input<KeyCode>>,
 ) {
     keys.clear();
-    print_text(&g.get_player().name, &mut commands, g.fah(), Vec2::new(1.0, 7.0), PlayerMenu);
-    print_text("1. Examine Spells", &mut commands, g.fah(), Vec2::new(1.0, 5.0), PlayerMenu);
-    print_text("2. Select Spell", &mut commands, g.fah(), Vec2::new(1.0, 4.0), PlayerMenu);
-    print_text("3. Examine Board", &mut commands, g.fah(), Vec2::new(1.0, 3.0), PlayerMenu);
-    print_text("4. Continue with Game", &mut commands, g.fah(), Vec2::new(1.0, 2.0), PlayerMenu);
+    print_text(&g.get_player().name, &mut commands, g.fah(), Vec2::new(1.0, 7.0), WHITE, PlayerMenu);
+    print_text("1. Examine Spells", &mut commands, g.fah(), Vec2::new(1.0, 5.0), WHITE, PlayerMenu);
+    print_text("2. Select Spell", &mut commands, g.fah(), Vec2::new(1.0, 4.0), WHITE, PlayerMenu);
+    print_text("3. Examine Board", &mut commands, g.fah(), Vec2::new(1.0, 3.0), WHITE, PlayerMenu);
+    print_text("4. Continue with Game", &mut commands, g.fah(), Vec2::new(1.0, 2.0), WHITE, PlayerMenu);
 }
 
 fn player_menu_keyboard(
@@ -105,14 +105,14 @@ fn player_menu_choose_spell_setup(
 ) {
     let mut n_player = (g.player_info.len()+1).to_string();
     n_player.push_str("'s spells");
-    print_text(&n_player, &mut commands, g.fah(), Vec2::new(0.5, 9.0), screen);
+    print_text(&n_player, &mut commands, g.fah(), Vec2::new(0.5, 9.0), WHITE, screen);
     let player = g.get_player();
     for (i, spell) in (0_u8..).zip(player.spells.spells.iter()) {
         let x = if 1 == i % 2 { 7.0 } else { 0.5 };
         let mut name_str = ((i+65) as char).to_string();
         name_str.push_str(spell.get_sep());
         name_str.push_str(&spell.name());
-        print_text(&name_str, &mut commands, g.fah(), Vec2::new(x, 8.0-f32::from(i/2)), screen);
+        print_text(&name_str, &mut commands, g.fah(), Vec2::new(x, 8.0-f32::from(i/2)), spell.casting_chance_color(), screen);
     }
     ev_text.send(BottomTextEvent::from("      Press 0 to exit"));
 }
@@ -178,7 +178,7 @@ fn player_menu_examine_one_spell_setup(
     for ev in ev_choose_spell.iter() {
         let spell_id = ev.0;
         // FIXME
-        print_text(&g.get_player().spells.get_spell(spell_id).name(), &mut commands, g.fah(), Vec2::new(1.0, 10.0), ExamineOneSpellScreen);
+        print_text(&g.get_player().spells.get_spell(spell_id).name(), &mut commands, g.fah(), Vec2::new(1.0, 10.0), WHITE, ExamineOneSpellScreen);
     }
     // FIXME - add more spell details
     ev_text.send(BottomTextEvent::from("    Any key to exit"));

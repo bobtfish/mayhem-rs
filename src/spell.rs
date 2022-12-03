@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::creature::load_creatures;
+use crate::{creature::load_creatures, display::{WHITE, GREEN, AQUA, YELLOW, FUCHSIA}};
 
 #[derive(Resource, Deref)]
 pub struct AllSpells(Vec<SpellBox>);
@@ -8,7 +8,6 @@ pub type SpellBox = Box<dyn ASpell + Sync + Send>;
 
 pub trait ASpell {
     fn name(&self) -> String;
-    fn get_sep(&self) -> &str;
     fn clone(&self) -> SpellBox;
     fn cast(&self, illusion: bool, pos: Vec2, commands: &mut Commands, tah: Handle<TextureAtlas>) -> Option<Entity>;
     fn reusable(&self) -> bool {
@@ -17,6 +16,34 @@ pub trait ASpell {
     fn cast_range(&self) -> u8;
     fn can_be_illusion(&self) -> bool {
         false
+    }
+    fn law_rating(&self) -> i8;
+    fn get_sep(&self) -> &str {
+        let law_rating = self.law_rating();
+        if law_rating == 0 {
+            return "-";
+        }
+        if law_rating < 0 {
+            return "*";
+        }
+        "^"
+    }
+    fn casting_chance(&self) -> u8;
+    fn casting_chance_color(&self) -> Color {
+        let chance = self.casting_chance();
+        if chance >= 100 {
+            return WHITE;
+        }
+        if chance >= 80 {
+            return YELLOW;
+        }
+        if chance >= 60 {
+            return AQUA;
+        }
+        if chance >= 40 {
+            return GREEN;
+        }
+        FUCHSIA
     }
 }
 
@@ -35,8 +62,8 @@ impl ASpell for Spell {
     fn name(&self) -> String {
         self.name.clone()
     }
-    fn get_sep(&self) -> &str {
-        "-"
+    fn law_rating(&self) -> i8 {
+        self.law_rating
     }
     fn clone(&self) -> SpellBox {
         Box::new(std::clone::Clone::clone(self))
@@ -50,6 +77,9 @@ impl ASpell for Spell {
     fn cast_range(&self) -> u8 {
         self.cast_range
     }
+    fn casting_chance(&self) -> u8 {
+        self.casting_chance
+    }
 }
 
 pub fn load_all_spells() -> AllSpells {
@@ -57,6 +87,7 @@ pub fn load_all_spells() -> AllSpells {
         Box::new(Spell {
             name: "Disbelieve".to_string(),
             reusable: true,
+            casting_chance: 100,
             ..Default::default()
         }),
         Box::new(Spell {

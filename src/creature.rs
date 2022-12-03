@@ -9,6 +9,9 @@ use crate::system::{BoardEntity, Named};
 fn default_as_zero() -> u8 {
     0
 }
+fn default_as_zero_signed() -> i8 {
+    0
+}
 fn default_as_false() -> bool {
     false
 }
@@ -34,6 +37,9 @@ pub struct Creature {
     mountable: bool,
     #[serde(default = "default_as_false")]
     can_be_illusion: bool,
+    #[serde(default = "default_as_zero_signed")]
+    law_chaos: i8,
+    casting_chance: u8,
     color_r: u8,
     color_g: u8,
     color_b: u8,
@@ -98,8 +104,8 @@ impl ASpell for CreatureSpell {
     fn name(&self) -> String {
         self.creature.name.clone()
     }
-    fn get_sep(&self) -> &str {
-        "-"
+    fn law_rating(&self) -> i8 {
+        self.creature.law_chaos
     }
     fn clone(&self) -> SpellBox {
         Box::new(std::clone::Clone::clone(self))
@@ -115,6 +121,9 @@ impl ASpell for CreatureSpell {
     }
     fn can_be_illusion(&self) -> bool {
         self.creature.can_be_illusion
+    }
+    fn casting_chance(&self) -> u8 {
+        self.creature.casting_chance
     }
 }
 

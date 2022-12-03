@@ -3,9 +3,8 @@ Examine Spell screen
   - Title
   - Show details for character spell
   - Any key to exit - justify
-Spell screens
-  - change icon based on law/chaos
-  - Colour based on casting chance
+Track law rating of player
+Spells - actually work out casting chance based on law rating of player
 Examine board screen
   - Actually implement examine board
 Animation for spell casting
