@@ -170,6 +170,7 @@ fn move_moving_keyboard(
     mut ev_text: EventWriter<BottomTextEvent>,
     mut ev_move: EventWriter<BoardMove>,
     mut moving_q: Query<(Entity, &MoveableComponent, &MovingComponent)>,
+    board: Res<GameBoard>,
 ) {
     let (entity, movable, moving) = moving_q.single_mut();
     if movable.flying {
@@ -180,6 +181,8 @@ fn move_moving_keyboard(
             if distance > movable.movement as i8 {
                 ev_text.send(BottomTextEvent::from("Out of range"));
                 cursor.hide_till_moved();
+            } else if board.has_entity_at(cursor_pos) {
+                ev_text.send(BottomTextEvent::from("Cannot move to occupied square"));
             } else {
                 ev_text.send(BottomTextEvent::clear());
                 cursor.set_type(CURSOR_BOX);
@@ -193,18 +196,23 @@ fn move_moving_keyboard(
         }
     } else {
         for cur in ev_cursor.iter() {
-            println!("Got cursor moved event in move one from {} to {}", moving.start_pos, **cur);
-            ev_text.send(BottomTextEvent::clear());
-            ev_move.send(BoardMove{
-                entity,
-                to: **cur,
-            });
-            let distance = Vec2I::from(**cur).distance(Vec2I::from(moving.start_pos));
-            if movable.movement as i8 - distance <= 0 || moving.steps >= movable.movement {
-                println!("No movement left, clear entity");
-                cursor.set_visible();
-                state.pop().unwrap();
-                println!("Finished move");
+            println!("Got cursor moved event in move one from {} to {}", moving.start_pos, cur.0);
+            if board.has_entity_at(cur.0) {
+                ev_text.send(BottomTextEvent::from("Cannot move to occupied square"));
+                cursor.set_pos(cur.1);
+            } else {
+                ev_text.send(BottomTextEvent::clear());
+                ev_move.send(BoardMove{
+                    entity,
+                    to: cur.0,
+                });
+                let distance = Vec2I::from(cur.0).distance(Vec2I::from(moving.start_pos));
+                if movable.movement as i8 - distance <= 0 || moving.steps >= movable.movement {
+                    println!("No movement left, clear entity");
+                    cursor.set_visible();
+                    state.pop().unwrap();
+                    println!("Finished move");
+                }
             }
         }
     }
@@ -266,9 +274,8 @@ pub fn board_describe_piece(
     mut ev_text: EventWriter<BottomTextEvent>,
 ) {
     for cur in ev_cursor.iter() {
-        if board.has_entity_at(**cur) {
-            println!("HAs entity here");
-            let e = board.get_entity(**cur).unwrap();
+        if board.has_entity_at(cur.0) {
+            let e = board.get_entity(cur.0).unwrap();
             let (named, _, belongs, _) = query.get_mut(e).unwrap();
             let mut text = named.name.clone();
             if let Some(belongs) = belongs {

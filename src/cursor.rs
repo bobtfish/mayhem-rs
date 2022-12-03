@@ -26,8 +26,7 @@ impl Plugin for CursorPlugin {
     }
 }
 
-#[derive(Deref)]
-pub struct CursorMovedEvent(Vec2);
+pub struct CursorMovedEvent(pub Vec2, pub Vec2);
 
 #[derive(Component)]
 pub struct CursorEntity;
@@ -100,6 +99,7 @@ fn keyboard_input(
     mut cursor: ResMut<Cursor>,
     mut ev_cursor_moved: EventWriter<CursorMovedEvent>,
 ) {
+    let previous_pos = Vec2 { x: cursor.x, y: cursor.y };
     if keys.just_pressed(KeyCode::A) && cursor.x > 0.0 {
         cursor.x -= 1.0;
         cursor.moved = true;
@@ -159,7 +159,7 @@ fn keyboard_input(
     if cursor.moved {
         cursor.hide_till_moved = false;
         println!("SEND cursor moved event");
-        ev_cursor_moved.send(CursorMovedEvent(Vec2::new(cursor.x, cursor.y)));
+        ev_cursor_moved.send(CursorMovedEvent(Vec2::new(cursor.x, cursor.y), previous_pos));
     }
 }
 
