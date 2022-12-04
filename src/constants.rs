@@ -21,3 +21,7 @@ pub const ANIMATION_TICK: f32 = 0.5;
 
 pub const CAMERA_Z: f32 = 10.0;
 pub const CURSOR_Z: f32 = 9.0;
+
+pub const NEUTRAL: &str = "-";
+pub const LAW: &str = "^";
+pub const CHAOS: &str = "*";

@@ -1,5 +1,9 @@
 use bevy::prelude::*;
-use crate::{creature::{load_creatures, RangedCombat}, display::{WHITE, GREEN, AQUA, YELLOW, FUCHSIA, RepeatAnimation}, player::{PlayerSpell, Player}, constants::ANIMATION_TICK};
+use crate::constants::{NEUTRAL, CHAOS, LAW};
+use crate::creature::{load_creatures, RangedCombat};
+use crate::display::{WHITE, GREEN, AQUA, YELLOW, FUCHSIA, RepeatAnimation};
+use crate::player::{PlayerSpell, Player};
+use crate::board::MoveableComponent;
 
 #[derive(Resource, Deref)]
 pub struct AllSpells(Vec<SpellBox>);
@@ -21,12 +25,12 @@ pub trait ASpell {
     fn get_sep(&self) -> &str {
         let law_rating = self.law_rating();
         if law_rating == 0 {
-            return "-";
+            return NEUTRAL;
         }
         if law_rating < 0 {
-            return "*";
+            return CHAOS;
         }
-        "^"
+        LAW
     }
     fn casting_chance(&self) -> u8;
     fn casting_chance_color(&self) -> Color {
@@ -183,10 +187,47 @@ pub fn load_all_spells() -> AllSpells {
         }),
         Box::new(PlayerSpell {
             name: "Magic Bow".to_string(),
-            casting_chance: 100, // FIXME
-            law_rating: 0, // FIXME
+            casting_chance: 50,
+            law_rating: 1,
             imp: implement_magic_bow,
         }),
+        Box::new(PlayerSpell {
+            name: "Magic Knife".to_string(),
+            casting_chance: 90,
+            law_rating: 1,
+            imp: implement_magic_knife,
+        }),
+        Box::new(PlayerSpell {
+            name: "Magic Sword".to_string(),
+            casting_chance: 50,
+            law_rating: 1,
+            imp: implement_magic_sword,
+        }),
+        Box::new(PlayerSpell {
+            name: "Magic Wings".to_string(),
+            casting_chance: 60,
+            law_rating: 0,
+            imp: implement_magic_sword,
+        }),
+        Box::new(PlayerSpell {
+            name: "Magic Shield".to_string(),
+            casting_chance: 80,
+            law_rating: 1,
+            imp: implement_magic_shield,
+        }),
+        Box::new(PlayerSpell {
+            name: "Magic Armour".to_string(),
+            casting_chance: 40,
+            law_rating: 1,
+            imp: implement_magic_armour,
+        }),
+        Box::new(PlayerSpell {
+            name: "Magic Wings".to_string(),
+            casting_chance: 60,
+            law_rating: 1,
+            imp: implement_magic_wings,
+        }),
+        // FIXME - shadow form (80% makes movement 3, player flashes)
     ];
     let creature_map = load_creatures();
     for (_, c) in creature_map {
@@ -203,4 +244,43 @@ fn implement_magic_bow(player: &Player, commands: &mut Commands) {
     });
     commands.entity(e).remove::<RepeatAnimation>(); // Ignore errors
     commands.entity(e).insert(RepeatAnimation::new(180, 4));
+}
+
+fn implement_magic_knife(player: &Player, commands: &mut Commands) {
+    let e = player.handle.unwrap();
+    commands.entity(e).remove::<RepeatAnimation>(); // Ignore errors
+    commands.entity(e).insert(RepeatAnimation::new(184, 4));
+    // FIXME - improve attack, can kill undead combat +2
+}
+
+fn implement_magic_sword(player: &Player, commands: &mut Commands) {
+    let e = player.handle.unwrap();
+    commands.entity(e).remove::<RepeatAnimation>(); // Ignore errors
+    commands.entity(e).insert(RepeatAnimation::new(190, 4));
+    // FIXME - improve attack, can kill undead combat +4
+}
+
+fn implement_magic_wings(player: &Player, commands: &mut Commands) {
+    let e = player.handle.unwrap();
+    commands.entity(e).remove::<RepeatAnimation>(); // Ignore errors
+    commands.entity(e).insert(RepeatAnimation::new(194, 4));
+    commands.entity(e).remove::<MoveableComponent>();
+    commands.entity(e).insert(MoveableComponent{
+        flying: true,
+        movement: 6,
+    });
+}
+
+fn implement_magic_shield(player: &Player, commands: &mut Commands) {
+    let e = player.handle.unwrap();
+    commands.entity(e).remove::<RepeatAnimation>(); // Ignore errors
+    // FIXME - change sprite
+    // FIXME - add to defence +2
+}
+
+fn implement_magic_armour(player: &Player, commands: &mut Commands) {
+    let e = player.handle.unwrap();
+    commands.entity(e).remove::<RepeatAnimation>(); // Ignore errors
+    // FIXME - change sprite
+    // FIXME - add to defence +4
 }
