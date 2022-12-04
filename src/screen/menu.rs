@@ -175,7 +175,7 @@ fn player_name_menu_keyboard_input(
             let c = ev.char as u32;
             if (49..=56).contains(&c) {
                 let choice = c-48;
-                player.color= Some(WIZARD_COLORS[choice as usize]);
+                player.color= Some(WIZARD_COLORS[choice as usize - 1]);
                 //print_text(&*choice.to_string(), &mut commands, g.fah(), Vec2::new(7.5, 3.0), PlayerNameMenuScreen);
             }
         }

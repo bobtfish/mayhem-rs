@@ -161,6 +161,16 @@ pub struct RepeatAnimation {
     timer: Timer,
 }
 
+impl RepeatAnimation {
+    pub fn new(init: usize, num: usize) -> Self {
+        Self {
+            max: init+num-1,
+            init,
+            timer: Timer::from_seconds(ANIMATION_TICK, TimerMode::Repeating),
+        }
+    }
+}
+
 pub fn spawn_anim(
     commands: &mut Commands,
     texture_atlas_handle: Handle<TextureAtlas>,
@@ -171,11 +181,7 @@ pub fn spawn_anim(
 ) -> Entity {
     return commands
         .spawn(get_sprite_sheet_bundle(texture_atlas_handle, v, init, color))
-        .insert(RepeatAnimation {
-            max: init+num-1,
-            init,
-            timer: Timer::from_seconds(ANIMATION_TICK, TimerMode::Repeating),
-        }).id();
+        .insert(RepeatAnimation::new(init, num)).id();
 }
 
 pub fn animate_sprite(

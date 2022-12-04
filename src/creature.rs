@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, fs::File};
 use crate::board::MoveableComponent;
 use crate::display::spawn_anim;
+use crate::player::Player;
 use crate::spell::{ASpell, SpellBox};
 use crate::system::{BoardEntity, Named};
 
@@ -112,7 +113,7 @@ impl ASpell for CreatureSpell {
     fn clone(&self) -> SpellBox {
         Box::new(std::clone::Clone::clone(self))
     }
-    fn cast(&self, illusion: bool, pos: Vec2, commands: &mut Commands, tah: Handle<TextureAtlas>) -> Option<Entity> {
+    fn cast(&self, illusion: bool, player: &Player, pos: Vec2, commands: &mut Commands, tah: Handle<TextureAtlas>) -> Option<Entity> {
         Some(self.creature.to_entity(illusion, pos, commands, tah))
     }
     fn reusable(&self) -> bool {

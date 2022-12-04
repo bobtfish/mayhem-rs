@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::{creature::load_creatures, display::{WHITE, GREEN, AQUA, YELLOW, FUCHSIA}};
+use crate::{creature::{load_creatures, RangedCombat}, display::{WHITE, GREEN, AQUA, YELLOW, FUCHSIA, RepeatAnimation}, player::{PlayerSpell, Player}, constants::ANIMATION_TICK};
 
 #[derive(Resource, Deref)]
 pub struct AllSpells(Vec<SpellBox>);
@@ -9,7 +9,7 @@ pub type SpellBox = Box<dyn ASpell + Sync + Send>;
 pub trait ASpell {
     fn name(&self) -> String;
     fn clone(&self) -> SpellBox;
-    fn cast(&self, illusion: bool, pos: Vec2, commands: &mut Commands, tah: Handle<TextureAtlas>) -> Option<Entity>;
+    fn cast(&self, illusion: bool, player: &Player, pos: Vec2, commands: &mut Commands, tah: Handle<TextureAtlas>) -> Option<Entity>;
     fn reusable(&self) -> bool {
         false
     }
@@ -69,7 +69,7 @@ impl ASpell for Spell {
     fn clone(&self) -> SpellBox {
         Box::new(std::clone::Clone::clone(self))
     }
-    fn cast(&self, _illusion: bool, _pos: Vec2, _commands: &mut Commands, _tah: Handle<TextureAtlas>) -> Option<Entity> {
+    fn cast(&self, _illusion: bool, _player: &Player, _pos: Vec2, _commands: &mut Commands, _tah: Handle<TextureAtlas>) -> Option<Entity> {
         None
     }
     fn reusable(&self) -> bool {
@@ -180,11 +180,27 @@ pub fn load_all_spells() -> AllSpells {
             casting_chance: 80,
             law_rating: 1,
             ..Default::default()
-        })
+        }),
+        Box::new(PlayerSpell {
+            name: "Magic Bow".to_string(),
+            casting_chance: 100, // FIXME
+            law_rating: 0, // FIXME
+            imp: implement_magic_bow,
+        }),
     ];
     let creature_map = load_creatures();
     for (_, c) in creature_map {
         spells.push(c.to_spell());
     }
     AllSpells(spells)
+}
+
+fn implement_magic_bow(player: &Player, commands: &mut Commands) {
+    let e = player.handle.unwrap();
+    commands.entity(e).insert(RangedCombat{
+        range: 6,
+        ranged_combat: 3,
+    });
+    commands.entity(e).remove::<RepeatAnimation>(); // Ignore errors
+    commands.entity(e).insert(RepeatAnimation::new(180, 4));
 }
