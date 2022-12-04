@@ -46,7 +46,7 @@ fn spell_next(
     mut state: ResMut<State<GameState>>,
     mut g: ResMut<Game>,
 ) {
-    println!("game_next");
+    println!("spell_next");
     if g.player_turn >= g.players {
         g.player_turn = 0;
         println!("Spell casting finished, do movement now");
@@ -95,22 +95,30 @@ fn cast_spell(
         state.pop().unwrap();
         return;
     }
+    let cast_range = spell.unwrap().cast_range();
     let transform = query.get_mut(player.handle.unwrap()).unwrap();
     let from = Vec2{ x: transform.translation.x, y: transform.translation.y };
     let tah = g.tah();
     for e in ev_cast.iter() {
-        let to = e.target;
-        if board.get_entity(to).is_some() {
-            ev_cast_res.send(Err(CastFailed::NotThere));
-            return
+        let to;
+        if cast_range > 0 {
+            to = e.target;
+            if board.get_entity(to).is_some() {
+                ev_cast_res.send(Err(CastFailed::NotThere));
+                return
+            }
+        } else {
+            to = from;
         }
         let player = g.get_player_mut();
         let res = player.cast(from, to, &mut commands, tah.clone());
         if let Ok(e) = res {
-            ev_board_put.send(BoardPutEntity{
-                entity: e.unwrap(),
-                pos: to,
-            });
+            if let Some(entity) = e {
+                ev_board_put.send(BoardPutEntity{
+                    entity,
+                    pos: to,
+                });
+            }
             println!("State POP");
             state.pop().unwrap();
         }
@@ -142,7 +150,25 @@ fn cast_spell_keyboard(
     mut keys: ResMut<Input<KeyCode>>,
     cursor: Res<Cursor>,
     mut ev_cast: EventWriter<CastSpell>,
+    g: ResMut<Game>,
 ) {
+    let spell = g.get_player().spells.get_chosen_spell();
+    if spell.is_none() {
+        return;
+    }
+    let range = spell.unwrap().cast_range();
+    if range == 0 {
+        let mut has_pressed = false;
+        for _ in keys.get_just_pressed() {
+            has_pressed = true;
+        }
+        if has_pressed {
+            println!("Key pressed on distance 0 spell");
+            keys.reset_all();
+            ev_cast.send(CastSpell{target: Vec2::ZERO});
+        }
+        return;
+    }
     if keys.just_pressed(KeyCode::S) {
         keys.reset(KeyCode::S);
         let to = cursor.get_pos_v();

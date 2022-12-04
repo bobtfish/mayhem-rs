@@ -201,6 +201,11 @@ pub fn animate_sprite(
                 if index > repeater.max {
                     index = repeater.init;
                 }
+                // This if for cases where we just added a completely new repeat animation which doesn't
+                // share the same base sprite as we had before. E.g. player getting a magic bow.
+                if index < repeater.init {
+                    index = repeater.init;
+                }
                 sprite.index = index;
             } else {
                 sprite.index = repeater.max + 1;
