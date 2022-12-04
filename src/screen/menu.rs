@@ -8,13 +8,13 @@ use crate::system;
 use crate::gamestate::GameState;
 
 const WIZARD_COLORS :[Color; 8] = [
-    Color::rgba(1.0, 0.0, 0.0, 1.0),
-    Color::rgba(1.0, 0.0, 1.0, 1.0),
-    Color::rgba(0.0, 1.0, 0.0, 1.0),
-    Color::rgba(0.0, 1.0, 1.0, 1.0),
-    Color::rgba(204.0/255.0, 204.0/255.0, 0.0, 1.0),
-    Color::rgba(1.0, 1.0, 0.0, 1.0),
-    Color::rgba(204.0/255.0, 204.0/255.0, 204.0/255.0, 1.0),
+    RED,
+    PURPLE,
+    GREEN,
+    AQUA,
+    MIDYELLOW,
+    YELLOW,
+    GREY,
     WHITE,
 ];
 

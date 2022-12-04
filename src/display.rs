@@ -66,7 +66,9 @@ pub const GREEN: Color = Color::rgba(0.0, 1.0, 0.0, 1.0);
 pub const RED: Color = Color::rgba(1.0, 0.0, 0.0, 1.0);
 pub const AQUA: Color = Color::rgba(0.0, 1.0, 1.0, 1.0);
 pub const YELLOW: Color = Color::rgba(1.0, 1.0, 0.0, 1.0);
-pub const FUCHSIA: Color = Color::rgba(1.0, 0.0, 1.0, 1.0);
+pub const PURPLE: Color = Color::rgba(1.0, 0.0, 1.0, 1.0);
+pub const MIDYELLOW: Color = Color::rgba(204.0/255.0, 204.0/255.0, 0.0, 1.0);
+pub const GREY: Color = Color::rgba(204.0/255.0, 204.0/255.0, 204.0/255.0, 1.0);
 
 pub fn get_sprite_sheet_bundle_z(
     texture_atlas_handle: Handle<TextureAtlas>,

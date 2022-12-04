@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use crate::constants::{NEUTRAL, CHAOS, LAW};
 use crate::creature::{load_creatures, RangedCombat};
-use crate::display::{WHITE, GREEN, AQUA, YELLOW, FUCHSIA, RepeatAnimation};
+use crate::display::{WHITE, GREEN, AQUA, YELLOW, PURPLE, RepeatAnimation};
 use crate::player::{PlayerSpell, Player};
 use crate::board::MoveableComponent;
 
@@ -47,7 +47,7 @@ pub trait ASpell {
         if chance >= 40 {
             return GREEN;
         }
-        FUCHSIA
+        PURPLE
     }
     fn get_description(&self) -> Vec<String>;
 }
