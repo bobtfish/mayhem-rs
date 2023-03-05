@@ -45,10 +45,10 @@ pub struct Player {
     pub handle: Option<Entity>,
     pub creations: Vec<Entity>,
     pub law_chaos: i8,
-    defence: u8,
-    combat: u8,
-    manoeuvre: u8,
-    magic_resistance: u8,
+    pub defence: u8,
+    pub combat: u8,
+    pub manoeuvre: u8,
+    pub magic_resistance: u8,
 }
 
 pub enum CastFailed {
@@ -102,7 +102,7 @@ impl Player {
             .insert(BoardEntity)
             .insert(Named{ name: self.name.clone() })
             .id();
-        println!("Add entity {:?}", entity);
+        println!("Add entity {entity:?}");
         self.handle = Some(entity);
     }
     pub fn cast(

@@ -195,9 +195,9 @@ fn player_name_menu_keyboard_input(
 }
 
 fn show_wizards(fah: Handle<TextureAtlas>, tah: Handle<TextureAtlas>, commands: &mut Commands, colors: bool, y: f32) {
-    for i in 0..8 {
+    for (i, col) in WIZARD_COLORS.iter().enumerate() {
         print_text(&(i+1).to_string(), commands, fah.clone(), Vec2::new((i as f32).mul_add(1.5, 0.5), y), WHITE, PlayerNameMenuScreen);
-        let color = if colors { WHITE } else { WIZARD_COLORS[i] };
+        let color = if colors { WHITE } else { *col };
         print_wizard(commands, tah.clone(), Vec2::new((i as f32).mul_add(1.5, 1.25), y), i, color, PlayerNameMenuScreen);
     }
 }

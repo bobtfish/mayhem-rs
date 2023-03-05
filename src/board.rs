@@ -47,9 +47,9 @@ fn move_entity(
 ) {
     for e in ev.iter() {
         let current_pos = Vec2::from(board.get_entity_pos(e.entity));
-        println!("Do Board move from {} to {}", current_pos, e.to);
+        println!("Do Board move from {current_pos} to {}", e.to);
         let entity = board.pop_entity(current_pos);
-        println!("pop entity {:?}", entity);
+        println!("pop entity {entity:?}");
         let mut transform = query.get_mut(entity).unwrap();
         *transform = transform.with_translation(e.to.extend(1.0));
         board.put_entity(e.to, entity);
@@ -73,7 +73,7 @@ impl GameBoard {
     pub fn has_entity_at(&self, pos: Vec2) -> bool {
         self.get_entity(pos).is_some()
     }
-    pub fn has_entity(&self, e: Entity) -> bool {
+    pub fn _has_entity(&self, e: Entity) -> bool {
         self.1.contains_key(&e)
     }
     pub fn get_entity(&self, pos: Vec2) -> Option<Entity> {

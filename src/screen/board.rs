@@ -178,7 +178,7 @@ fn move_moving_keyboard(
             keys.reset(KeyCode::S);
             let cursor_pos = cursor.get_pos_v();
             let distance = Vec2I::from(cursor_pos).distance(Vec2I::from(moving.start_pos));
-            if distance > movable.movement as i8 {
+            if distance > movable.movement {
                 ev_text.send(BottomTextEvent::from("Out of range"));
                 cursor.hide_till_moved();
             } else if board.has_entity_at(cursor_pos) {
@@ -207,7 +207,7 @@ fn move_moving_keyboard(
                     to: cur.0,
                 });
                 let distance = Vec2I::from(cur.0).distance(Vec2I::from(moving.start_pos));
-                if movable.movement as i8 - distance <= 0 || moving.steps >= movable.movement {
+                if movable.movement.checked_sub(distance).is_none() || moving.steps >= movable.movement {
                     println!("No movement left, clear entity");
                     cursor.set_visible();
                     state.pop().unwrap();
@@ -248,7 +248,7 @@ fn ranged_attack_keyboard(
         let (entity, ranged) = moving_q.single();
         let from = board.get_entity_pos(entity);
         let distance = Vec2I::from(cursor_pos).distance(from);
-        if distance <= ranged.range as i8 {
+        if distance <= ranged.range {
             println!("CAN TARGET WITH RANGED");
             state.pop().unwrap();
         } else {

@@ -56,29 +56,32 @@ impl Vec2I {
   pub fn abs(self) -> Self {
     Self { x: self.x.abs(), y: self.y.abs() }
   }
-  fn smallest_square(self) -> i8 {
+  fn smallest_square(self) -> u8 {
     let w = self.abs();
     if w.x < w.y {
-      return w.x;
+      return w.x.try_into().unwrap();
     }
-    w.y
+    w.y.try_into().unwrap()
   }
 
   // D&D distance, because of course this is what the original game does...
-  pub fn distance(self, w: Self) -> i8 {
+  pub fn distance(self, w: Self) -> u8 {
     let x = (self - w).abs();
     let ss = x.smallest_square();
-    let y = x - Self::splat(ss); // 1 is has 0 X or 0 Y so just add X and Y 'remainder'
-    square_distance(ss) + y.x + y.y
+    let y = x - Self::splat(ss.try_into().unwrap()); // 1 is has 0 X or 0 Y so just add X and Y 'remainder'
+    let yx: u8 = y.x.try_into().unwrap();
+    let yy: u8 = y.y.try_into().unwrap();
+    square_distance(ss) + yx + yy
   }
 }
 
 // Distance of diagonal - first square is 1, second is 3, third is 4 etc
-fn square_distance(i: i8) -> i8 {
+fn square_distance(i: u8) -> u8 {
   if i == 0 {
     return 0;
   }
-  i + (f64::from(i)/2.0).floor() as i8
+  let f: u8 = ((f64::from(i)/2.0).floor() as i64).try_into().unwrap();
+  i + f
 }
 
 impl From<Vec2> for Vec2I {
@@ -93,6 +96,7 @@ impl From<Vec2I> for Vec2 {
 }
 }
 
+#[cfg(test)]
 mod tests {
   use bevy::prelude::Vec2;
   use super::Vec2I;
