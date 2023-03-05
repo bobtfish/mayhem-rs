@@ -7,8 +7,10 @@ pub fn despawn_screen<T: Component>(
     mut commands: Commands,
     mut ev_text: EventWriter<BottomTextEvent>,
 ) {
+    debug!("DO DESPAWN LOOP");
     for entity in &to_despawn {
-        commands.entity(entity).despawn_recursive();
+        trace!("Despawn entity {entity:?}");
+        commands.entity(entity).despawn();
     }
     ev_text.send(BottomTextEvent::clear());
 }

@@ -56,7 +56,6 @@ fn initial_menu_keyboard_input(
     mut state: ResMut<State<GameState>>,
     mut game: ResMut<Game>,
     mut commands: Commands,
-    mut ev_text: EventWriter<BottomTextEvent>,
     keys: Res<Input<KeyCode>>,
 ) {
     if keys.just_pressed(KeyCode::H) {
@@ -68,7 +67,7 @@ fn initial_menu_keyboard_input(
         if game.players == 0 {
             if (50..=56).contains(&c) {
                 game.players = (c-48) as u8;
-                println!("Players {}", game.players);
+                info!("Players {}", game.players);
                 print_text(&game.players.to_string(), &mut commands, game.fah(), Vec2::new(8.0, 4.0), WHITE, InitialMenuScreen);
                 print_text("Level of computer wizards?", &mut commands, game.fah(), Vec2::new(0.5, 2.0), WHITE, InitialMenuScreen);
                 print_text("(Press 1 to 8)", &mut commands, game.fah(), Vec2::new(0.5, 1.0), WHITE, InitialMenuScreen);
@@ -78,7 +77,6 @@ fn initial_menu_keyboard_input(
             print_text(&game.ai_level.to_string(), &mut commands, game.fah(), Vec2::new(8.0, 1.0), WHITE, InitialMenuScreen);
             // TODO - Do we want a pause here?
             state.set(GameState::PlayerNameMenu).unwrap();
-            ev_text.send(BottomTextEvent::clear());
         }
     }
 }

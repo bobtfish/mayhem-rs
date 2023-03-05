@@ -120,7 +120,7 @@ fn player_menu_choose_spell_setup(
         name_str.push_str(&spell.name());
         print_text(&name_str, &mut commands, g.fah(), Vec2::new(x, 8.0-f32::from(i/2)), spell.casting_chance_color(), screen);
     }
-    ev_text.send(BottomTextEvent::from("      Press 0 to exit"));
+    ev_text.send(BottomTextEvent::noclear("      Press 0 to exit"));
 }
 
 #[derive(Component, Clone, Copy)]
@@ -150,12 +150,12 @@ fn player_menu_choose_spell_keyboard(
         let c = ev.char as usize;
         if c >= 65 && c <= 65 + player.spells.len() {
             let choice = c-65;
-            println!("Chosen spell {choice}");
+            info!("Chosen spell {choice}");
             ev_choose_spell.send(PlayerMenuEvent(choice));
         }
         if c >= 97 && c <= 97 + player.spells.len() {
             let choice = c-97;
-            println!("Chosen spell {choice}");
+            info!("Chosen spell {choice}");
             ev_choose_spell.send(PlayerMenuEvent(choice));
         }
     }
@@ -168,6 +168,7 @@ fn player_menu_examine_spell_keyboard(
     mut ev_choose_spell: EventReader<PlayerMenuEvent>,
 ) {
     for _ in ev_choose_spell.iter() {
+        print!("LEAVE examine spell, set state PlayerMenuExamineOneSpell");
         state.set(GameState::PlayerMenuExamineOneSpell).unwrap();
     }
 }
@@ -257,7 +258,7 @@ fn player_menu_examine_board_setup(
     g: Res<Game>,
     mut ev_cursor_pos: EventWriter<PositionCursorOnEntity>,
 ) {
-    ev_text.send(BottomTextEvent::from("      Press 0 to exit"));
+    ev_text.send(BottomTextEvent::noclear("      Press 0 to exit"));
     cursor.set_type(CURSOR_BOX);
     cursor.set_visible();
     cursor.hide_till_moved();

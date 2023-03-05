@@ -95,6 +95,7 @@ pub fn print_text(str: &str, commands: &mut Commands, fah: Handle<TextureAtlas>,
         new_v.x += i as f32/2.0;
         let new = commands.spawn(get_sprite_sheet_bundle(fah.clone(), new_v, char_to_pos(ch), color))
         .insert(component).id();
+        trace!("print_text spawned entity {new:?} for char {ch}");
         entities.push(new);
     }
     entities
@@ -112,7 +113,8 @@ impl BottomTextEvent {
     pub fn from(s: &str) -> Self {
         Self(Some(String::from(s)), true)
     }
-    pub const fn clear() -> Self {
+    pub fn clear() -> Self {
+        debug!("Generate clear event for bottom text");
         Self(None, true)
     }
 }
@@ -125,11 +127,13 @@ pub fn manage_text_bottom(
 ) {
     for ev in ev_text.iter() {
         if ev.1 {
+            debug!("DESPAWN BOTTOM TEXT");
             for entity in &to_despawn {
                 commands.entity(entity).despawn_recursive();
             }
         }
         if ev.0.is_some() {
+            debug!("PRINT NEW BOTTOM TEXT {}", ev.0.as_ref().unwrap());
             print_text(ev.0.as_ref().unwrap(), &mut commands, game.fah(), vec2(0.0, -1.5), WHITE, BottomText);
         }
     }
