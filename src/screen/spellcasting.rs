@@ -51,7 +51,7 @@ fn spell_next(
     } else {
         println!("Player turn to cast spell");
         // Next player's turn to cast a spell
-        state.push(GameState::CastSpell).unwrap();
+        state.set(GameState::CastSpell);
     }
 }
 
@@ -78,7 +78,7 @@ struct CastSpell {
 fn cast_spell(
     mut g: ResMut<Game>,
     mut ev_cast: EventReader<CastSpell>,
-    mut state: ResMut<State<GameState>>,
+    mut state: ResMut<NextState<GameState>>,
     mut query: Query<&mut Transform>,
     mut commands: Commands,
     mut ev_cast_res: EventWriter<CastSpellResult>,
@@ -89,7 +89,7 @@ fn cast_spell(
     let spell = player.spells.get_chosen_spell();
     if spell.is_none() {
         println!("STATE POP - no spell");
-        state.pop().unwrap();
+        state.set(GameState::CastSpellSetup);
         return;
     }
     let cast_range = spell.unwrap().cast_range();
@@ -117,7 +117,7 @@ fn cast_spell(
                 });
             }
             println!("State POP");
-            state.pop().unwrap();
+            state.set(GameState::CastSpellSetup);
         }
         ev_cast_res.send(res);
     }

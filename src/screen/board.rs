@@ -17,8 +17,7 @@ impl Plugin for BoardPlugin {
             .add_system(move_next.in_set(OnUpdate(GameState::MoveSetup)))
 
             .add_system(move_choose_setup.in_schedule(OnEnter(GameState::MoveChoose)))
-            .add_system(move_choose_keyboard.in_set(OnUpdate(GameState::MoveChoose)))
-            .add_system(board_describe_piece.in_set(OnUpdate(GameState::MoveChoose)))
+            .add_systems((move_choose_keyboard, board_describe_piece).in_set(OnUpdate(GameState::MoveChoose)))
             .add_system(move_choose_finish.in_schedule(OnExit(GameState::MoveChoose)))
 
             .add_system(move_moving_keyboard.in_set(OnUpdate(GameState::MoveMoving)))
@@ -27,8 +26,7 @@ impl Plugin for BoardPlugin {
             .add_system(next_turn.in_set(OnUpdate(GameState::NextTurn)))
 
             .add_system(ranged_attack_setup.in_schedule(OnEnter(GameState::RangedAttackChoose)))
-            .add_system(ranged_attack_keyboard.in_set(OnUpdate(GameState::RangedAttackChoose)))
-            .add_system(board_describe_piece.in_set(OnUpdate(GameState::RangedAttackChoose)))
+            .add_systems((board_describe_piece, ranged_attack_keyboard).in_set(OnUpdate(GameState::RangedAttackChoose)))
             .add_system(ranged_attack_exit.in_schedule(OnExit(GameState::RangedAttackChoose)));
     }
 }
@@ -74,7 +72,7 @@ fn move_next(
         state.set(GameState::NextTurn);
     } else {
         println!("Player turn to move");
-        state.push(GameState::MoveChoose).unwrap();
+        state.set(GameState::MoveChoose);
     }
 }
 
@@ -113,13 +111,13 @@ fn move_choose_keyboard(
         if ranged_combat.is_some() {
             println!("Do ranged attack now");
             commands.entity(e).insert(RangedAttackComponent);
-            state.push(GameState::RangedAttackChoose).unwrap();
+            state.set(GameState::RangedAttackChoose);
         }
     }
 
     if keys.just_pressed(KeyCode::Key0) {
         keys.reset(KeyCode::Key0);
-        state.pop().unwrap();
+        state.set(GameState::NextTurn);
         println!("Next player turn");
     }
     if keys.just_pressed(KeyCode::S) {
@@ -153,7 +151,7 @@ fn move_choose_keyboard(
                 });
                 ev_text.send(BottomTextEvent::from(&text));
                 println!("State to MoveMoving");
-                state.push(GameState::MoveMoving).unwrap();
+                state.set(GameState::MoveMoving);
             }
         }
     }
@@ -163,7 +161,7 @@ fn move_choose_keyboard(
 fn move_moving_keyboard(
     mut cursor: ResMut<Cursor>,
     mut keys: ResMut<Input<KeyCode>>,
-    mut state: ResMut<State<GameState>>,
+    mut state: ResMut<NextState<GameState>>,
     mut ev_cursor: EventReader<CursorMovedEvent>,
     mut ev_text: EventWriter<BottomTextEvent>,
     mut ev_move: EventWriter<BoardMove>,
@@ -188,7 +186,7 @@ fn move_moving_keyboard(
                     entity,
                     to: cursor_pos,
                 });
-                state.pop().unwrap();
+                state.set(GameState::NextTurn);
                 println!("Finished move");
             }
         }
@@ -208,7 +206,7 @@ fn move_moving_keyboard(
                 if movable.movement.checked_sub(distance).is_none() || moving.steps >= movable.movement {
                     println!("No movement left, clear entity");
                     cursor.set_visible();
-                    state.pop().unwrap();
+                    state.set(GameState::NextTurn);
                     println!("Finished move");
                 }
             }
@@ -248,7 +246,7 @@ fn ranged_attack_keyboard(
         let distance = Vec2I::from(cursor_pos).distance(from);
         if distance <= ranged.range {
             println!("CAN TARGET WITH RANGED");
-            state.pop().unwrap();
+            state.set(GameState::NextTurn);
         } else {
             ev_text.send(BottomTextEvent::from("Out of range"));
             cursor.hide_till_moved();
