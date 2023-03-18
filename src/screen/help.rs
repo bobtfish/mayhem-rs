@@ -9,30 +9,38 @@ pub struct HelpPlugin;
 impl Plugin for HelpPlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_system_set(SystemSet::on_enter(GameState::Help).with_system(help_setup))
-            .add_system_set(SystemSet::on_update(GameState::Help).with_system(help_keyboard_input))
-            .add_system_set(SystemSet::on_exit(GameState::Help).with_system(system::despawn_screen::<HelpScreen>))
-            .add_system_set(SystemSet::on_enter(GameState::HelpKeys).with_system(help_keys_setup))
-            .add_system_set(SystemSet::on_update(GameState::HelpKeys).with_system(help_subscreen_keyboard_input))
-            .add_system_set(SystemSet::on_exit(GameState::HelpKeys).with_system(system::despawn_screen::<HelpScreen>))
-            .add_system_set(SystemSet::on_enter(GameState::HelpSpells).with_system(help_spells_setup))
-            .add_system_set(SystemSet::on_update(GameState::HelpSpells).with_system(help_subscreen_keyboard_input))
-            .add_system_set(SystemSet::on_exit(GameState::HelpSpells).with_system(system::despawn_screen::<HelpScreen>))
-            .add_system_set(SystemSet::on_enter(GameState::HelpCombat).with_system(help_combat_setup))
-            .add_system_set(SystemSet::on_update(GameState::HelpCombat).with_system(help_combat_keyboard_input))
-            .add_system_set(SystemSet::on_exit(GameState::HelpCombat).with_system(system::despawn_screen::<HelpScreen>))
-            .add_system_set(SystemSet::on_enter(GameState::HelpRangedCombat).with_system(help_ranged_combat_setup))
-            .add_system_set(SystemSet::on_update(GameState::HelpRangedCombat).with_system(help_subscreen_keyboard_input))
-            .add_system_set(SystemSet::on_exit(GameState::HelpRangedCombat).with_system(system::despawn_screen::<HelpScreen>))
-            .add_system_set(SystemSet::on_enter(GameState::HelpUndead).with_system(help_undead_setup))
-            .add_system_set(SystemSet::on_update(GameState::HelpUndead).with_system(help_subscreen_keyboard_input))
-            .add_system_set(SystemSet::on_exit(GameState::HelpUndead).with_system(system::despawn_screen::<HelpScreen>))
-            .add_system_set(SystemSet::on_enter(GameState::HelpMounts).with_system(help_mounts_setup))
-            .add_system_set(SystemSet::on_update(GameState::HelpMounts).with_system(help_subscreen_keyboard_input))
-            .add_system_set(SystemSet::on_exit(GameState::HelpMounts).with_system(system::despawn_screen::<HelpScreen>))
-            .add_system_set(SystemSet::on_enter(GameState::HelpVictory).with_system(help_victory_setup))
-            .add_system_set(SystemSet::on_update(GameState::HelpVictory).with_system(help_subscreen_keyboard_input))
-            .add_system_set(SystemSet::on_exit(GameState::HelpVictory).with_system(system::despawn_screen::<HelpScreen>))
+            .add_system(help_setup.in_schedule(OnEnter(GameState::Help)))
+            .add_system(help_keyboard_input.in_set(OnUpdate(GameState::Help)))
+            .add_system(system::despawn_screen::<HelpScreen>.in_schedule(OnExit(GameState::Help)))
+
+            .add_system(help_keys_setup.in_schedule(OnEnter(GameState::HelpKeys)))
+            .add_system(help_subscreen_keyboard_input.in_set(OnUpdate(GameState::HelpKeys)))
+            .add_system(system::despawn_screen::<HelpScreen>.in_schedule(OnExit(GameState::HelpKeys)))
+
+
+            .add_system(help_spells_setup.in_schedule(OnEnter(GameState::HelpSpells)))
+            .add_system(help_subscreen_keyboard_input.in_set(OnUpdate(GameState::HelpSpells)))
+            .add_system(system::despawn_screen::<HelpScreen>.in_schedule(OnExit(GameState::HelpSpells)))
+
+            .add_system(help_combat_setup.in_schedule(OnEnter(GameState::HelpCombat)))
+            .add_system(help_combat_keyboard_input.in_set(OnUpdate(GameState::HelpCombat)))
+            .add_system(system::despawn_screen::<HelpScreen>.in_schedule(OnExit(GameState::HelpCombat)))
+
+            .add_system(help_ranged_combat_setup.in_schedule(OnEnter(GameState::HelpRangedCombat)))
+            .add_system(help_subscreen_keyboard_input.in_set(OnUpdate(GameState::HelpRangedCombat)))
+            .add_system(system::despawn_screen::<HelpScreen>.in_schedule(OnExit(GameState::HelpRangedCombat)))
+
+            .add_system(help_undead_setup.in_schedule(OnEnter(GameState::HelpUndead)))
+            .add_system(help_subscreen_keyboard_input.in_set(OnUpdate(GameState::HelpUndead)))
+            .add_system(system::despawn_screen::<HelpScreen>.in_schedule(OnExit(GameState::HelpUndead)))
+
+            .add_system(help_mounts_setup.in_schedule(OnEnter(GameState::HelpMounts)))
+            .add_system(help_subscreen_keyboard_input.in_set(OnUpdate(GameState::HelpMounts)))
+            .add_system(system::despawn_screen::<HelpScreen>.in_schedule(OnExit(GameState::HelpMounts)))
+
+            .add_system(help_victory_setup.in_schedule(OnEnter(GameState::HelpVictory)))
+            .add_system(help_subscreen_keyboard_input.in_set(OnUpdate(GameState::HelpVictory)))
+            .add_system(system::despawn_screen::<HelpScreen>.in_schedule(OnExit(GameState::HelpVictory)))
             ;
     }
 }
@@ -58,47 +66,47 @@ fn help_setup(
 }
 
 fn help_keyboard_input(
-    mut state: ResMut<State<GameState>>,
+    mut state: ResMut<NextState<GameState>>,
     mut keys: ResMut<Input<KeyCode>>,
 ) {
     if keys.just_pressed(KeyCode::Key0) {
         keys.reset(KeyCode::Key0);
-        state.set(GameState::InitialMenu).unwrap();
+        state.set(GameState::InitialMenu);
         return
     }
     if keys.just_pressed(KeyCode::Key1) {
         keys.reset(KeyCode::Key1);
-        state.set(GameState::HelpKeys).unwrap();
+        state.set(GameState::HelpKeys);
         return;
     }
     if keys.just_pressed(KeyCode::Key2) {
         keys.reset(KeyCode::Key2);
-        state.set(GameState::HelpSpells).unwrap();
+        state.set(GameState::HelpSpells);
         return;
     }
     if keys.just_pressed(KeyCode::Key3) {
         keys.reset(KeyCode::Key3);
-        state.set(GameState::HelpCombat).unwrap();
+        state.set(GameState::HelpCombat);
         return;
     }
     if keys.just_pressed(KeyCode::Key4) {
         keys.reset(KeyCode::Key4);
-        state.set(GameState::HelpUndead).unwrap();
+        state.set(GameState::HelpUndead);
         return;
     }
     if keys.just_pressed(KeyCode::Key5) {
         keys.reset(KeyCode::Key5);
-        state.set(GameState::HelpMounts).unwrap();
+        state.set(GameState::HelpMounts);
         return;
     }
     if keys.just_pressed(KeyCode::Key6) {
         keys.reset(KeyCode::Key6);
-        state.set(GameState::HelpVictory).unwrap();
+        state.set(GameState::HelpVictory);
     }
 }
 
 fn help_subscreen_keyboard_input(
-    mut state: ResMut<State<GameState>>,
+    mut state: ResMut<NextState<GameState>>,
     mut keys: ResMut<Input<KeyCode>>,
 ) {
     let mut has_pressed = false;
@@ -108,7 +116,7 @@ fn help_subscreen_keyboard_input(
     if has_pressed {
         println!("Got keypress, return to main help screeen");
         keys.reset_all();
-        state.set(GameState::Help).unwrap();
+        state.set(GameState::Help);
     }
 }
 
@@ -164,7 +172,7 @@ fn help_combat_setup(
 }
 
 fn help_combat_keyboard_input(
-    mut state: ResMut<State<GameState>>,
+    mut state: ResMut<NextState<GameState>>,
     mut keys: ResMut<Input<KeyCode>>,
 ) {
     let mut has_pressed = false;
@@ -174,7 +182,7 @@ fn help_combat_keyboard_input(
     if has_pressed {
         println!("Set ranged combat and reset all keypresses");
         keys.reset_all();
-        state.set(GameState::HelpRangedCombat).unwrap();
+        state.set(GameState::HelpRangedCombat);
     }
 }
 
