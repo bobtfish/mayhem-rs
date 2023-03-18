@@ -46,7 +46,7 @@ pub fn toggle_board_entities (
 ) {
     for mut vis in q.iter_mut() {
         if set {
-            *vis = Visibility::Inherited
+            *vis = Visibility::Inherited;
          } else {
             *vis = Visibility::Hidden;
          }

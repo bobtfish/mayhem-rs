@@ -53,16 +53,16 @@ fn help_setup(
     g: Res<Game>,
     mut ev_text: EventWriter<BottomTextEvent>,
 ) {
-    println!("in help setup");
+    debug!("in help setup");
     print_text("         Help screen", &mut commands, g.fah(), Vec2::new(0.0, 8.0), WHITE, HelpScreen);
-	print_text("1. Keys", &mut commands, g.fah(), Vec2::new(0.0, 7.0), WHITE, HelpScreen);
-	print_text("2. Spells", &mut commands, g.fah(), Vec2::new(0.0, 6.0), WHITE, HelpScreen);
-	print_text("3. Combat", &mut commands, g.fah(), Vec2::new(0.0, 5.0), WHITE, HelpScreen);
-	print_text("4. Undead", &mut commands, g.fah(), Vec2::new(0.0, 4.0), WHITE, HelpScreen);
-	print_text("5. Mounts", &mut commands, g.fah(), Vec2::new(0.0, 3.0), WHITE, HelpScreen);
-	print_text("6. Victory", &mut commands, g.fah(), Vec2::new(0.0, 2.0), WHITE, HelpScreen);
-    println!("printed help");
-	ev_text.send(BottomTextEvent::noclear("Press Keys 1-6 or 0 to return"));
+    print_text("1. Keys", &mut commands, g.fah(), Vec2::new(0.0, 7.0), WHITE, HelpScreen);
+    print_text("2. Spells", &mut commands, g.fah(), Vec2::new(0.0, 6.0), WHITE, HelpScreen);
+    print_text("3. Combat", &mut commands, g.fah(), Vec2::new(0.0, 5.0), WHITE, HelpScreen);
+    print_text("4. Undead", &mut commands, g.fah(), Vec2::new(0.0, 4.0), WHITE, HelpScreen);
+    print_text("5. Mounts", &mut commands, g.fah(), Vec2::new(0.0, 3.0), WHITE, HelpScreen);
+    print_text("6. Victory", &mut commands, g.fah(), Vec2::new(0.0, 2.0), WHITE, HelpScreen);
+    debug!("printed help");
+    ev_text.send(BottomTextEvent::noclear("Press Keys 1-6 or 0 to return"));
 }
 
 fn help_keyboard_input(

@@ -43,15 +43,28 @@ struct InitialMenuScreen;
 
 fn initial_menu_setup(
     mut commands: Commands,
-    g: Res<Game>,
+    game: Res<Game>,
     mut ev_text: EventWriter<BottomTextEvent>,
 ) {
-    get_border(&mut commands, g.tah());
-    print_text("  MAYHEM - Remake of Chaos", &mut commands, g.fah(), Vec2::new(0.5, 8.0), WHITE, InitialMenuScreen);
-    print_text("         By bobtfish", &mut commands, g.fah(), Vec2::new(0.5, 7.0), WHITE, InitialMenuScreen);
-    print_text("How many wizards?", &mut commands, g.fah(), Vec2::new(0.5, 5.0), WHITE, InitialMenuScreen);
-    print_text("(Press 2 to 8)", &mut commands, g.fah(), Vec2::new(0.5, 4.0), WHITE, InitialMenuScreen);
+    get_border(&mut commands, game.tah());
+    print_text("  MAYHEM - Remake of Chaos", &mut commands, game.fah(), Vec2::new(0.5, 8.0), WHITE, InitialMenuScreen);
+    print_text("         By bobtfish", &mut commands, game.fah(), Vec2::new(0.5, 7.0), WHITE, InitialMenuScreen);
+    print_text("How many wizards?", &mut commands, game.fah(), Vec2::new(0.5, 5.0), WHITE, InitialMenuScreen);
+    print_text("(Press 2 to 8)", &mut commands, game.fah(), Vec2::new(0.5, 4.0), WHITE, InitialMenuScreen);
     ev_text.send(BottomTextEvent::from("      Press H for help"));
+    if game.players > 0 {
+        draw_level(game.players, &mut commands, game.fah());
+    }
+}
+
+fn draw_level(
+    players: u8,
+    commands: &mut Commands,
+    fah: Handle<TextureAtlas>,
+) {
+    print_text(&players.to_string(), commands, fah.clone(), Vec2::new(8.0, 4.0), WHITE, InitialMenuScreen);
+    print_text("Level of computer wizards?", commands, fah.clone(), Vec2::new(0.5, 2.0), WHITE, InitialMenuScreen);
+    print_text("(Press 1 to 8)", commands, fah, Vec2::new(0.5, 1.0), WHITE, InitialMenuScreen);
 }
 
 fn initial_menu_keyboard_input(
@@ -67,13 +80,12 @@ fn initial_menu_keyboard_input(
     }
     for ev in char_evr.iter() {
         let c = ev.char as u32;
-        if game.players == 0 {
+        let players = game.players;
+        if players == 0 {
             if (50..=56).contains(&c) {
                 game.players = (c-48) as u8;
                 info!("Players {}", game.players);
-                print_text(&game.players.to_string(), &mut commands, game.fah(), Vec2::new(8.0, 4.0), WHITE, InitialMenuScreen);
-                print_text("Level of computer wizards?", &mut commands, game.fah(), Vec2::new(0.5, 2.0), WHITE, InitialMenuScreen);
-                print_text("(Press 1 to 8)", &mut commands, game.fah(), Vec2::new(0.5, 1.0), WHITE, InitialMenuScreen);
+                draw_level(game.players, &mut commands, game.fah());
             }
         } else if (49..=56).contains(&c) {
             game.ai_level = (c-48) as u8;
