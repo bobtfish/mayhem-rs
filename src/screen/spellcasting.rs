@@ -15,21 +15,18 @@ impl Plugin for SpellCastingPlugin {
         app
         .add_event::<CastSpell>()
         .add_event::<CastSpellResult>()
-        .add_system_set(
-            SystemSet::on_enter(GameState::CastSpellSetup)
-                .with_system(spell_setup)
-                .with_system(system::show_board_entities)
-        )
-        .add_system_set(SystemSet::on_update(GameState::CastSpellSetup).with_system(spell_next))
-        .add_system_set(SystemSet::on_enter(GameState::CastSpell).with_system(cast_spell_setup))
-        .add_system_set(
-            SystemSet::on_update(GameState::CastSpell)
-                .with_system(cast_spell_keyboard)
-                .with_system(cast_spell)
-                .with_system(cast_spell_result)
-                .with_system(super::board::board_describe_piece)
-        )
-        .add_system_set(SystemSet::on_exit(GameState::CastSpell).with_system(cast_spell_finish));
+
+        .add_system(system::show_board_entities.in_schedule(OnEnter(GameState::CastSpellSetup)))
+        .add_system(spell_setup.in_schedule(OnEnter(GameState::CastSpellSetup)))
+        .add_system(spell_next.in_set(OnUpdate(GameState::CastSpellSetup)))
+
+        .add_system(cast_spell_setup.in_schedule(OnEnter(GameState::CastSpell)))
+        .add_system(cast_spell_keyboard.in_set(OnUpdate(GameState::CastSpell)))
+        .add_system(cast_spell.in_set(OnUpdate(GameState::CastSpell)))
+        .add_system(cast_spell_result.in_set(OnUpdate(GameState::CastSpell)))
+        .add_system(super::board::board_describe_piece.in_set(OnUpdate(GameState::CastSpell)))
+        .add_system(cast_spell_finish.in_schedule(OnExit(GameState::CastSpell)))
+        ;
     }
 }
 
@@ -50,7 +47,7 @@ fn spell_next(
     if g.player_turn >= g.players {
         g.player_turn = 0;
         println!("Spell casting finished, do movement now");
-        state.set(GameState::MoveSetup).unwrap();
+        state.set(GameState::MoveSetup);
     } else {
         println!("Player turn to cast spell");
         // Next player's turn to cast a spell

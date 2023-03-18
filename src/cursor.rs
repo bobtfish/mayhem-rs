@@ -18,7 +18,7 @@ impl Plugin for CursorPlugin {
         app
             .init_resource::<Cursor>()
             .add_event::<CursorMovedEvent>()
-            .add_startup_system(cursor_setup.at_end())
+            .add_startup_system(cursor_setup.in_base_set(StartupSet::PostStartup))
             .add_system(keyboard_input)
             .add_system(animate_cursor)
             .add_event::<PositionCursorOnEntity>()
@@ -176,8 +176,10 @@ fn animate_cursor(
         sprite.index = cursor.cursor + CURSOR_SPRITE_ID;
         if cursor.hide_till_moved {
             *vis = Visibility::Hidden;
+        } else if cursor.is_visible() {
+            *vis = Visibility::Inherited;
         } else {
-            *vis = cursor.is_visible() ? Visibility::Inherited : Visibility::Hidden;
+            *vis = Visibility::Hidden;
         }
         *transform = transform.with_translation(vec2(cursor.x, cursor.y).extend(CURSOR_Z));
         cursor.moved = false;
