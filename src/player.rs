@@ -93,7 +93,7 @@ impl Player {
         pos: Vec2,
     ) {
         let mut ss = display::get_sprite_sheet_bundle(tah, pos, (169 + self.character_icon) as usize, self.color);
-        ss.visibility.is_visible = false;
+        ss.visibility = Visibility::Hidden;
         let entity = commands.spawn(ss)
             .insert(MoveableComponent{
                 movement: 1,

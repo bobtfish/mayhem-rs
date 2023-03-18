@@ -79,7 +79,7 @@ fn cursor_setup(
     mut commands: Commands,
 ) {
     let mut sprite = display::get_sprite_sheet_bundle_z(game.tah(), Vec2::new(0.0, 0.0), CURSOR_SPRITE_ID, display::WHITE, CURSOR_Z);
-    sprite.visibility.is_visible = false;
+    sprite.visibility = Visibility::Hidden;
     commands.spawn(sprite).insert(CursorEntity);
     *cursor = Cursor{
         cursor: CURSOR_BOX,
@@ -175,9 +175,9 @@ fn animate_cursor(
     if cursor.moved || cursor.redraw || cursor.hide_till_moved {
         sprite.index = cursor.cursor + CURSOR_SPRITE_ID;
         if cursor.hide_till_moved {
-            vis.is_visible = false;
+            *vis = Visibility::Hidden;
         } else {
-            vis.is_visible = cursor.is_visible();
+            *vis = cursor.is_visible() ? Visibility::Inherited : Visibility::Hidden;
         }
         *transform = transform.with_translation(vec2(cursor.x, cursor.y).extend(CURSOR_Z));
         cursor.moved = false;
@@ -188,10 +188,10 @@ fn animate_cursor(
     }
     cursor.flash_timer.tick(time.delta());
     if cursor.flash_timer.just_finished() {
-        if vis.is_visible {
-            vis.is_visible = false;
+        if *vis == Visibility::Inherited {
+            *vis = Visibility::Hidden;
         } else {
-            vis.is_visible = true;
+            *vis = Visibility::Inherited;
         }
     }
 }

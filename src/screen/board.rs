@@ -13,25 +13,23 @@ pub struct BoardPlugin;
 impl Plugin for BoardPlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_system_set(SystemSet::on_enter(GameState::MoveSetup).with_system(move_setup))
-            .add_system_set(SystemSet::on_update(GameState::MoveSetup).with_system(move_next))
-            .add_system_set(SystemSet::on_enter(GameState::MoveChoose).with_system(move_choose_setup))
-            .add_system_set(
-                SystemSet::on_update(GameState::MoveChoose)
-                    .with_system(move_choose_keyboard)
-                    .with_system(board_describe_piece)
-            )
-            .add_system_set(SystemSet::on_exit(GameState::MoveChoose).with_system(move_choose_finish))
-            .add_system_set(SystemSet::on_update(GameState::MoveMoving).with_system(move_moving_keyboard))
-            .add_system_set(SystemSet::on_enter(GameState::NextTurn).with_system(system::hide_board_entities))
-            .add_system_set(SystemSet::on_update(GameState::NextTurn).with_system(next_turn))
-            .add_system_set(SystemSet::on_enter(GameState::RangedAttackChoose).with_system(ranged_attack_setup))
-            .add_system_set(
-                SystemSet::on_update(GameState::RangedAttackChoose)
-                    .with_system(ranged_attack_keyboard)
-                    .with_system(board_describe_piece)
-            )
-            .add_system_set(SystemSet::on_exit(GameState::RangedAttackChoose).with_system(ranged_attack_exit));
+            .add_system(move_setup.in_schedule(OnEnter(GameState::MoveSetup)))
+            .add_system(move_next.in_set(OnUpdate(GameState::MoveSetup)))
+
+            .add_system(move_choose_setup.in_schedule(OnEnter(GameState::MoveChoose)))
+            .add_system(move_choose_keyboard.in_set(OnUpdate(GameState::MoveChoose)))
+            .add_system(board_describe_piece.in_set(OnUpdate(GameState::MoveChoose)))
+            .add_system(move_choose_finish.in_schedule(OnExit(GameState::MoveChoose)))
+
+            .add_system(move_moving_keyboard.in_set(OnUpdate(GameState::MoveMoving)))
+
+            .add_system(system::hide_board_entities.in_schedule(OnEnter(GameState::NextTurn)))
+            .add_system(next_turn.in_set(OnUpdate(GameState::NextTurn)))
+
+            .add_system(ranged_attack_setup.in_schedule(OnEnter(GameState::RangedAttackChoose)))
+            .add_system(ranged_attack_keyboard.in_set(OnUpdate(GameState::RangedAttackChoose)))
+            .add_system(board_describe_piece.in_set(OnUpdate(GameState::RangedAttackChoose)))
+            .add_system(ranged_attack_exit.in_schedule(OnExit(GameState::RangedAttackChoose)));
     }
 }
 
@@ -60,7 +58,7 @@ fn move_setup(
 }
 
 fn move_next(
-    mut state: ResMut<State<GameState>>,
+    mut state: ResMut<NextState<GameState>>,
     mut g: ResMut<Game>,
     mut q: Query<Entity, With<HasMoved>>,
     mut commands: Commands,
@@ -73,7 +71,7 @@ fn move_next(
         g.player_turn = 0;
         println!("Moving finished, next turn now");
         ev_text.send(BottomTextEvent::clear());
-        state.set(GameState::NextTurn).unwrap();
+        state.set(GameState::NextTurn);
     } else {
         println!("Player turn to move");
         state.push(GameState::MoveChoose).unwrap();
@@ -101,7 +99,7 @@ fn move_choose_keyboard(
     mut cursor: ResMut<Cursor>,
     board: Res<GameBoard>,
     mut keys: ResMut<Input<KeyCode>>,
-    mut state: ResMut<State<GameState>>,
+    mut state: ResMut<NextState<GameState>>,
     mut query: Query<(&Named, &MoveableComponent, Option<&BelongsToPlayer>, &mut Transform, Option<&HasMoved>)>,
     mut ev_text: EventWriter<BottomTextEvent>,
     mut commands: Commands,
@@ -238,7 +236,7 @@ fn ranged_attack_keyboard(
     mut cursor: ResMut<Cursor>,
     moving_q: Query<(Entity, &RangedCombat), With<RangedAttackComponent>>,
     board: Res<GameBoard>,
-    mut state: ResMut<State<GameState>>,
+    mut state: ResMut<NextState<GameState>>,
     mut ev_text: EventWriter<BottomTextEvent>,
 ) {
     if keys.just_pressed(KeyCode::S) {
@@ -298,12 +296,12 @@ fn move_choose_finish(mut g: ResMut<Game>) {
 }
 
 fn next_turn(
-    mut state: ResMut<State<GameState>>,
+    mut state: ResMut<NextState<GameState>>,
     mut g: ResMut<Game>,
     mut cursor: ResMut<Cursor>,
 ) {
     println!("next_turn set state GameState::PlayerMenu");
     g.player_turn = 0;
     cursor.set_invisible();
-    state.set(GameState::PlayerMenu).unwrap();
+    state.set(GameState::PlayerMenu);
 }

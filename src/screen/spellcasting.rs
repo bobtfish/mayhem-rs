@@ -43,7 +43,7 @@ fn spell_setup(
 }
 
 fn spell_next(
-    mut state: ResMut<State<GameState>>,
+    mut state: ResMut<NextState<GameState>>,
     mut g: ResMut<Game>,
 ) {
     println!("spell_next");

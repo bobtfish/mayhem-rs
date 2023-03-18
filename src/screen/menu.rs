@@ -23,13 +23,13 @@ pub struct MenuPlugin;
 impl Plugin for MenuPlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_system_set(SystemSet::on_enter(GameState::InitialMenu).with_system(initial_menu_setup))
-            .add_system_set(SystemSet::on_update(GameState::InitialMenu).with_system(initial_menu_keyboard_input))
-            .add_system_set(SystemSet::on_exit(GameState::InitialMenu).with_system(system::despawn_screen::<InitialMenuScreen>))
-            .add_system_set(SystemSet::on_enter(GameState::PlayerNameMenu).with_system(player_name_menu_setup))
-            .add_system_set(SystemSet::on_update(GameState::PlayerNameMenu).with_system(player_name_menu_keyboard_input))
-            .add_system_set(SystemSet::on_exit(GameState::PlayerNameMenu).with_system(system::despawn_screen::<PlayerNameMenuScreen>))
-            .add_system_set(SystemSet::on_update(GameState::PlayerNameMenuTransition).with_system(player_name_menu_transition));
+            .add_system(initial_menu_setup.in_schedule(OnEnter(GameState::InitialMenu)))
+            .add_system(initial_menu_keyboard_input.in_set(OnUpdate(GameState::InitialMenu)))
+            .add_system(system::despawn_screen::<InitialMenuScreen>.in_schedule(OnExit(GameState::InitialMenu)))
+            .add_system(player_name_menu_setup.in_schedule(OnEnter(GameState::PlayerNameMenu)))
+            .add_system(player_name_menu_keyboard_input.in_set(OnUpdate(GameState::PlayerMenu)))
+            .add_system(system::despawn_screen::<PlayerNameMenuScreen>.in_schedule(OnExit(GameState::PlayerNameMenu)))
+            .add_system(player_name_menu_transition.in_set(OnUpdate(GameState::PlayerNameMenuTransition)));
     }
 }
 
@@ -53,13 +53,13 @@ fn initial_menu_setup(
 
 fn initial_menu_keyboard_input(
     mut char_evr: EventReader<ReceivedCharacter>,
-    mut state: ResMut<State<GameState>>,
+    mut state: ResMut<NextState<GameState>>,
     mut game: ResMut<Game>,
     mut commands: Commands,
     keys: Res<Input<KeyCode>>,
 ) {
     if keys.just_pressed(KeyCode::H) {
-        state.set(GameState::Help).unwrap();
+        state.set(GameState::Help);
         return
     }
     for ev in char_evr.iter() {
@@ -76,7 +76,7 @@ fn initial_menu_keyboard_input(
             game.ai_level = (c-48) as u8;
             print_text(&game.ai_level.to_string(), &mut commands, game.fah(), Vec2::new(8.0, 1.0), WHITE, InitialMenuScreen);
             // TODO - Do we want a pause here?
-            state.set(GameState::PlayerNameMenu).unwrap();
+            state.set(GameState::PlayerNameMenu);
         }
     }
 }
@@ -107,7 +107,7 @@ struct CapturePlayer {
 const MAX_NAME_LEN: usize = 12;
 fn player_name_menu_keyboard_input(
     mut char_evr: EventReader<ReceivedCharacter>,
-    mut state: ResMut<State<GameState>>,
+    mut state: ResMut<NextState<GameState>>,
     mut g: ResMut<Game>,
     mut commands: Commands,
     mut string: Local<String>,
@@ -188,7 +188,7 @@ fn player_name_menu_keyboard_input(
         p.pick_spells(&allspells);
         g.player_info.push(p);
         *player = CapturePlayer{..Default::default()};
-        state.set(GameState::PlayerNameMenuTransition).unwrap();
+        state.set(GameState::PlayerNameMenuTransition);
     }
 }
 
@@ -201,7 +201,7 @@ fn show_wizards(fah: Handle<TextureAtlas>, tah: Handle<TextureAtlas>, commands: 
 }
 
 fn player_name_menu_transition(
-    mut state: ResMut<State<GameState>>,
+    mut state: ResMut<NextState<GameState>>,
     mut g: ResMut<Game>,
     mut commands: Commands,
     mut ev_board_put: EventWriter<BoardPutEntity>,
@@ -214,8 +214,8 @@ fn player_name_menu_transition(
             p.spawn(&mut commands, tah.clone(), pos);
             ev_board_put.send(BoardPutEntity { entity: p.handle.unwrap(), pos });
         }
-        state.set(GameState::PlayerMenu).unwrap();
+        state.set(GameState::PlayerMenu);
     } else {
-        state.set(GameState::PlayerNameMenu).unwrap();
+        state.set(GameState::PlayerNameMenu);
     }
 }
