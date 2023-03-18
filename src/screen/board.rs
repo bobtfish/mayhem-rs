@@ -16,14 +16,9 @@ impl Plugin for BoardPlugin {
             .add_system(move_setup.in_schedule(OnEnter(GameState::MoveSetup)))
             .add_system(move_next.in_set(OnUpdate(GameState::MoveSetup)))
 
-            .add_system(move_choose_setup.in_schedule(OnEnter(GameState::MoveChoose)))
             .add_systems((move_choose_keyboard, board_describe_piece).in_set(OnUpdate(GameState::MoveChoose)))
-            .add_system(move_choose_finish.in_schedule(OnExit(GameState::MoveChoose)))
 
             .add_system(move_moving_keyboard.in_set(OnUpdate(GameState::MoveMoving)))
-
-            .add_system(system::hide_board_entities.in_schedule(OnEnter(GameState::NextTurn)))
-            .add_system(next_turn.in_set(OnUpdate(GameState::NextTurn)))
 
             .add_system(ranged_attack_setup.in_schedule(OnEnter(GameState::RangedAttackChoose)))
             .add_systems((board_describe_piece, ranged_attack_keyboard).in_set(OnUpdate(GameState::RangedAttackChoose)))
@@ -51,7 +46,6 @@ fn move_setup(
     mut cursor: ResMut<Cursor>,
 ) {
     cursor.set_type(CURSOR_BOX);
-    g.player_turn = 0;
     println!("In move setup");
 }
 
@@ -61,39 +55,35 @@ fn move_next(
     mut q: Query<Entity, With<HasMoved>>,
     mut commands: Commands,
     mut ev_text: EventWriter<BottomTextEvent>,
+    mut ev_cursor_pos: EventWriter<PositionCursorOnEntity>,
+    mut cursor: ResMut<Cursor>,
 ) {
     for has_moved_entity in q.iter_mut() {
         commands.entity(has_moved_entity).remove::<HasMoved>();
     }
     if g.player_turn >= g.players {
-        g.player_turn = 0;
         println!("Moving finished, next turn now");
         ev_text.send(BottomTextEvent::clear());
-        state.set(GameState::NextTurn);
+        println!("next_turn set state GameState::PlayerMenu");
+        g.player_turn = 0;
+        cursor.set_invisible();
+        state.set(GameState::PlayerMenu);
     } else {
         println!("Player turn to move");
+        let player = g.get_player();
+        let mut s = player.name.clone();
+        ev_cursor_pos.send(PositionCursorOnEntity(player.handle.unwrap()));
+        s.push_str("'s turn");
+        ev_text.send(BottomTextEvent::from(&s));
         state.set(GameState::MoveChoose);
     }
-}
-
-fn move_choose_setup(
-    g: Res<Game>,
-    mut ev_text: EventWriter<BottomTextEvent>,
-    mut ev_cursor_pos: EventWriter<PositionCursorOnEntity>,
-) {
-    println!("Move one for player {}", g.player_turn);
-    let player = g.get_player();
-    let mut s = player.name.clone();
-    ev_cursor_pos.send(PositionCursorOnEntity(player.handle.unwrap()));
-    s.push_str("'s turn");
-    ev_text.send(BottomTextEvent::from(&s));
 }
 
 #[derive(Component)]
 struct RangedAttackComponent;
 
 fn move_choose_keyboard(
-    g: Res<Game>,
+    mut g: ResMut<Game>,
     mut cursor: ResMut<Cursor>,
     board: Res<GameBoard>,
     mut keys: ResMut<Input<KeyCode>>,
@@ -117,7 +107,9 @@ fn move_choose_keyboard(
 
     if keys.just_pressed(KeyCode::Key0) {
         keys.reset(KeyCode::Key0);
-        state.set(GameState::NextTurn);
+        println!("Finish move one, increment player turn");
+        g.player_turn += 1;
+        state.set(GameState::MoveSetup);
         println!("Next player turn");
     }
     if keys.just_pressed(KeyCode::S) {
@@ -186,7 +178,7 @@ fn move_moving_keyboard(
                     entity,
                     to: cursor_pos,
                 });
-                state.set(GameState::NextTurn);
+                state.set(GameState::MoveChoose);
                 println!("Finished move");
             }
         }
@@ -203,11 +195,13 @@ fn move_moving_keyboard(
                     to: cur.0,
                 });
                 let distance = Vec2I::from(cur.0).distance(Vec2I::from(moving.start_pos));
-                if movable.movement.checked_sub(distance).is_none() || moving.steps >= movable.movement {
+                println!("Moved distance {} has movement {}", distance, movable.movement);
+                let distance_left = movable.movement.checked_sub(distance);
+                if distance_left.unwrap_or(0) == 0 || moving.steps >= movable.movement {
                     println!("No movement left, clear entity");
                     cursor.set_visible();
-                    state.set(GameState::NextTurn);
-                    println!("Finished move");
+                    state.set(GameState::MoveChoose);
+                    println!("Finished move of this piece, choose next");
                 }
             }
         }
@@ -246,7 +240,7 @@ fn ranged_attack_keyboard(
         let distance = Vec2I::from(cursor_pos).distance(from);
         if distance <= ranged.range {
             println!("CAN TARGET WITH RANGED");
-            state.set(GameState::NextTurn);
+            state.set(GameState::MoveChoose);
         } else {
             ev_text.send(BottomTextEvent::from("Out of range"));
             cursor.hide_till_moved();
@@ -286,20 +280,4 @@ pub fn board_describe_piece(
             ev_text.send(BottomTextEvent::clear());
         }
     }
-}
-
-fn move_choose_finish(mut g: ResMut<Game>) {
-    println!("Finish move one, increment player turn");
-    g.player_turn += 1;
-}
-
-fn next_turn(
-    mut state: ResMut<NextState<GameState>>,
-    mut g: ResMut<Game>,
-    mut cursor: ResMut<Cursor>,
-) {
-    println!("next_turn set state GameState::PlayerMenu");
-    g.player_turn = 0;
-    cursor.set_invisible();
-    state.set(GameState::PlayerMenu);
 }

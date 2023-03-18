@@ -28,6 +28,5 @@ pub enum GameState {
     MoveMoving,
     RangedAttackChoose,
     RangedAttackDo,
-    NextTurn,
 }
 

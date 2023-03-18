@@ -17,7 +17,6 @@ impl Plugin for SpellCastingPlugin {
         .add_event::<CastSpellResult>()
 
         .add_system(system::show_board_entities.in_schedule(OnEnter(GameState::CastSpellSetup)))
-        .add_system(spell_setup.in_schedule(OnEnter(GameState::CastSpellSetup)))
         .add_system(spell_next.in_set(OnUpdate(GameState::CastSpellSetup)))
 
         .add_system(cast_spell_setup.in_schedule(OnEnter(GameState::CastSpell)))
@@ -28,15 +27,6 @@ impl Plugin for SpellCastingPlugin {
         .add_system(cast_spell_finish.in_schedule(OnExit(GameState::CastSpell)))
         ;
     }
-}
-
-fn spell_setup(
-    mut g: ResMut<Game>,
-    mut cursor: ResMut<Cursor>,
-) {
-    println!("spell_setup");
-    g.player_turn = 0;
-    cursor.set_visible();
 }
 
 fn spell_next(

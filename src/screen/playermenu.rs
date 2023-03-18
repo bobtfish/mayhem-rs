@@ -14,7 +14,7 @@ impl Plugin for PlayerMenuPlugin {
         app
             .add_event::<PlayerMenuEvent>()
 
-            .add_system(player_menu_setup.in_schedule(OnEnter(GameState::PlayerMenu)))
+            .add_systems((player_menu_setup, system::hide_board_entities).in_schedule(OnEnter(GameState::PlayerMenu)))
             .add_system(player_menu_keyboard.in_set(OnUpdate(GameState::PlayerMenu)))
             .add_system(system::despawn_screen::<PlayerMenu>.in_schedule(OnExit(GameState::PlayerMenu)))
 
@@ -86,10 +86,12 @@ fn player_menu_keyboard(
 fn player_menu_transition(
     mut state: ResMut<NextState<GameState>>,
     mut g: ResMut<Game>,
+    mut cursor: ResMut<Cursor>,
 ) {
     g.player_turn += 1;
     if g.player_turn >= g.players {
         g.player_turn = 0;
+        cursor.set_visible();
         state.set(GameState::CastSpellSetup);
     } else {
         state.set(GameState::PlayerMenu);
