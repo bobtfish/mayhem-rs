@@ -2,6 +2,7 @@
 #![warn(clippy::nursery, clippy::pedantic)]
 #![allow(clippy::wildcard_imports, clippy::too_many_lines, clippy::type_complexity, clippy::too_many_arguments, clippy::missing_const_for_fn, clippy::unused_self, clippy::needless_pass_by_value, clippy::module_name_repetitions, clippy::similar_names, clippy::cast_precision_loss, clippy::cast_possible_truncation)]
 
+use bevy::log::LogPlugin;
 //use bevy::log::{LogPlugin, Level};
 use bevy::{prelude::*, window::PresentMode};
 
@@ -38,7 +39,7 @@ fn main() {
                 },
             )
             .set(ImagePlugin::default_nearest())
-            //.set(LogPlugin {level: Level::DEBUG, ..default()})
+            .set(LogPlugin {level: bevy::log::Level::DEBUG, ..default()})
         )
         .add_plugin(game::GamePlugin)
         .insert_resource(ClearColor(Color::rgb(0.0, 0.0, 0.0)))

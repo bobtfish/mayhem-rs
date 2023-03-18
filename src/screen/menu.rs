@@ -26,10 +26,14 @@ impl Plugin for MenuPlugin {
             .add_system(initial_menu_setup.in_schedule(OnEnter(GameState::InitialMenu)))
             .add_system(initial_menu_keyboard_input.in_set(OnUpdate(GameState::InitialMenu)))
             .add_system(system::despawn_screen::<InitialMenuScreen>.in_schedule(OnExit(GameState::InitialMenu)))
+
             .add_system(player_name_menu_setup.in_schedule(OnEnter(GameState::PlayerNameMenu)))
-            .add_system(player_name_menu_keyboard_input.in_set(OnUpdate(GameState::PlayerMenu)))
+            .add_system(player_name_menu_keyboard_input.in_set(OnUpdate(GameState::PlayerNameMenu)))
             .add_system(system::despawn_screen::<PlayerNameMenuScreen>.in_schedule(OnExit(GameState::PlayerNameMenu)))
-            .add_system(player_name_menu_transition.in_set(OnUpdate(GameState::PlayerNameMenuTransition)));
+
+            .add_system(player_name_menu_transition.in_set(OnUpdate(GameState::PlayerNameMenuTransition)))
+
+            ;
     }
 }
 
@@ -49,7 +53,6 @@ fn initial_menu_setup(
     print_text("(Press 2 to 8)", &mut commands, g.fah(), Vec2::new(0.5, 4.0), WHITE, InitialMenuScreen);
     ev_text.send(BottomTextEvent::from("      Press H for help"));
 }
-
 
 fn initial_menu_keyboard_input(
     mut char_evr: EventReader<ReceivedCharacter>,
@@ -76,6 +79,7 @@ fn initial_menu_keyboard_input(
             game.ai_level = (c-48) as u8;
             print_text(&game.ai_level.to_string(), &mut commands, game.fah(), Vec2::new(8.0, 1.0), WHITE, InitialMenuScreen);
             // TODO - Do we want a pause here?
+            debug!("SET STATE PlayerNameMenu");
             state.set(GameState::PlayerNameMenu);
         }
     }
@@ -89,6 +93,7 @@ fn player_name_menu_setup(
     mut commands: Commands,
     g: Res<Game>,
 ) {
+    debug!("Player name menu setup");
     print_text("PLAYER", &mut commands, g.fah(), Vec2::new(0.5, 9.0), WHITE, PlayerNameMenuScreen);
     let n_player = g.player_info.len()+1;
     print_text(&n_player.to_string(), &mut commands, g.fah(), Vec2::new(4.0, 9.0), WHITE, PlayerNameMenuScreen);
@@ -97,7 +102,6 @@ fn player_name_menu_setup(
 
 #[derive(Default)]
 struct CapturePlayer {
-    init: bool,
     name: Option<String>,
     computer_controlled: Option<bool>,
     character_icon: Option<u8>,
@@ -115,10 +119,6 @@ fn player_name_menu_keyboard_input(
     keys: Res<Input<KeyCode>>,
     allspells: Res<AllSpells>,
 ) {
-    if !player.init { // This is to force a frame advance and stop us re-capturing the keyboard input
-        player.init = true;
-        return;
-    }
     if player.name.is_none() {
         if keys.just_pressed(KeyCode::Return) && string.len() >= 1 {
             player.name = Some(string.clone());
