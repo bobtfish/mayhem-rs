@@ -27,22 +27,23 @@ fn main() {
     App::new()
         .add_plugins(
             DefaultPlugins.set(
-            WindowPlugin {window: WindowDescriptor {
-                    title: "Mayhem!".to_string(),
-                    width: SCREEN_WIDTH,
-                    height: SCREEN_HEIGHT,
-                    present_mode: PresentMode::AutoVsync,
+                WindowPlugin {
+                    primary_window: Some(Window {
+                        title: "Mayhem!".to_string(),
+                        resolution: bevy::window::WindowResolution::new(SCREEN_WIDTH, SCREEN_HEIGHT),
+                        present_mode: PresentMode::AutoVsync,
+                        ..default()
+                    }),
                     ..default()
                 },
-                ..default()
-            })
+            )
             .set(ImagePlugin::default_nearest())
             //.set(LogPlugin {level: Level::DEBUG, ..default()})
         )
         .add_plugin(game::GamePlugin)
         .insert_resource(ClearColor(Color::rgb(0.0, 0.0, 0.0)))
         .insert_resource(load_all_spells())
-        .add_state(GameState::InitialMenu)
+        .add_state::<GameState>()
         .add_plugin(screen::ScreenPlugin)
         .add_plugin(board::BoardPlugin)
         .add_plugin(cursor::CursorPlugin)

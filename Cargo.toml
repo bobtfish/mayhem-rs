@@ -12,7 +12,7 @@ opt-level = 3
 opt-level = 1
 
 [dependencies]
-bevy = { version = "0.9.1", features = ["dynamic"] }
+bevy = { version = "0.10.0", features = ["dynamic_linking"] }
 ron = "0.8"
 serde = { version = "1", features = ["derive"] }
 rand = "0.8.5"
