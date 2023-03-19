@@ -22,8 +22,10 @@ impl Plugin for TurnMenuPlugin {
             .add_system(turn_menu_transition.in_set(OnUpdate(GameState::TurnMenuTransition)))
 
             .add_system(turn_menu_examine_spell_setup.in_schedule(OnEnter(GameState::TurnMenuExamineSpell)))
-            .add_system(turn_menu_examine_spell_keyboard.in_set(OnUpdate(GameState::TurnMenuExamineSpell)))
-            .add_system(turn_menu_choose_spell_keyboard.in_set(OnUpdate(GameState::TurnMenuExamineSpell)))
+            .add_systems((
+                    turn_menu_examine_spell_keyboard,
+                    turn_menu_choose_spell_keyboard,
+                ).in_set(OnUpdate(GameState::TurnMenuExamineSpell)))
             .add_system(system::despawn_screen::<ExamineSpellScreen>.in_schedule(OnExit(GameState::TurnMenuExamineSpell)))
 
             .add_system(turn_menu_examine_one_spell_setup.in_schedule(OnEnter(GameState::TurnMenuExamineOneSpell)))
@@ -31,16 +33,22 @@ impl Plugin for TurnMenuPlugin {
             .add_system(system::despawn_screen::<ExamineOneSpellScreen>.in_schedule(OnExit(GameState::TurnMenuExamineOneSpell)))
 
             .add_system(turn_menu_select_spell_setup.in_schedule(OnEnter(GameState::TurnMenuSelectSpell)))
-            .add_system(turn_menu_select_spell_keyboard.in_set(OnUpdate(GameState::TurnMenuSelectSpell)))
-            .add_system(turn_menu_choose_spell_keyboard.in_set(OnUpdate(GameState::TurnMenuSelectSpell)))
+            .add_systems((
+                    turn_menu_select_spell_keyboard,
+                    turn_menu_choose_spell_keyboard,
+                ).in_set(OnUpdate(GameState::TurnMenuSelectSpell)))
             .add_system(system::despawn_screen::<SelectSpellScreen>.in_schedule(OnExit(GameState::TurnMenuSelectSpell)))
 
             .add_system(turn_menu_examine_board_setup.in_schedule(OnEnter(GameState::TurnMenuExamineBoard)))
             .add_system(system::show_board_entities.in_schedule(OnEnter(GameState::TurnMenuExamineBoard)))
-            .add_system(turn_menu_examine_board_keyboard.in_set(OnUpdate(GameState::TurnMenuExamineBoard)))
-            .add_system(board::board_describe_piece.in_set(OnUpdate(GameState::TurnMenuExamineBoard)))
-            .add_system(turn_menu_examine_board_exit.in_schedule(OnExit(GameState::TurnMenuExamineBoard)))
-            .add_system(system::hide_board_entities.in_schedule(OnExit(GameState::TurnMenuExamineBoard)))
+            .add_systems((
+                    turn_menu_examine_board_keyboard,
+                    board::board_describe_piece,
+                ).in_set(OnUpdate(GameState::TurnMenuExamineBoard)))
+            .add_systems((
+                    turn_menu_examine_board_exit,
+                    system::hide_board_entities,
+                ).in_schedule(OnExit(GameState::TurnMenuExamineBoard)))
             ;
     }
 }

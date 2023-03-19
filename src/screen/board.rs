@@ -21,16 +21,13 @@ impl Plugin for BoardPlugin {
             .add_system(move_moving_keyboard.in_set(OnUpdate(GameState::MoveMoving)))
 
             .add_system(ranged_attack_setup.in_schedule(OnEnter(GameState::RangedAttackChoose)))
-            .add_systems((board_describe_piece, ranged_attack_keyboard).in_set(OnUpdate(GameState::RangedAttackChoose)))
+            .add_systems((
+                    board_describe_piece,
+                    ranged_attack_keyboard,
+                ).in_set(OnUpdate(GameState::RangedAttackChoose)))
             .add_system(ranged_attack_exit.in_schedule(OnExit(GameState::RangedAttackChoose)));
     }
 }
-
-// Game -push-> GameCastSpell
-//   | ^------pop------/
-//  set
-//    \-> GameMoveSetup -push-> GameMoveChoose
-//                 ^------pop------/
 
 #[derive(Component)]
 struct MovingComponent {
