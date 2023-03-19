@@ -4,7 +4,6 @@
 
 use std::{
     net::{SocketAddr, UdpSocket},
-    time::SystemTime,
 };
 use mayhem_rs::renet::{
     ClientAuthentication, DefaultChannel, RenetClient, RenetConnectionConfig, RenetServer, ServerAuthentication, ServerConfig, ServerEvent,
@@ -14,7 +13,7 @@ use mayhem_rs::renet::{
 use bevy::log::LogPlugin;
 //use bevy::log::{LogPlugin, Level};
 use bevy::{prelude::*, window::PresentMode};
-use mayhem_rs::{RenetClientPlugin, PROTOCOL_ID, Username};
+use mayhem_rs::*;
 
 //mod super::constants;
 //use super::constants::*;
@@ -55,9 +54,7 @@ fn main() {
 }
 
 fn create_renet_client(server_addr: SocketAddr, username: Username) -> RenetClient {
-    let current_time = SystemTime::now()
-        .duration_since(SystemTime::UNIX_EPOCH)
-        .unwrap();
+    let current_time = get_current_time();
     let socket = UdpSocket::bind("0.0.0.0:0").unwrap();
     let client_id = current_time.as_millis() as u64;
     let connection_config = RenetConnectionConfig::default();

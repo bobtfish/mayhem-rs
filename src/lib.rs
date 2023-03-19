@@ -1,3 +1,5 @@
+use std::{time::{SystemTime, Duration}, fmt};
+
 pub use bevy::prelude::*;
 pub use bevy_renet::renet::*;
 pub use bevy_renet::*;
@@ -14,7 +16,13 @@ pub enum ServerMessage {
 }
 
 pub const PROTOCOL_ID: u64 = 1000;
+pub const PORT: u16 = 42096;
 
+pub fn get_current_time() -> Duration {
+  SystemTime::now()
+  .duration_since(SystemTime::UNIX_EPOCH)
+  .unwrap()
+}
 
 // Helper struct to pass an username in the user data
 pub struct Username(pub String);
@@ -40,4 +48,9 @@ impl Username {
         let username = String::from_utf8(data).unwrap();
         Self(username)
     }
+}
+impl fmt::Display for Username {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+      write!(f, "{}", self.0)
+  }
 }
