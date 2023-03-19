@@ -57,9 +57,7 @@ fn server_ping(
             match client_message {
                 ClientMessage::Ping => {
                     info!("Got ping!");
-
-                    let pong = bincode::serialize(&ServerMessage::Pong).unwrap();
-                    server.send_message(client_id, reliable_channel_id, pong);
+                    ServerMessage::Pong.send(client_id, server.as_mut());
                 }
             }
         }

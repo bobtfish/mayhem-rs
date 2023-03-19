@@ -10,9 +10,45 @@ pub enum ClientMessage {
   Ping,
 }
 
+impl ClientMessage {
+  pub fn send(&self, client: &mut RenetClient) {
+    let message = bincode::serialize(self).unwrap();
+    match self {
+      ClientMessage::Ping
+      // ClientMessage::Other
+      => {
+        let reliable_channel_id = ReliableChannelConfig::default().channel_id;
+        if client.can_send_message(reliable_channel_id) {
+          client.send_message(reliable_channel_id, message);
+        } else {
+          error!("Cannot send message! {:?}", self);
+        }
+      }
+    }
+  }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub enum ServerMessage {
   Pong,
+}
+
+impl ServerMessage {
+  pub fn send(&self, client_id: u64, server: &mut RenetServer) {
+    let message = bincode::serialize(self).unwrap();
+    match self {
+      ServerMessage::Pong
+      // ServerMessage::Other
+      => {
+        let reliable_channel_id = ReliableChannelConfig::default().channel_id;
+        if server.can_send_message(client_id, reliable_channel_id) {
+          server.send_message(client_id, reliable_channel_id, message);
+        } else {
+          error!("Cannot send message to client! {:?} client id {}", self, client_id);
+        }
+      }
+    }
+  }
 }
 
 pub const PROTOCOL_ID: u64 = 1000;
