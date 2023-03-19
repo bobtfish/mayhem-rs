@@ -38,7 +38,7 @@ fn server_events(
     for event in events.iter() {
         match event {
             ServerEvent::ClientConnected(id, user_data) => {
-                let username = Username::from_user_data(&user_data);
+                let username = Username::from_user_data(user_data);
                 info!("Client connected: {} {}", id, username);
             },
             ServerEvent::ClientDisconnected(id) => info!("Client disconnected: {}", id),

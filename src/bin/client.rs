@@ -2,29 +2,8 @@
 #![warn(clippy::nursery, clippy::pedantic)]
 #![allow(clippy::wildcard_imports, clippy::too_many_lines, clippy::type_complexity, clippy::too_many_arguments, clippy::missing_const_for_fn, clippy::unused_self, clippy::needless_pass_by_value, clippy::module_name_repetitions, clippy::similar_names, clippy::cast_precision_loss, clippy::cast_possible_truncation)]
 
-use std::{
-    net::{SocketAddr, UdpSocket},
-};
-use mayhem_rs::renet::{
-    ClientAuthentication, DefaultChannel, RenetClient, RenetConnectionConfig, RenetServer, ServerAuthentication, ServerConfig, ServerEvent,
-    NETCODE_USER_DATA_BYTES,
-};
-
-use bevy::log::LogPlugin;
-//use bevy::log::{LogPlugin, Level};
-use bevy::{prelude::*, window::PresentMode};
+pub use bevy::window::PresentMode;
 use mayhem_rs::*;
-
-//mod super::constants;
-//use super::constants::*;
-pub const SCALE: f32 = 4.0;
-
-pub const SPRITE_SIZE: usize = 16;
-
-pub const HEIGHT: usize = 12;
-pub const WIDTH: usize = 16;
-pub const SCREEN_WIDTH: f32 = SCALE*((SPRITE_SIZE*WIDTH) as f32);
-pub const SCREEN_HEIGHT: f32 = SCALE*((SPRITE_SIZE*HEIGHT) as f32);
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
