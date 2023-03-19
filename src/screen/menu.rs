@@ -226,7 +226,7 @@ fn player_name_menu_transition(
             p.spawn(&mut commands, tah.clone(), pos);
             ev_board_put.send(BoardPutEntity { entity: p.handle.unwrap(), pos });
         }
-        state.set(GameState::PlayerMenu);
+        state.set(GameState::TurnMenu);
     } else {
         state.set(GameState::PlayerNameMenu);
     }

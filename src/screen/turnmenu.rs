@@ -7,83 +7,83 @@ use crate::gamestate::GameState;
 use crate::system;
 use super::board;
 
-pub struct PlayerMenuPlugin;
+pub struct TurnMenuPlugin;
 
-impl Plugin for PlayerMenuPlugin {
+impl Plugin for TurnMenuPlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_event::<PlayerMenuEvent>()
+            .add_event::<TurnMenuEvent>()
 
-            .add_systems((player_menu_setup, system::hide_board_entities).in_schedule(OnEnter(GameState::PlayerMenu)))
-            .add_system(player_menu_keyboard.in_set(OnUpdate(GameState::PlayerMenu)))
-            .add_system(system::despawn_screen::<PlayerMenu>.in_schedule(OnExit(GameState::PlayerMenu)))
+            .add_systems((turn_menu_setup, system::hide_board_entities).in_schedule(OnEnter(GameState::TurnMenu)))
+            .add_system(turn_menu_keyboard.in_set(OnUpdate(GameState::TurnMenu)))
+            .add_system(system::despawn_screen::<TurnMenu>.in_schedule(OnExit(GameState::TurnMenu)))
 
             // Specific transition/setup when going to next player
-            .add_system(player_menu_transition.in_set(OnUpdate(GameState::PlayerMenuTransition)))
+            .add_system(turn_menu_transition.in_set(OnUpdate(GameState::TurnMenuTransition)))
 
-            .add_system(player_menu_examine_spell_setup.in_schedule(OnEnter(GameState::PlayerMenuExamineSpell)))
-            .add_system(player_menu_examine_spell_keyboard.in_set(OnUpdate(GameState::PlayerMenuExamineSpell)))
-            .add_system(player_menu_choose_spell_keyboard.in_set(OnUpdate(GameState::PlayerMenuExamineSpell)))
-            .add_system(system::despawn_screen::<ExamineSpellScreen>.in_schedule(OnExit(GameState::PlayerMenuExamineSpell)))
+            .add_system(turn_menu_examine_spell_setup.in_schedule(OnEnter(GameState::TurnMenuExamineSpell)))
+            .add_system(turn_menu_examine_spell_keyboard.in_set(OnUpdate(GameState::TurnMenuExamineSpell)))
+            .add_system(turn_menu_choose_spell_keyboard.in_set(OnUpdate(GameState::TurnMenuExamineSpell)))
+            .add_system(system::despawn_screen::<ExamineSpellScreen>.in_schedule(OnExit(GameState::TurnMenuExamineSpell)))
 
-            .add_system(player_menu_examine_one_spell_setup.in_schedule(OnEnter(GameState::PlayerMenuExamineOneSpell)))
-            .add_system(player_menu_examine_one_spell_keyboard.in_set(OnUpdate(GameState::PlayerMenuExamineOneSpell)))
-            .add_system(system::despawn_screen::<ExamineOneSpellScreen>.in_schedule(OnExit(GameState::PlayerMenuExamineOneSpell)))
+            .add_system(turn_menu_examine_one_spell_setup.in_schedule(OnEnter(GameState::TurnMenuExamineOneSpell)))
+            .add_system(turn_menu_examine_one_spell_keyboard.in_set(OnUpdate(GameState::TurnMenuExamineOneSpell)))
+            .add_system(system::despawn_screen::<ExamineOneSpellScreen>.in_schedule(OnExit(GameState::TurnMenuExamineOneSpell)))
 
-            .add_system(player_menu_select_spell_setup.in_schedule(OnEnter(GameState::PlayerMenuSelectSpell)))
-            .add_system(player_menu_select_spell_keyboard.in_set(OnUpdate(GameState::PlayerMenuSelectSpell)))
-            .add_system(player_menu_choose_spell_keyboard.in_set(OnUpdate(GameState::PlayerMenuSelectSpell)))
-            .add_system(system::despawn_screen::<SelectSpellScreen>.in_schedule(OnExit(GameState::PlayerMenuSelectSpell)))
+            .add_system(turn_menu_select_spell_setup.in_schedule(OnEnter(GameState::TurnMenuSelectSpell)))
+            .add_system(turn_menu_select_spell_keyboard.in_set(OnUpdate(GameState::TurnMenuSelectSpell)))
+            .add_system(turn_menu_choose_spell_keyboard.in_set(OnUpdate(GameState::TurnMenuSelectSpell)))
+            .add_system(system::despawn_screen::<SelectSpellScreen>.in_schedule(OnExit(GameState::TurnMenuSelectSpell)))
 
-            .add_system(player_menu_examine_board_setup.in_schedule(OnEnter(GameState::PlayerMenuExamineBoard)))
-            .add_system(system::show_board_entities.in_schedule(OnEnter(GameState::PlayerMenuExamineBoard)))
-            .add_system(player_menu_examine_board_keyboard.in_set(OnUpdate(GameState::PlayerMenuExamineBoard)))
-            .add_system(board::board_describe_piece.in_set(OnUpdate(GameState::PlayerMenuExamineBoard)))
-            .add_system(player_menu_examine_board_exit.in_schedule(OnExit(GameState::PlayerMenuExamineBoard)))
-            .add_system(system::hide_board_entities.in_schedule(OnExit(GameState::PlayerMenuExamineBoard)))
+            .add_system(turn_menu_examine_board_setup.in_schedule(OnEnter(GameState::TurnMenuExamineBoard)))
+            .add_system(system::show_board_entities.in_schedule(OnEnter(GameState::TurnMenuExamineBoard)))
+            .add_system(turn_menu_examine_board_keyboard.in_set(OnUpdate(GameState::TurnMenuExamineBoard)))
+            .add_system(board::board_describe_piece.in_set(OnUpdate(GameState::TurnMenuExamineBoard)))
+            .add_system(turn_menu_examine_board_exit.in_schedule(OnExit(GameState::TurnMenuExamineBoard)))
+            .add_system(system::hide_board_entities.in_schedule(OnExit(GameState::TurnMenuExamineBoard)))
             ;
     }
 }
 
 #[derive(Component, Clone, Copy)]
-struct PlayerMenu;
+struct TurnMenu;
 
-fn player_menu_setup(
+fn turn_menu_setup(
     mut commands: Commands,
     g: Res<Game>,
     mut keys: ResMut<Input<KeyCode>>,
 ) {
     keys.clear();
-    print_text(&g.get_player().name, &mut commands, g.fah(), Vec2::new(1.0, 7.0), WHITE, PlayerMenu);
-    print_text("1. Examine Spells", &mut commands, g.fah(), Vec2::new(1.0, 5.0), WHITE, PlayerMenu);
-    print_text("2. Select Spell", &mut commands, g.fah(), Vec2::new(1.0, 4.0), WHITE, PlayerMenu);
-    print_text("3. Examine Board", &mut commands, g.fah(), Vec2::new(1.0, 3.0), WHITE, PlayerMenu);
-    print_text("4. Continue with Game", &mut commands, g.fah(), Vec2::new(1.0, 2.0), WHITE, PlayerMenu);
+    print_text(&g.get_player().name, &mut commands, g.fah(), Vec2::new(1.0, 7.0), WHITE, TurnMenu);
+    print_text("1. Examine Spells", &mut commands, g.fah(), Vec2::new(1.0, 5.0), WHITE, TurnMenu);
+    print_text("2. Select Spell", &mut commands, g.fah(), Vec2::new(1.0, 4.0), WHITE, TurnMenu);
+    print_text("3. Examine Board", &mut commands, g.fah(), Vec2::new(1.0, 3.0), WHITE, TurnMenu);
+    print_text("4. Continue with Game", &mut commands, g.fah(), Vec2::new(1.0, 2.0), WHITE, TurnMenu);
 }
 
-fn player_menu_keyboard(
+fn turn_menu_keyboard(
     mut state: ResMut<NextState<GameState>>,
     mut keys: ResMut<Input<KeyCode>>,
 ) {
     if keys.just_pressed(KeyCode::Key1) {
         keys.reset(KeyCode::Key4);
-        state.set(GameState::PlayerMenuExamineSpell);
+        state.set(GameState::TurnMenuExamineSpell);
     }
     if keys.just_pressed(KeyCode::Key2) {
         keys.reset(KeyCode::Key2);
-        state.set(GameState::PlayerMenuSelectSpell);
+        state.set(GameState::TurnMenuSelectSpell);
     }
     if keys.just_pressed(KeyCode::Key3) {
         keys.reset(KeyCode::Key3);
-        state.set(GameState::PlayerMenuExamineBoard);
+        state.set(GameState::TurnMenuExamineBoard);
     }
     if keys.just_pressed(KeyCode::Key4) {
         keys.reset(KeyCode::Key4);
-        state.set(GameState::PlayerMenuTransition);
+        state.set(GameState::TurnMenuTransition);
     }
 }
 
-fn player_menu_transition(
+fn turn_menu_transition(
     mut state: ResMut<NextState<GameState>>,
     mut g: ResMut<Game>,
     mut cursor: ResMut<Cursor>,
@@ -94,11 +94,11 @@ fn player_menu_transition(
         cursor.set_visible();
         state.set(GameState::CastSpellSetup);
     } else {
-        state.set(GameState::PlayerMenu);
+        state.set(GameState::TurnMenu);
     }
 }
 
-fn player_menu_choose_spell_setup(
+fn turn_menu_choose_spell_setup(
     mut commands: Commands,
     g: Res<Game>,
     screen: impl Component + std::marker::Copy,
@@ -121,60 +121,60 @@ fn player_menu_choose_spell_setup(
 #[derive(Component, Clone, Copy)]
 struct ExamineSpellScreen;
 
-fn player_menu_examine_spell_setup(
+fn turn_menu_examine_spell_setup(
     commands: Commands,
     g: Res<Game>,
     ev_text: EventWriter<BottomTextEvent>,
 ) {
-    player_menu_choose_spell_setup(commands, g, ExamineSpellScreen, ev_text);
+    turn_menu_choose_spell_setup(commands, g, ExamineSpellScreen, ev_text);
 }
 
-fn player_menu_choose_spell_keyboard(
+fn turn_menu_choose_spell_keyboard(
     mut state: ResMut<NextState<GameState>>,
     mut keys: ResMut<Input<KeyCode>>,
     mut char_evr: ResMut<Events<ReceivedCharacter>>,
     g: Res<Game>,
-    mut ev_choose_spell: EventWriter<PlayerMenuEvent>,
+    mut ev_choose_spell: EventWriter<TurnMenuEvent>,
 ) {
     let player = g.get_player();
     if keys.just_pressed(KeyCode::Key0) {
         keys.reset(KeyCode::Key0);
-        state.set(GameState::PlayerMenu);
+        state.set(GameState::TurnMenu);
     }
     for ev in char_evr.drain() {
         let c = ev.char as usize;
         if c >= 65 && c <= 65 + player.spells.len() {
             let choice = c-65;
             info!("Chosen spell {choice}");
-            ev_choose_spell.send(PlayerMenuEvent(choice));
+            ev_choose_spell.send(TurnMenuEvent(choice));
         }
         if c >= 97 && c <= 97 + player.spells.len() {
             let choice = c-97;
             info!("Chosen spell {choice}");
-            ev_choose_spell.send(PlayerMenuEvent(choice));
+            ev_choose_spell.send(TurnMenuEvent(choice));
         }
     }
 }
 
-struct PlayerMenuEvent(usize);
+struct TurnMenuEvent(usize);
 
-fn player_menu_examine_spell_keyboard(
+fn turn_menu_examine_spell_keyboard(
     mut state: ResMut<NextState<GameState>>,
-    mut ev_choose_spell: EventReader<PlayerMenuEvent>,
+    mut ev_choose_spell: EventReader<TurnMenuEvent>,
 ) {
     for _ in ev_choose_spell.iter() {
-        print!("LEAVE examine spell, set state PlayerMenuExamineOneSpell");
-        state.set(GameState::PlayerMenuExamineOneSpell);
+        print!("LEAVE examine spell, set state TurnMenuExamineOneSpell");
+        state.set(GameState::TurnMenuExamineOneSpell);
     }
 }
 
 #[derive(Component, Clone, Copy)]
 struct ExamineOneSpellScreen;
 
-fn player_menu_examine_one_spell_setup(
+fn turn_menu_examine_one_spell_setup(
     mut commands: Commands,
     g: Res<Game>,
-    mut ev_choose_spell: EventReader<PlayerMenuEvent>,
+    mut ev_choose_spell: EventReader<TurnMenuEvent>,
     mut ev_text: EventWriter<BottomTextEvent>,
 ) {
     for ev in ev_choose_spell.iter() {
@@ -189,32 +189,32 @@ fn player_menu_examine_one_spell_setup(
     ev_text.send(BottomTextEvent::from("      Any key to exit"));
 }
 
-fn player_menu_examine_one_spell_keyboard(
+fn turn_menu_examine_one_spell_keyboard(
     mut state: ResMut<NextState<GameState>>,
     mut char_evr: ResMut<Events<ReceivedCharacter>>,
 ) {
     for _ in char_evr.drain() {
-        state.set(GameState::PlayerMenuExamineSpell);
+        state.set(GameState::TurnMenuExamineSpell);
     }
 }
 
 #[derive(Component, Clone, Copy)]
 struct SelectSpellScreen;
 
-fn player_menu_select_spell_setup(
+fn turn_menu_select_spell_setup(
     commands: Commands,
     g: Res<Game>,
     ev_text: EventWriter<BottomTextEvent>,
 ) {
-    player_menu_choose_spell_setup(commands, g, SelectSpellScreen, ev_text);
+    turn_menu_choose_spell_setup(commands, g, SelectSpellScreen, ev_text);
 }
 
 #[derive(Default)]
 struct PickIllusion(bool);
 
-fn player_menu_select_spell_keyboard(
+fn turn_menu_select_spell_keyboard(
     mut state: ResMut<NextState<GameState>>,
-    mut ev_choose_spell: EventReader<PlayerMenuEvent>,
+    mut ev_choose_spell: EventReader<TurnMenuEvent>,
     mut g: ResMut<Game>,
     mut ev_text: EventWriter<BottomTextEvent>,
     mut pickillusion: Local<PickIllusion>,
@@ -225,13 +225,13 @@ fn player_menu_select_spell_keyboard(
             keys.reset(KeyCode::Y);
             g.get_player_mut().spells.illusion = true;
             (*pickillusion).0 = false;
-            state.set(GameState::PlayerMenu);
+            state.set(GameState::TurnMenu);
         }
         if keys.just_pressed(KeyCode::N) {
             keys.reset(KeyCode::N);
             g.get_player_mut().spells.illusion = false;
             (*pickillusion).0 = false;
-            state.set(GameState::PlayerMenu);
+            state.set(GameState::TurnMenu);
         }
     } else {
         for ev in ev_choose_spell.iter() {
@@ -241,13 +241,13 @@ fn player_menu_select_spell_keyboard(
                 (*pickillusion).0 = true;
                 ev_text.send(BottomTextEvent::from("Illusion? (Y/N)"));
             } else {
-                state.set(GameState::PlayerMenu);
+                state.set(GameState::TurnMenu);
             }
         }
     }
 }
 
-fn player_menu_examine_board_setup(
+fn turn_menu_examine_board_setup(
     mut ev_text: EventWriter<BottomTextEvent>,
     mut cursor: ResMut<Cursor>,
     g: Res<Game>,
@@ -261,17 +261,17 @@ fn player_menu_examine_board_setup(
     ev_cursor_pos.send(PositionCursorOnEntity(player.handle.unwrap()));
 }
 
-fn player_menu_examine_board_keyboard(
+fn turn_menu_examine_board_keyboard(
     mut state: ResMut<NextState<GameState>>,
     mut keys: ResMut<Input<KeyCode>>,
 ) {
     if keys.just_pressed(KeyCode::Key0) {
         keys.reset(KeyCode::Key0);
-        state.set(GameState::PlayerMenu);
+        state.set(GameState::TurnMenu);
     }
 }
 
-fn player_menu_examine_board_exit(
+fn turn_menu_examine_board_exit(
     mut ev_text: EventWriter<BottomTextEvent>,
     mut cursor: ResMut<Cursor>,
 ) {

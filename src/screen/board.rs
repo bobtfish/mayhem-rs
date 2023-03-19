@@ -63,10 +63,10 @@ fn move_next(
     if g.player_turn >= g.players {
         println!("Moving finished, next turn now");
         ev_text.send(BottomTextEvent::clear());
-        println!("next_turn set state GameState::PlayerMenu");
+        println!("next_turn set state GameState::TurnMenu");
         g.player_turn = 0;
         cursor.set_invisible();
-        state.set(GameState::PlayerMenu);
+        state.set(GameState::TurnMenu);
     } else {
         println!("Player turn to move");
         let player = g.get_player();
