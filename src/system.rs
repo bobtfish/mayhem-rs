@@ -21,7 +21,7 @@ pub struct Named {
     pub name: String
 }
 
-#[derive(Component)]
+#[derive(Component, Debug)]
 pub struct BelongsToPlayer {
     pub player_entity: Entity
 }

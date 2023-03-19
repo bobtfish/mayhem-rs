@@ -3,7 +3,6 @@ Track law rating of player
 Spells - actually work out casting chance based on law rating of player
 Animation for spell casting
 Spell casting chance % - spells fail
-Movement - can move onto other things
 Ranged attack
   - cursor should move to creature
   - Can attack self

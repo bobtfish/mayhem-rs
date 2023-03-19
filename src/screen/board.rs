@@ -13,9 +13,9 @@ pub struct BoardPlugin;
 impl Plugin for BoardPlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_system(move_setup.in_schedule(OnEnter(GameState::MoveSetup)))
             .add_system(move_next.in_set(OnUpdate(GameState::MoveSetup)))
 
+            .add_system(move_choose_setup.in_schedule(OnEnter(GameState::MoveChoose)))
             .add_systems((move_choose_keyboard, board_describe_piece).in_set(OnUpdate(GameState::MoveChoose)))
 
             .add_system(move_moving_keyboard.in_set(OnUpdate(GameState::MoveMoving)))
@@ -25,7 +25,10 @@ impl Plugin for BoardPlugin {
                     board_describe_piece,
                     ranged_attack_keyboard,
                 ).in_set(OnUpdate(GameState::RangedAttackChoose)))
-            .add_system(ranged_attack_exit.in_schedule(OnExit(GameState::RangedAttackChoose)));
+            .add_system(ranged_attack_exit.in_schedule(OnExit(GameState::RangedAttackChoose)))
+
+            .add_system(attack_do.in_set(OnUpdate(GameState::AttackDo)))
+            ;
     }
 }
 
@@ -37,13 +40,6 @@ struct MovingComponent {
 
 #[derive(Component)]
 struct HasMoved;
-
-fn move_setup(
-    mut cursor: ResMut<Cursor>,
-) {
-    cursor.set_type(CURSOR_BOX);
-    println!("In move setup");
-}
 
 fn move_next(
     mut state: ResMut<NextState<GameState>>,
@@ -77,6 +73,16 @@ fn move_next(
 
 #[derive(Component)]
 struct RangedAttackComponent;
+
+fn move_choose_setup(
+    mut cursor: ResMut<Cursor>,
+    mut ev_text: EventWriter<BottomTextEvent>,
+) {
+    ev_text.send(BottomTextEvent::clear());
+    cursor.set_visible();
+    cursor.set_type(CURSOR_BOX);
+    println!("In move choose setup");
+}
 
 fn move_choose_keyboard(
     mut g: ResMut<Game>,
@@ -154,7 +160,10 @@ fn move_moving_keyboard(
     mut ev_text: EventWriter<BottomTextEvent>,
     mut ev_move: EventWriter<BoardMove>,
     mut moving_q: Query<(Entity, &MoveableComponent, &MovingComponent)>,
+    mut other_q: Query<&BelongsToPlayer>,
     board: Res<GameBoard>,
+    game: Res<Game>,
+    mut commands: Commands,
 ) {
     let (entity, movable, moving) = moving_q.single_mut();
     if movable.flying {
@@ -173,10 +182,25 @@ fn move_moving_keyboard(
                 ev_text.send(BottomTextEvent::from("Out of range"));
                 cursor.hide_till_moved();
             } else if board.has_entity_at(cursor_pos) {
-                ev_text.send(BottomTextEvent::from("Cannot move to occupied square"));
+                let other_entity = board.get_entity(cursor_pos).unwrap();
+                let belongs_to = match other_q.get_mut(other_entity) {
+                    Ok(b) => b.player_entity,
+                    Err(_e) => other_entity,
+                };
+                let current_player_entity = game.get_player().handle.unwrap();
+                info!("Current player is {:?}", current_player_entity);
+                info!("Belongs to {:?}", belongs_to);
+                if current_player_entity == belongs_to {
+                    ev_text.send(BottomTextEvent::from("Cannot move to occupied square"));
+                } else {
+                    info!("Can attack");
+                    commands.entity(entity).insert(AttackingComponent{
+                        attackee: other_entity,
+                    });
+                    state.set(GameState::AttackDo);
+                }
             } else {
                 ev_text.send(BottomTextEvent::clear());
-                cursor.set_type(CURSOR_BOX);
                 ev_move.send(BoardMove{
                     entity,
                     to: cursor_pos,
@@ -196,8 +220,24 @@ fn move_moving_keyboard(
         for cur in ev_cursor.iter() {
             println!("Got cursor moved event in move one from {} to {}", moving.start_pos, cur.0);
             if board.has_entity_at(cur.0) {
-                ev_text.send(BottomTextEvent::from("Cannot move to occupied square"));
-                cursor.set_pos(cur.1);
+                let other_entity = board.get_entity(cur.0).unwrap();
+                let belongs_to = match other_q.get_mut(other_entity) {
+                    Ok(b) => b.player_entity,
+                    Err(_e) => other_entity,
+                };
+                let current_player_entity = game.get_player().handle.unwrap();
+                info!("Current player is {:?}", current_player_entity);
+                info!("Belongs to {:?}", belongs_to);
+                if current_player_entity == belongs_to {
+                    ev_text.send(BottomTextEvent::from("Cannot move to occupied square"));
+                    cursor.set_pos(cur.1);
+                } else {
+                    info!("Can attack");
+                    commands.entity(entity).insert(AttackingComponent{
+                        attackee: other_entity,
+                    });
+                    state.set(GameState::AttackDo);
+                }
             } else {
                 ev_text.send(BottomTextEvent::clear());
                 ev_move.send(BoardMove{
@@ -216,6 +256,23 @@ fn move_moving_keyboard(
             }
         }
     }
+}
+
+#[derive(Component)]
+struct AttackingComponent {
+    attackee: Entity
+}
+
+fn attack_do(
+    mut state: ResMut<NextState<GameState>>,
+    mut commands: Commands,
+    attacking_q: Query<(Entity), With<AttackingComponent>>,
+) {
+    for (e) in attacking_q.iter() {
+        commands.entity(e).remove::<AttackingComponent>();
+    }
+    info!("Finished attack, next move");
+    state.set(GameState::MoveChoose);
 }
 
 fn ranged_attack_setup(

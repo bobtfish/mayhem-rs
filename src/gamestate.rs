@@ -26,6 +26,7 @@ pub enum GameState {
     MoveSetup,
     MoveChoose,
     MoveMoving,
+    AttackDo,
     RangedAttackChoose,
     RangedAttackDo,
 }
