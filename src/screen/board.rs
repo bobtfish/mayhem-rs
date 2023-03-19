@@ -158,6 +158,13 @@ fn move_moving_keyboard(
 ) {
     let (entity, movable, moving) = moving_q.single_mut();
     if movable.flying {
+        if keys.just_pressed(KeyCode::K) {
+            // Cancel movement
+            ev_text.send(BottomTextEvent::clear());
+            cursor.set_type(CURSOR_BOX);
+            state.set(GameState::MoveChoose);
+            info!("cancelled move");
+        }
         if keys.just_pressed(KeyCode::S) {
             keys.reset(KeyCode::S);
             let cursor_pos = cursor.get_pos_v();
@@ -175,10 +182,17 @@ fn move_moving_keyboard(
                     to: cursor_pos,
                 });
                 state.set(GameState::MoveChoose);
-                println!("Finished move");
+                info!("Finished move");
             }
         }
     } else {
+        if keys.just_pressed(KeyCode::K) {
+            // Cancel movement
+            ev_text.send(BottomTextEvent::clear());
+            cursor.set_visible();
+            state.set(GameState::MoveChoose);
+            info!("cancelled move");
+        }
         for cur in ev_cursor.iter() {
             println!("Got cursor moved event in move one from {} to {}", moving.start_pos, cur.0);
             if board.has_entity_at(cur.0) {
@@ -191,13 +205,13 @@ fn move_moving_keyboard(
                     to: cur.0,
                 });
                 let distance = Vec2I::from(cur.0).distance(Vec2I::from(moving.start_pos));
-                println!("Moved distance {} has movement {}", distance, movable.movement);
+                info!("Moved distance {} has movement {}", distance, movable.movement);
                 let distance_left = movable.movement.checked_sub(distance);
                 if distance_left.unwrap_or(0) == 0 || moving.steps >= movable.movement {
-                    println!("No movement left, clear entity");
+                    info!("No movement left, clear entity");
                     cursor.set_visible();
                     state.set(GameState::MoveChoose);
-                    println!("Finished move of this piece, choose next");
+                    info!("Finished move of this piece, choose next");
                 }
             }
         }
@@ -227,6 +241,10 @@ fn ranged_attack_keyboard(
     mut state: ResMut<NextState<GameState>>,
     mut ev_text: EventWriter<BottomTextEvent>,
 ) {
+    if keys.just_pressed(KeyCode::K) {
+        state.set(GameState::MoveChoose);
+        info!("cancelled attack");
+    }
     if keys.just_pressed(KeyCode::S) {
         keys.reset(KeyCode::S);
         ev_text.send(BottomTextEvent::clear());
