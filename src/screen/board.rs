@@ -76,9 +76,7 @@ struct RangedAttackComponent;
 
 fn move_choose_setup(
     mut cursor: ResMut<Cursor>,
-    mut ev_text: EventWriter<BottomTextEvent>,
 ) {
-    ev_text.send(BottomTextEvent::clear());
     cursor.set_visible();
     cursor.set_type(CURSOR_BOX);
     println!("In move choose setup");
@@ -267,7 +265,9 @@ fn attack_do(
     mut state: ResMut<NextState<GameState>>,
     mut commands: Commands,
     attacking_q: Query<(Entity), With<AttackingComponent>>,
+    mut ev_text: EventWriter<BottomTextEvent>,
 ) {
+    ev_text.send(BottomTextEvent::clear());
     for (e) in attacking_q.iter() {
         commands.entity(e).remove::<AttackingComponent>();
     }
