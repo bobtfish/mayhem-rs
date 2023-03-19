@@ -1,5 +1,5 @@
 use bevy::math::vec2;
-use bevy::{prelude::*};
+use bevy::prelude::*;
 use super::constants::{ANIMATION_TICK, WIDTH, HEIGHT, CURSOR_Z};
 use super::Game;
 use crate::display;

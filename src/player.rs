@@ -6,36 +6,6 @@ use crate::system::{BoardEntity, Named, BelongsToPlayer};
 use rand::prelude::SliceRandom;
 use rand::Rng;
 
-pub struct SpellList {
-    pub spells: Vec<Box<dyn ASpell + Sync + Send>>,
-    pub chosen_spell: Option<usize>,
-    pub illusion: bool,
-}
-impl SpellList {
-    pub fn set_chosen(&mut self, idx: usize) {
-        self.chosen_spell = Some(idx);
-    }
-    pub fn get_chosen_spell(
-        &self
-    ) -> Option<&dyn ASpell> {
-        self.chosen_spell?;
-        Some(self.get_spell(self.chosen_spell.unwrap()))
-    }
-    pub fn get_spell(&self, idx: usize) -> &dyn ASpell {
-        &*self.spells[idx]
-    }
-    pub fn len(&self) -> usize {
-        self.spells.len()
-    }
-    pub fn pop_chosen_spell(&mut self) -> Box<dyn ASpell> {
-        let idx = self.chosen_spell.unwrap();
-        self.chosen_spell = None;
-        if !self.spells[idx].reusable() {
-            return self.spells.remove(idx);
-        }
-        return self.spells[idx].clone();
-    }
-}
 pub struct Player {
     pub name: String,
     pub computer_controlled: bool,
@@ -49,11 +19,6 @@ pub struct Player {
     pub combat: u8,
     pub manoeuvre: u8,
     pub magic_resistance: u8,
-}
-
-pub enum CastFailed {
-    OutOfRange,
-    NotThere,
 }
 
 impl Player {
@@ -102,7 +67,7 @@ impl Player {
             .insert(BoardEntity)
             .insert(Named{ name: self.name.clone() })
             .id();
-        println!("Add entity {entity:?}");
+        info!("Add entity {entity:?}");
         self.handle = Some(entity);
     }
     pub fn cast(
@@ -174,6 +139,42 @@ impl ASpell for PlayerSpell {
     }
     fn get_description(&self) -> Vec<String> {
         Vec::new()
+    }
+}
+
+pub enum CastFailed {
+    OutOfRange,
+    NotThere,
+}
+pub struct SpellList {
+    pub spells: Vec<Box<dyn ASpell + Sync + Send>>,
+    pub chosen_spell: Option<usize>,
+    pub illusion: bool,
+}
+
+impl SpellList {
+    pub fn set_chosen(&mut self, idx: usize) {
+        self.chosen_spell = Some(idx);
+    }
+    pub fn get_chosen_spell(
+        &self
+    ) -> Option<&dyn ASpell> {
+        self.chosen_spell?;
+        Some(self.get_spell(self.chosen_spell.unwrap()))
+    }
+    pub fn get_spell(&self, idx: usize) -> &dyn ASpell {
+        &*self.spells[idx]
+    }
+    pub fn len(&self) -> usize {
+        self.spells.len()
+    }
+    pub fn pop_chosen_spell(&mut self) -> Box<dyn ASpell> {
+        let idx = self.chosen_spell.unwrap();
+        self.chosen_spell = None;
+        if !self.spells[idx].reusable() {
+            return self.spells.remove(idx);
+        }
+        return self.spells[idx].clone();
     }
 }
 

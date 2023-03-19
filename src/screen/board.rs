@@ -4,7 +4,7 @@ use crate::creature::RangedCombat;
 use crate::gamestate::GameState;
 use crate::game::Game;
 use crate::display::{BottomTextEvent};
-use crate::system::{self, Named, BelongsToPlayer};
+use crate::system::{Named, BelongsToPlayer};
 use crate::cursor::{CURSOR_BOX, CursorMovedEvent, CURSOR_FLY, PositionCursorOnEntity, Cursor, CURSOR_TARGET};
 use crate::vec::Vec2I;
 
@@ -42,7 +42,6 @@ struct MovingComponent {
 struct HasMoved;
 
 fn move_setup(
-    mut g: ResMut<Game>,
     mut cursor: ResMut<Cursor>,
 ) {
     cursor.set_type(CURSOR_BOX);
