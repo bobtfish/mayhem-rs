@@ -14,6 +14,7 @@ fn main() {
     .add_plugin(RenetServerPlugin::default())
     .insert_resource(create_renet_server())
     .add_system(server_events)
+    .add_system(server_ping)
     .run()
 }
 
@@ -41,6 +42,26 @@ fn server_events(
                 info!("Client connected: {} {}", id, username);
             },
             ServerEvent::ClientDisconnected(id) => info!("Client disconnected: {}", id),
+        }
+    }
+}
+
+fn server_ping(
+    mut server: ResMut<RenetServer>,
+) {
+    let reliable_channel_id = ReliableChannelConfig::default().channel_id;
+
+    for client_id in server.clients_id().into_iter() {
+        while let Some(message) = server.receive_message(client_id, reliable_channel_id) {
+            let client_message: ClientMessage = bincode::deserialize(&message).unwrap();
+            match client_message {
+                ClientMessage::Ping => {
+                    info!("Got ping!");
+
+                    let pong = bincode::serialize(&ServerMessage::Pong).unwrap();
+                    server.send_message(client_id, reliable_channel_id, pong);
+                }
+            }
         }
     }
 }

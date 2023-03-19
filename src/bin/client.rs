@@ -50,6 +50,7 @@ fn main() {
         .insert_resource(create_renet_client(server_addr, username))
         .insert_resource(ClearColor(Color::rgb(0.0, 0.0, 0.0)))
         .add_system(bevy::window::close_on_esc)
+        .add_system(client_ping)
         .run();
 }
 
@@ -71,4 +72,26 @@ fn create_renet_client(server_addr: SocketAddr, username: Username) -> RenetClie
         authentication,
     );
     client.unwrap()
+}
+
+fn client_ping(
+    mut client: ResMut<RenetClient>,
+    keyboard: Res<Input<KeyCode>>,
+) {
+    let reliable_channel_id = ReliableChannelConfig::default().channel_id;
+
+    if keyboard.just_pressed(KeyCode::Space) {
+        let ping_message = bincode::serialize(&ClientMessage::Ping).unwrap();
+        client.send_message(reliable_channel_id, ping_message);
+        info!("Sent ping!");
+    }
+
+    while let Some(message) = client.receive_message(reliable_channel_id) {
+        let server_message = bincode::deserialize(&message).unwrap();
+        match server_message {
+            ServerMessage::Pong => {
+                info!("Got pong");
+            }
+        }
+    }
 }
