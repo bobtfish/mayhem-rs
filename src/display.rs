@@ -101,21 +101,26 @@ pub fn print_text(str: &str, commands: &mut Commands, fah: Handle<TextureAtlas>,
     entities
 }
 
+#[derive(Default, PartialEq, Eq)]
+pub enum BottomTextState {
+    #[default]
+    Cleared,
+    Set
+}
+
 #[derive(Component, Copy, Clone)]
 pub struct BottomText;
 
-#[derive(Debug)]
-pub struct BottomTextEvent(Option<String>, bool);
+#[derive(Debug, Deref)]
+pub struct BottomTextEvent(Option<String>);
 impl BottomTextEvent {
-    pub fn noclear(s: &str) -> Self {
-        Self(Some(String::from(s)), false)
-    }
     pub fn from(s: &str) -> Self {
-        Self(Some(String::from(s)), true)
+        debug!("MAKE BOTTOM TEXT {}", s);
+        Self(Some(String::from(s)))
     }
     pub fn clear() -> Self {
         debug!("Generate clear event for bottom text");
-        Self(None, true)
+        Self(None)
     }
 }
 
@@ -124,17 +129,23 @@ pub fn manage_text_bottom(
     game: Res<Game>,
     mut ev_text: EventReader<BottomTextEvent>,
     to_despawn: Query<Entity, With<BottomText>>,
+    mut state: Local<BottomTextState>,
 ) {
     for ev in ev_text.iter() {
-        if ev.1 {
+        debug!("Bottom text event {:#?}", ev);
+        if *state == BottomTextState::Cleared {
+            debug!("Skipping clearing bottom text state as already cleared");
+        } else {
             debug!("DESPAWN BOTTOM TEXT");
             for entity in &to_despawn {
                 commands.entity(entity).despawn_recursive();
             }
+            *state = BottomTextState::Cleared;
         }
-        if ev.0.is_some() {
-            debug!("PRINT NEW BOTTOM TEXT {}", ev.0.as_ref().unwrap());
-            print_text(ev.0.as_ref().unwrap(), &mut commands, game.fah(), vec2(0.0, -1.5), WHITE, BottomText);
+        if ev.is_some() {
+            debug!("PRINT NEW BOTTOM TEXT {}", ev.as_ref().unwrap());
+            print_text(ev.as_ref().unwrap(), &mut commands, game.fah(), vec2(0.0, -1.5), WHITE, BottomText);
+            *state = BottomTextState::Set;
         }
     }
 }

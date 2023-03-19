@@ -51,7 +51,7 @@ fn initial_menu_setup(
     print_text("         By bobtfish", &mut commands, game.fah(), Vec2::new(0.5, 7.0), WHITE, InitialMenuScreen);
     print_text("How many wizards?", &mut commands, game.fah(), Vec2::new(0.5, 5.0), WHITE, InitialMenuScreen);
     print_text("(Press 2 to 8)", &mut commands, game.fah(), Vec2::new(0.5, 4.0), WHITE, InitialMenuScreen);
-    ev_text.send(BottomTextEvent::noclear("      Press H for help"));
+    ev_text.send(BottomTextEvent::from("      Press H for help"));
     if game.players > 0 {
         draw_level(game.players, &mut commands, game.fah());
     }

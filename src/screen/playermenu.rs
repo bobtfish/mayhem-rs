@@ -115,7 +115,7 @@ fn player_menu_choose_spell_setup(
         name_str.push_str(&spell.name());
         print_text(&name_str, &mut commands, g.fah(), Vec2::new(x, 8.0-f32::from(i/2)), spell.casting_chance_color(), screen);
     }
-    ev_text.send(BottomTextEvent::noclear("      Press 0 to exit"));
+    ev_text.send(BottomTextEvent::from("      Press 0 to exit"));
 }
 
 #[derive(Component, Clone, Copy)]
@@ -186,7 +186,7 @@ fn player_menu_examine_one_spell_setup(
             print_text(line, &mut commands, g.fah(), Vec2::new(1.0, 8.0-i as f32), WHITE, ExamineOneSpellScreen);
         }
     }
-    ev_text.send(BottomTextEvent::noclear("      Any key to exit"));
+    ev_text.send(BottomTextEvent::from("      Any key to exit"));
 }
 
 fn player_menu_examine_one_spell_keyboard(
@@ -253,7 +253,7 @@ fn player_menu_examine_board_setup(
     g: Res<Game>,
     mut ev_cursor_pos: EventWriter<PositionCursorOnEntity>,
 ) {
-    ev_text.send(BottomTextEvent::noclear("      Press 0 to exit"));
+    ev_text.send(BottomTextEvent::from("      Press 0 to exit"));
     cursor.set_type(CURSOR_BOX);
     cursor.set_visible();
     cursor.hide_till_moved();

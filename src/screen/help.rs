@@ -62,7 +62,7 @@ fn help_setup(
     print_text("5. Mounts", &mut commands, g.fah(), Vec2::new(0.0, 3.0), WHITE, HelpScreen);
     print_text("6. Victory", &mut commands, g.fah(), Vec2::new(0.0, 2.0), WHITE, HelpScreen);
     debug!("printed help");
-    ev_text.send(BottomTextEvent::noclear("Press Keys 1-6 or 0 to return"));
+    ev_text.send(BottomTextEvent::from("Press Keys 1-6 or 0 to return"));
 }
 
 fn help_keyboard_input(
@@ -134,7 +134,7 @@ fn help_keys_setup(
 	print_text("1-8 - Highlight creations of", &mut commands, g.fah(), Vec2::new(0.0, 2.0), WHITE, HelpScreen);
 	print_text("      player # 1-8", &mut commands, g.fah(), Vec2::new(0.0, 1.0), WHITE, HelpScreen);
 	print_text("0 - End turn", &mut commands, g.fah(), Vec2::new(0.0, 0.0), WHITE, HelpScreen);
-	ev_text.send(BottomTextEvent::noclear("   Press any key to continue "));
+	ev_text.send(BottomTextEvent::from("   Press any key to continue "));
 }
 
 fn help_spells_setup(
@@ -150,7 +150,7 @@ fn help_spells_setup(
 	print_text("Illusions always succeed but", &mut commands, g.fah(), Vec2::new(0.0, 3.0), WHITE, HelpScreen);
 	print_text("can be disbelieved by others.", &mut commands, g.fah(), Vec2::new(0.0, 2.0), WHITE, HelpScreen);
 	print_text("   ^=law *=chaos -=neutral", &mut commands, g.fah(), Vec2::new(0.0, 0.0), WHITE, HelpScreen);
-	ev_text.send(BottomTextEvent::noclear("   Press any key to continue "));
+	ev_text.send(BottomTextEvent::from("   Press any key to continue "));
 }
 
 
@@ -168,7 +168,7 @@ fn help_combat_setup(
 	print_text("If adjacent next turn you may", &mut commands, g.fah(), Vec2::new(0.0, 3.0), WHITE, HelpScreen);
 	print_text("remain engaged or may be able", &mut commands, g.fah(), Vec2::new(0.0, 2.0), WHITE, HelpScreen);
 	print_text("to break away.", &mut commands, g.fah(), Vec2::new(0.0, 1.0), WHITE, HelpScreen);
-	ev_text.send(BottomTextEvent::noclear("   Press any key to continue "));
+	ev_text.send(BottomTextEvent::from("   Press any key to continue "));
 }
 
 fn help_combat_keyboard_input(
@@ -201,7 +201,7 @@ fn help_ranged_combat_setup(
 	print_text("direction keys, press S to", &mut commands, g.fah(), Vec2::new(0.0, 2.0), WHITE, HelpScreen);
 	print_text("fire. Target must be in line", &mut commands, g.fah(), Vec2::new(0.0, 1.0), WHITE, HelpScreen);
 	print_text("of sight.", &mut commands, g.fah(), Vec2::new(0.0, 0.0), WHITE, HelpScreen);
-	ev_text.send(BottomTextEvent::noclear("   Press any key to continue "));
+	ev_text.send(BottomTextEvent::from("   Press any key to continue "));
 }
 
 fn help_undead_setup(
@@ -218,7 +218,7 @@ fn help_undead_setup(
 	print_text("The raise dead spell will", &mut commands, g.fah(), Vec2::new(0.0, 2.0), WHITE, HelpScreen);
 	print_text("turn a corpse into an undead", &mut commands, g.fah(), Vec2::new(0.0, 1.0), WHITE, HelpScreen);
 	print_text("creature.", &mut commands, g.fah(), Vec2::new(0.0, 0.0), WHITE, HelpScreen);
-	ev_text.send(BottomTextEvent::noclear("   Press any key to continue "));
+	ev_text.send(BottomTextEvent::from("   Press any key to continue "));
 }
 
 
@@ -237,7 +237,7 @@ fn help_mounts_setup(
 	print_text("and your wizard cannot be", &mut commands, g.fah(), Vec2::new(0.0, 2.0), WHITE, HelpScreen);
 	print_text("killed unless their mount is", &mut commands, g.fah(), Vec2::new(0.0, 1.0), WHITE, HelpScreen);
 	print_text("killed first.", &mut commands, g.fah(), Vec2::new(0.0, 0.0), WHITE, HelpScreen);
-	ev_text.send(BottomTextEvent::noclear("   Press any key to continue "));
+	ev_text.send(BottomTextEvent::from("   Press any key to continue "));
 }
 
 fn help_victory_setup(
@@ -252,5 +252,5 @@ fn help_victory_setup(
 	print_text("When a player is killed, all", &mut commands, g.fah(), Vec2::new(0.0, 4.0), WHITE, HelpScreen);
 	print_text("of their creations will also", &mut commands, g.fah(), Vec2::new(0.0, 3.0), WHITE, HelpScreen);
 	print_text("vanish.", &mut commands, g.fah(), Vec2::new(0.0, 2.0), WHITE, HelpScreen);
-	ev_text.send(BottomTextEvent::noclear("   Press any key to continue "));
+	ev_text.send(BottomTextEvent::from("   Press any key to continue "));
 }

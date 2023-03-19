@@ -12,6 +12,7 @@ pub fn despawn_screen<T: Component>(
         trace!("Despawn entity {entity:?}");
         commands.entity(entity).despawn();
     }
+    debug!("Despawn screen sending BottomTextEvent::clear()");
     ev_text.send(BottomTextEvent::clear());
 }
 
