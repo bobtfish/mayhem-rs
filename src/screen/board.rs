@@ -3,7 +3,7 @@ use crate::board::{GameBoard, BoardMove, MoveableComponent};
 use crate::creature::RangedCombat;
 use crate::gamestate::GameState;
 use crate::game::Game;
-use crate::display::{BottomTextEvent};
+use crate::display::{BottomTextEvent, self, StartExplosion, FinishedExplosion};
 use crate::system::{Named, BelongsToPlayer};
 use crate::cursor::{CURSOR_BOX, CursorMovedEvent, CURSOR_FLY, PositionCursorOnEntity, Cursor, CURSOR_TARGET};
 use crate::vec::Vec2I;
@@ -27,6 +27,7 @@ impl Plugin for BoardPlugin {
                 ).in_set(OnUpdate(GameState::RangedAttackChoose)))
             .add_system(ranged_attack_exit.in_schedule(OnExit(GameState::RangedAttackChoose)))
 
+            .add_system(attack_start.in_schedule(OnEnter(GameState::AttackDo)))
             .add_system(attack_do.in_set(OnUpdate(GameState::AttackDo)))
             ;
     }
@@ -261,18 +262,38 @@ struct AttackingComponent {
     attackee: Entity
 }
 
+fn attack_start(
+    board: Res<GameBoard>,
+    attacking_q: Query<(Entity, &AttackingComponent)>,
+    mut ev_text: EventWriter<BottomTextEvent>,
+    mut ev_explosion: EventWriter<StartExplosion>,
+    mut cursor: ResMut<Cursor>,
+) {
+    ev_text.send(BottomTextEvent::clear());
+    cursor.set_invisible();
+    for (_e, ac) in attacking_q.iter() {
+        let v = board.get_entity_pos(ac.attackee);
+        info!("Spawn animation at {:?}", v);
+        ev_explosion.send(StartExplosion {
+            at: v,
+            idx: 0,
+        });
+    }
+}
+
 fn attack_do(
     mut state: ResMut<NextState<GameState>>,
     mut commands: Commands,
-    attacking_q: Query<(Entity), With<AttackingComponent>>,
-    mut ev_text: EventWriter<BottomTextEvent>,
+    mut ev_explosion: EventReader<FinishedExplosion>,
+    attacking_q: Query<(Entity, &AttackingComponent)>,
 ) {
-    ev_text.send(BottomTextEvent::clear());
-    for (e) in attacking_q.iter() {
-        commands.entity(e).remove::<AttackingComponent>();
+    for _e in ev_explosion.iter() {
+        for (e, ac) in attacking_q.iter() {
+            commands.entity(e).remove::<AttackingComponent>();
+        }
+        info!("Finished attack, next move");
+        state.set(GameState::MoveChoose);
     }
-    info!("Finished attack, next move");
-    state.set(GameState::MoveChoose);
 }
 
 fn ranged_attack_setup(
@@ -299,6 +320,7 @@ fn ranged_attack_keyboard(
     mut ev_text: EventWriter<BottomTextEvent>,
 ) {
     if keys.just_pressed(KeyCode::K) {
+        ev_text.send(BottomTextEvent::clear());
         state.set(GameState::MoveChoose);
         info!("cancelled attack");
     }

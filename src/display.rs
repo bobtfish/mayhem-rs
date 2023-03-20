@@ -1,6 +1,6 @@
 use bevy::{prelude::*, math::{vec3, vec2}};
 
-use crate::game::Game;
+use crate::{game::Game, vec::Vec2I};
 use crate::constants::*;
 const WIZARD_IDX: usize = 170;
 
@@ -12,7 +12,13 @@ impl Plugin for DisplayPlugin {
         .add_startup_system(setup)
         .add_event::<BottomTextEvent>()
         .add_system(manage_text_bottom)
-        .add_system(animate_sprite);
+        .add_system(animate_sprite)
+
+        .add_event::<StartExplosion>()
+        .add_event::<FinishedExplosion>()
+        .add_system(start_explosion)
+        .add_system(animate_explosion)
+        ;
     }
 }
 
@@ -227,6 +233,71 @@ pub fn animate_sprite(
             } else {
                 sprite.index = repeater.max + 1;
             }
+        }
+    }
+}
+
+#[derive(Component)]
+pub struct Explosion {
+    max: usize,
+    timer: Timer,
+}
+
+impl Explosion {
+    pub fn new(init: usize, num: usize) -> Self {
+        Self {
+            max: init+num-1,
+            timer: Timer::from_seconds(ANIMATION_TICK, TimerMode::Repeating),
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct StartExplosion {
+    pub at: Vec2I,
+    pub idx: usize,
+}
+
+#[derive(Debug)]
+pub struct FinishedExplosion();
+
+pub fn start_explosion(
+    game: Res<Game>,
+    mut commands: Commands,
+    mut ev: EventReader<StartExplosion>,
+) {
+    for e in ev.iter() {
+        let color = Color::rgba(1.0, 1.0, 1.0, 1.0);
+
+        let sprite_index = 130 + 10 * e.idx;
+        info!("Spawn animation at {:?}", e.at);
+        commands
+            .spawn(get_sprite_sheet_bundle_z(game.tah(), Into::into(e.at), sprite_index, color, 2.0))
+            .insert(Explosion::new(sprite_index, 8));
+    }
+}
+
+
+pub fn animate_explosion(
+    time: Res<Time>,
+    mut query: Query<(
+        Entity,
+        &mut TextureAtlasSprite,
+        &mut Explosion,
+    )>,
+    mut commands: Commands,
+    mut ev: EventWriter<FinishedExplosion>,
+) {
+    for (e, mut sprite, mut repeater) in &mut query {
+        repeater.timer.tick(time.delta());
+        if repeater.timer.just_finished() {
+                let index = sprite.index + 1;
+                if index > repeater.max {
+                    commands.entity(e).despawn();
+                    ev.send(FinishedExplosion());
+                } else {
+                    sprite.index = index;
+                }
         }
     }
 }
