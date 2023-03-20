@@ -26,6 +26,22 @@ pub struct BelongsToPlayer {
     pub player_entity: Entity
 }
 
+#[derive(Component, Debug)]
+pub struct CanAttack {
+    pub combat: u8,
+}
+
+#[derive(Component, Debug)]
+pub struct CanDefend {
+    pub defence: u8,
+}
+
+#[derive(Component)]
+pub struct RangedCombat {
+    pub range: u8,
+    pub ranged_combat: u8
+}
+
 #[derive(Component)]
 pub struct BoardEntity;
 

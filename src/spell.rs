@@ -1,9 +1,10 @@
 use bevy::prelude::*;
 use crate::constants::{NEUTRAL, CHAOS, LAW};
-use crate::creature::{load_creatures, RangedCombat};
+use crate::creature::load_creatures;
 use crate::display::{WHITE, GREEN, AQUA, YELLOW, PURPLE, RepeatAnimation};
 use crate::player::{PlayerSpell, Player};
 use crate::board::MoveableComponent;
+use crate::system::RangedCombat;
 
 #[derive(Resource, Deref)]
 pub struct AllSpells(Vec<SpellBox>);

@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use crate::board::MoveableComponent;
 use crate::display;
 use crate::spell::{AllSpells, SpellBox, ASpell};
-use crate::system::{BoardEntity, Named, BelongsToPlayer};
+use crate::system::{BoardEntity, Named, BelongsToPlayer, CanAttack, CanDefend};
 use rand::prelude::SliceRandom;
 use rand::Rng;
 
@@ -65,6 +65,12 @@ impl Player {
                 flying: false,
             })
             .insert(BoardEntity)
+            .insert(CanAttack{
+                combat: self.combat,
+            })
+            .insert(CanDefend{
+                defence: self.defence,
+            })
             .insert(Named{ name: self.name.clone() })
             .id();
         info!("Add entity {entity:?}");

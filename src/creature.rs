@@ -5,7 +5,7 @@ use crate::board::MoveableComponent;
 use crate::display::spawn_anim;
 use crate::player::Player;
 use crate::spell::{ASpell, SpellBox};
-use crate::system::{BoardEntity, Named};
+use crate::system::{BoardEntity, Named, RangedCombat, CanDefend, CanAttack};
 
 fn default_as_zero() -> u8 {
     0
@@ -51,15 +51,7 @@ pub struct Creature {
 #[derive(Component)]
 pub struct CreatureComponent {
     pub is_illusion: bool,
-    pub combat: u8,
-    pub defence: u8,
     pub mountable: bool,
-}
-
-#[derive(Component)]
-pub struct RangedCombat {
-    pub range: u8,
-    pub ranged_combat: u8
 }
 
 impl Creature {
@@ -75,9 +67,13 @@ impl Creature {
         let mut ec = commands.get_entity(e).unwrap();
         ec.insert(CreatureComponent{
             is_illusion: illusion,
-            combat: self.combat,
-            defence: self.defence,
             mountable: self.mountable,
+        });
+        ec.insert(CanAttack{
+            combat: self.combat,
+        });
+        ec.insert(CanDefend{
+            defence: self.defence,
         });
         ec.insert(MoveableComponent{
             movement: self.movement,

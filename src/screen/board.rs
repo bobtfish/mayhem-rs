@@ -1,10 +1,9 @@
 use bevy::prelude::*;
 use crate::board::{GameBoard, BoardMove, MoveableComponent};
-use crate::creature::RangedCombat;
 use crate::gamestate::GameState;
 use crate::game::Game;
-use crate::display::{BottomTextEvent, self, StartExplosion, FinishedExplosion};
-use crate::system::{Named, BelongsToPlayer};
+use crate::display::{BottomTextEvent, StartExplosion, FinishedExplosion};
+use crate::system::{Named, BelongsToPlayer, RangedCombat};
 use crate::cursor::{CURSOR_BOX, CursorMovedEvent, CURSOR_FLY, PositionCursorOnEntity, Cursor, CURSOR_TARGET};
 use crate::vec::Vec2I;
 
@@ -288,7 +287,7 @@ fn attack_do(
     attacking_q: Query<(Entity, &AttackingComponent)>,
 ) {
     for _e in ev_explosion.iter() {
-        for (e, ac) in attacking_q.iter() {
+        for (e, _ac) in attacking_q.iter() {
             commands.entity(e).remove::<AttackingComponent>();
         }
         info!("Finished attack, next move");
