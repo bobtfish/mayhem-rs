@@ -1,9 +1,10 @@
 use bevy::prelude::*;
-use crate::board::{GameBoard, BoardMove, MoveableComponent};
+use rand::Rng;
+use crate::board::{GameBoard, BoardMove, MoveableComponent, BoardKill};
 use crate::gamestate::GameState;
 use crate::game::Game;
 use crate::display::{BottomTextEvent, StartExplosion, FinishedExplosion};
-use crate::system::{Named, BelongsToPlayer, RangedCombat};
+use crate::system::{Named, BelongsToPlayer, RangedCombat, CanDefend, CanAttack};
 use crate::cursor::{CURSOR_BOX, CursorMovedEvent, CURSOR_FLY, PositionCursorOnEntity, Cursor, CURSOR_TARGET};
 use crate::vec::Vec2I;
 
@@ -267,16 +268,26 @@ fn attack_start(
     mut ev_text: EventWriter<BottomTextEvent>,
     mut ev_explosion: EventWriter<StartExplosion>,
     mut cursor: ResMut<Cursor>,
+    defender_q: Query<&CanDefend>,
+    mut state: ResMut<NextState<GameState>>,
 ) {
-    ev_text.send(BottomTextEvent::clear());
-    cursor.set_invisible();
+
     for (_e, ac) in attacking_q.iter() {
-        let v = board.get_entity_pos(ac.attackee);
-        info!("Spawn animation at {:?}", v);
-        ev_explosion.send(StartExplosion {
-            at: v,
-            idx: 0,
-        });
+        let def = defender_q.get(ac.attackee);
+        // Things which cannot defend cannot be attacked, abort and just go back to moving
+        if def.is_err() {
+            debug!("Cannot be attacked as no defence, going back to MoveMoving state");
+            state.set(GameState::MoveMoving);
+        } else {
+            ev_text.send(BottomTextEvent::clear());
+            cursor.set_invisible();
+            let v = board.get_entity_pos(ac.attackee);
+            info!("Spawn animation at {:?}", v);
+            ev_explosion.send(StartExplosion {
+                at: v,
+                idx: 0,
+            });
+        }
     }
 }
 
@@ -284,11 +295,28 @@ fn attack_do(
     mut state: ResMut<NextState<GameState>>,
     mut commands: Commands,
     mut ev_explosion: EventReader<FinishedExplosion>,
-    attacking_q: Query<(Entity, &AttackingComponent)>,
+    attacking_q: Query<(Entity, &AttackingComponent, &CanAttack)>,
+    defender_q: Query<&CanDefend>,
+    mut ev_kill: EventWriter<BoardKill>,
 ) {
     for _e in ev_explosion.iter() {
-        for (e, _ac) in attacking_q.iter() {
-            commands.entity(e).remove::<AttackingComponent>();
+        let (e, ac, at) = attacking_q.single();
+        let combat = at.combat;
+        let defender_entity = ac.attackee;
+        let candefend = defender_q.get(defender_entity).unwrap();
+        let defence = candefend.defence;
+        commands.entity(e).remove::<AttackingComponent>();
+        let attack = combat + rand::thread_rng().gen_range(1..10);
+        let def = defence + rand::thread_rng().gen_range(1..10);
+        info!("Doing combat, base attack is {} base defence is {}. This attack is {} this defence is {}", combat, defence, attack, def);
+        if attack >= def {
+            info!("ATTACK SUCCESSFUL, KILLED");
+            ev_kill.send(BoardKill {
+                killer: e,
+                killed: defender_entity,
+            });
+        } else {
+            info!("Attack not successful");
         }
         info!("Finished attack, next move");
         state.set(GameState::MoveChoose);

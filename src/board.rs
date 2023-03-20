@@ -11,6 +11,8 @@ impl Plugin for BoardPlugin {
         .add_system(put_entity)
         .add_event::<BoardMove>()
         .add_system(move_entity)
+        .add_event::<BoardKill>()
+        .add_system(kill_entity)
         .insert_resource(GameBoard::new());
     }
 }
@@ -53,6 +55,29 @@ fn move_entity(
         let mut transform = query.get_mut(entity).unwrap();
         *transform = transform.with_translation(e.to.extend(1.0));
         board.put_entity(e.to, entity);
+    }
+}
+
+pub struct BoardKill {
+    pub killer: Entity,
+    pub killed: Entity,
+}
+
+fn kill_entity(
+    mut ev: EventReader<BoardKill>,
+    mut board: ResMut<GameBoard>,
+    mut commands: Commands,
+    mut ev_move: EventWriter<BoardMove>,
+) {
+    for e in ev.iter() {
+        let killed_pos = Vec2::from(board.get_entity_pos(e.killed));
+        let entity = board.pop_entity(killed_pos);
+        println!("Board kill - pop entity {entity:?}");
+        commands.entity(entity).despawn();
+        ev_move.send(BoardMove{
+            entity: e.killer,
+            to: killed_pos,
+        });
     }
 }
 
